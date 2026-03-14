@@ -86,7 +86,8 @@ public class ImportService {
             }
         }
 
-        // Step 2: Read ClubGG balance file - Club Member Balance tab
+        // Step 2: Read ClubGG balance file - Club Member Balance tab (optional)
+        if (balanceFile != null && !balanceFile.isEmpty())
         try (InputStream is = balanceFile.getInputStream();
              Workbook wb = new XSSFWorkbook(is)) {
 

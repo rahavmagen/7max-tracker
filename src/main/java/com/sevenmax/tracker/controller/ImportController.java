@@ -19,7 +19,7 @@ public class ImportController {
     @PostMapping("/players")
     public ResponseEntity<Map<String, Object>> importPlayers(
             @RequestParam("max7") MultipartFile max7File,
-            @RequestParam("balance") MultipartFile balanceFile) {
+            @RequestParam(value = "balance", required = false) MultipartFile balanceFile) {
         try {
             Map<String, Object> result = importService.importFromFiles(max7File, balanceFile);
             return ResponseEntity.ok(result);
