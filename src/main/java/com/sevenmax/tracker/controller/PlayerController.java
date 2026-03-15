@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,22 @@ public class PlayerController {
     public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody Player player, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(playerService.updatePlayer(id, player));
+    }
+
+    @PatchMapping("/{id}/credit")
+    public ResponseEntity<Player> updateCredit(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        BigDecimal amount = new BigDecimal(body.get("creditTotal").toString());
+        String notes = body.containsKey("notes") ? body.get("notes").toString() : null;
+        return ResponseEntity.ok(playerService.updateCredit(id, amount, notes));
+    }
+
+    @PostMapping("/{id}/deposit")
+    public ResponseEntity<Player> addDeposit(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        BigDecimal amount = new BigDecimal(body.get("amount").toString());
+        String notes = body.containsKey("notes") ? body.get("notes").toString() : null;
+        return ResponseEntity.ok(playerService.addDeposit(id, amount, notes));
     }
 
     @GetMapping("/{id}/transactions")

@@ -3,6 +3,7 @@ package com.sevenmax.tracker.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -38,6 +39,9 @@ public class Player {
     // Additional deposits/withdrawals (outside ClubGG)
     @Column(precision = 12, scale = 2)
     private BigDecimal depositsTotal = BigDecimal.ZERO;
+
+    // Date the chips balance was last set (from report periodEnd, represents 00:00 of that day)
+    private LocalDate chipsAsOf;
 
     private Boolean active = true;
 

@@ -51,6 +51,31 @@ public class PlayerService {
         playerRepository.save(player);
     }
 
+    @Transactional
+    public Player updateCredit(Long id, BigDecimal newCreditTotal, String notes) {
+        Player player = getPlayer(id);
+        player.setCreditTotal(newCreditTotal);
+        BigDecimal chips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
+        player.setBalance(chips.subtract(newCreditTotal));
+        return playerRepository.save(player);
+    }
+
+    @Transactional
+    public Player addDeposit(Long id, BigDecimal amount, String notes) {
+        Player player = getPlayer(id);
+        BigDecimal current = player.getDepositsTotal() != null ? player.getDepositsTotal() : BigDecimal.ZERO;
+        player.setDepositsTotal(current.add(amount));
+        // Record transaction
+        Transaction tx = new Transaction();
+        tx.setPlayer(player);
+        tx.setType(Transaction.Type.DEPOSIT);
+        tx.setAmount(amount);
+        tx.setNotes(notes);
+        tx.setTransactionDate(java.time.LocalDate.now());
+        transactionRepository.save(tx);
+        return playerRepository.save(player);
+    }
+
     public List<Transaction> getPlayerTransactions(Long playerId) {
         return transactionRepository.findByPlayerIdOrderByTransactionDateDesc(playerId);
     }

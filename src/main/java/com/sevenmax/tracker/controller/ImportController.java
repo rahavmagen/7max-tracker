@@ -19,9 +19,9 @@ public class ImportController {
     @PostMapping("/players")
     public ResponseEntity<Map<String, Object>> importPlayers(
             @RequestParam("max7") MultipartFile max7File,
-            @RequestParam(value = "balance", required = false) MultipartFile balanceFile) {
+            @RequestParam(value = "clearExisting", defaultValue = "false") boolean clearExisting) {
         try {
-            Map<String, Object> result = importService.importFromFiles(max7File, balanceFile);
+            Map<String, Object> result = importService.importFromFiles(max7File, clearExisting);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

@@ -3,7 +3,6 @@ package com.sevenmax.tracker.service;
 import com.sevenmax.tracker.entity.*;
 import com.sevenmax.tracker.repository.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReportService {
@@ -29,18 +27,12 @@ public class ReportService {
     private final GameResultRepository gameResultRepository;
     private final PlayerRepository playerRepository;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
         byte[] fileBytes = file.getBytes();
 
         try (InputStream is = new java.io.ByteArrayInputStream(fileBytes);
              Workbook workbook = new XSSFWorkbook(is)) {
-
-            // Require Club Member Balance tab
-            Sheet memberBalanceSheet = findSheet(workbook, "club member balance");
-            if (memberBalanceSheet == null) {
-                throw new IllegalArgumentException("no member balance tab exists - update the right xls file");
-            }
 
             Report report = new Report();
             report.setUploadedBy(uploadedBy);
@@ -65,99 +57,22 @@ public class ReportService {
                 report.setFilePath(dest.toString());
             } catch (Exception ignored) {}
 
-            // Parse game results
-            Map<String, BigDecimal> gamePnlMap = new HashMap<>();
+            // Parse Ring Game Detail sheets
             BigDecimal totalRake = BigDecimal.ZERO;
-            totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap));
-            totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap));
-
-            // Parse Club Member Balance → newChipsMap (keyed by username.lower)
-            Map<String, BigDecimal> newChipsMap = parseClubMemberBalance(memberBalanceSheet);
-
-            // Update player currentChips and balance directly from Club Member Balance
-            for (Map.Entry<String, BigDecimal> entry : newChipsMap.entrySet()) {
-                String usernameKey = entry.getKey();
-                BigDecimal newChips = entry.getValue();
-                Player player = playerRepository.findAll().stream()
-                        .filter(p -> p.getUsername() != null && p.getUsername().toLowerCase().equals(usernameKey))
-                        .findFirst().orElse(null);
-                if (player != null) {
-                    player.setCurrentChips(newChips);
-                    BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
-                    player.setBalance(newChips.subtract(credit));
-                    player.setChipsAsOf(report.getPeriodEnd());
-                    playerRepository.save(player);
-                    log.debug("Updated player {}: chips={} balance={}", player.getUsername(), newChips, player.getBalance());
-                }
-            }
+            totalRake = totalRake.add(parseRingGameDetail(workbook, report));
+            totalRake = totalRake.add(parseMttDetail(workbook, report));
 
             report.setTotalRake(totalRake);
             return reportRepository.save(report);
         }
     }
 
-    private Map<String, BigDecimal> parseClubMemberBalance(Sheet sheet) {
-        Map<String, BigDecimal> map = new HashMap<>();
-        if (sheet == null) return map;
-
-        // Find header row to locate Nickname and Balance columns
-        int nicknameCol = -1;
-        int balanceCol = -1;
-        int headerRowIdx = -1;
-
-        for (int r = 0; r <= Math.min(sheet.getLastRowNum(), 10); r++) {
-            Row row = sheet.getRow(r);
-            if (row == null) continue;
-            for (int c = 0; c < row.getLastCellNum(); c++) {
-                String val = getCellValue(row, c);
-                if (val == null) continue;
-                String lower = val.toLowerCase();
-                if (lower.contains("nickname") || lower.equals("name")) nicknameCol = c;
-                if (lower.contains("balance") || lower.contains("chips")) balanceCol = c;
-            }
-            if (nicknameCol >= 0 && balanceCol >= 0) {
-                headerRowIdx = r;
-                break;
-            }
-        }
-
-        if (nicknameCol < 0 || balanceCol < 0) {
-            log.warn("Could not find Nickname/Balance columns in Club Member Balance sheet");
-            return map;
-        }
-
-        log.debug("Club Member Balance: nicknameCol={} balanceCol={} headerRow={}", nicknameCol, balanceCol, headerRowIdx);
-
-        for (int r = headerRowIdx + 1; r <= sheet.getLastRowNum(); r++) {
-            Row row = sheet.getRow(r);
-            if (row == null) continue;
-            String nickname = getCellValue(row, nicknameCol);
-            if (nickname == null || nickname.isBlank()) continue;
-            String balStr = getCellValue(row, balanceCol);
-            BigDecimal chips = parseBigDecimal(balStr);
-            map.put(nickname.toLowerCase(), chips);
-        }
-        return map;
-    }
-
-    private Sheet findSheet(Workbook workbook, String nameLower) {
-        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-            Sheet s = workbook.getSheetAt(i);
-            if (s.getSheetName().toLowerCase().contains(nameLower)) {
-                return s;
-            }
-        }
-        return null;
-    }
-
-    private BigDecimal parseRingGameDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap) {
+    private BigDecimal parseRingGameDetail(Workbook workbook, Report report) {
         Sheet sheet = workbook.getSheet("Ring Game Detail");
         if (sheet == null) return BigDecimal.ZERO;
 
         BigDecimal totalRake = BigDecimal.ZERO;
         GameSession currentSession = null;
-        Map<String, GameSession> sessionMap = new HashMap<>();
-        Map<String, GameResult> resultMap = new HashMap<>();
         int lastRow = sheet.getLastRowNum();
 
         for (int r = 0; r <= lastRow; r++) {
@@ -167,22 +82,20 @@ public class ReportService {
             String firstCell = getCellValue(row, 0);
             if (firstCell == null || firstCell.isBlank()) continue;
 
+            // Detect session header: "Start/End Time : ..."
             if (firstCell.startsWith("Start/End Time")) {
-                GameSession candidate = new GameSession();
-                candidate.setReport(report);
-                parseSessionHeader(sheet, r, candidate);
-                String sessionKey = candidate.getStartTime() + "|" + candidate.getTableName();
-                currentSession = sessionMap.get(sessionKey);
-                if (currentSession == null) {
-                    currentSession = gameSessionRepository.save(candidate);
-                    sessionMap.put(sessionKey, currentSession);
-                }
-                r += 3;
+                currentSession = new GameSession();
+                currentSession.setReport(report);
+                parseSessionHeader(sheet, r, currentSession);
+                currentSession = gameSessionRepository.save(currentSession);
+                r += 3; // skip table info, header rows
                 continue;
             }
 
+            // Skip total row
             if (firstCell.equals("Total")) continue;
 
+            // Player result row: first cell is club player ID like "2163-3811"
             if (currentSession != null && firstCell.matches("\\d{4}-\\d{4}")) {
                 String clubPlayerId = firstCell;
                 String nickname = getCellValue(row, 1);
@@ -192,6 +105,7 @@ public class ReportService {
                 BigDecimal rake = parseBigDecimal(getCellValue(row, 10));
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 11));
 
+                // Find player by clubPlayerId, then by username, else create new
                 Player player = playerRepository.findByClubPlayerId(clubPlayerId)
                         .or(() -> playerRepository.findByUsername(nickname))
                         .orElseGet(() -> {
@@ -201,36 +115,25 @@ public class ReportService {
                             p.setFullName(nickname);
                             return playerRepository.save(p);
                         });
+                // Always ensure clubPlayerId is set
                 if (player.getClubPlayerId() == null || player.getClubPlayerId().isBlank()) {
                     player.setClubPlayerId(clubPlayerId);
                     playerRepository.save(player);
                 }
 
-                String resultKey = currentSession.getId() + "|" + player.getId();
-                GameResult result = resultMap.get(resultKey);
-                if (result != null) {
-                    result.setBuyIn(result.getBuyIn().add(buyIn));
-                    result.setCashout(result.getCashout().add(cashout));
-                    result.setHandsPlayed(result.getHandsPlayed() + hands);
-                    result.setRakePaid(result.getRakePaid().add(rake));
-                    result.setResultAmount(result.getResultAmount().add(pnl));
-                    gameResultRepository.save(result);
-                } else {
-                    result = new GameResult();
-                    result.setSession(currentSession);
-                    result.setPlayer(player);
-                    result.setBuyIn(buyIn);
-                    result.setCashout(cashout);
-                    result.setHandsPlayed(hands);
-                    result.setRakePaid(rake);
-                    result.setResultAmount(pnl);
-                    gameResultRepository.save(result);
-                    resultMap.put(resultKey, result);
-                }
+                GameResult result = new GameResult();
+                result.setSession(currentSession);
+                result.setPlayer(player);
+                result.setBuyIn(buyIn);
+                result.setCashout(cashout);
+                result.setHandsPlayed(hands);
+                result.setRakePaid(rake);
+                result.setResultAmount(pnl);
+                gameResultRepository.save(result);
 
-                if (nickname != null && !nickname.isBlank()) {
-                    gamePnlMap.merge(nickname.toLowerCase(), pnl, BigDecimal::add);
-                }
+                // Update player balance with game result
+                player.setBalance(player.getBalance().add(pnl));
+                playerRepository.save(player);
 
                 totalRake = totalRake.add(rake);
             }
@@ -238,14 +141,12 @@ public class ReportService {
         return totalRake;
     }
 
-    private BigDecimal parseMttDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap) {
+    private BigDecimal parseMttDetail(Workbook workbook, Report report) {
         Sheet sheet = workbook.getSheet("MTT Detail");
         if (sheet == null) return BigDecimal.ZERO;
 
         BigDecimal totalRake = BigDecimal.ZERO;
         GameSession currentSession = null;
-        Map<String, GameSession> sessionMap = new HashMap<>();
-        Map<String, GameResult> resultMap = new HashMap<>();
         int lastRow = sheet.getLastRowNum();
 
         for (int r = 0; r <= lastRow; r++) {
@@ -255,15 +156,10 @@ public class ReportService {
             if (firstCell == null || firstCell.isBlank()) continue;
 
             if (firstCell.startsWith("Start/End Time")) {
-                GameSession candidate = new GameSession();
-                candidate.setReport(report);
-                parseMttSessionHeader(sheet, r, candidate);
-                String sessionKey = candidate.getStartTime() + "|" + candidate.getTableName();
-                currentSession = sessionMap.get(sessionKey);
-                if (currentSession == null) {
-                    currentSession = gameSessionRepository.save(candidate);
-                    sessionMap.put(sessionKey, currentSession);
-                }
+                currentSession = new GameSession();
+                currentSession.setReport(report);
+                parseMttSessionHeader(sheet, r, currentSession);
+                currentSession = gameSessionRepository.save(currentSession);
                 r += 5;
                 continue;
             }
@@ -292,30 +188,18 @@ public class ReportService {
                     playerRepository.save(player);
                 }
 
-                String resultKey = currentSession.getId() + "|" + player.getId();
-                GameResult result = resultMap.get(resultKey);
-                if (result != null) {
-                    result.setBuyIn(result.getBuyIn().add(buyIn));
-                    result.setCashout(result.getCashout().add(prize));
-                    result.setHandsPlayed(result.getHandsPlayed() + hands);
-                    result.setResultAmount(result.getResultAmount().add(pnl));
-                    gameResultRepository.save(result);
-                } else {
-                    result = new GameResult();
-                    result.setSession(currentSession);
-                    result.setPlayer(player);
-                    result.setBuyIn(buyIn);
-                    result.setCashout(prize);
-                    result.setHandsPlayed(hands);
-                    result.setRakePaid(BigDecimal.ZERO);
-                    result.setResultAmount(pnl);
-                    gameResultRepository.save(result);
-                    resultMap.put(resultKey, result);
-                }
+                GameResult result = new GameResult();
+                result.setSession(currentSession);
+                result.setPlayer(player);
+                result.setBuyIn(buyIn);
+                result.setCashout(prize);
+                result.setHandsPlayed(hands);
+                result.setRakePaid(BigDecimal.ZERO);
+                result.setResultAmount(pnl);
+                gameResultRepository.save(result);
 
-                if (nickname != null && !nickname.isBlank()) {
-                    gamePnlMap.merge(nickname.toLowerCase(), pnl, BigDecimal::add);
-                }
+                player.setBalance(player.getBalance().add(pnl));
+                playerRepository.save(player);
             }
         }
         return totalRake;
@@ -350,6 +234,7 @@ public class ReportService {
             String gameInfo = getCellValue(gameRow, 0);
             if (gameInfo != null && gameInfo.contains("Game :")) {
                 String gameTypePart = gameInfo.split("Game :")[1].split(",")[0].trim();
+                // MTT(NLH) -> MTT, MTT(PLO5) -> MTT, etc.
                 if (gameTypePart.startsWith("MTT")) {
                     session.setGameType(GameSession.GameType.MTT);
                 } else if (gameTypePart.startsWith("SNG")) {
@@ -367,18 +252,22 @@ public class ReportService {
 
     private void parseSessionHeader(Sheet sheet, int headerRow, GameSession session) {
         String timeInfo = getCellValue(sheet.getRow(headerRow), 0);
+        // "Start/End Time : 2026-03-12 22:18:39 ~ 2026-03-13 06:50:46 ..."
         try {
             String[] parts = timeInfo.split(":");
             if (parts.length >= 3) {
                 String datePart = (parts[1] + ":" + parts[2] + ":" + parts[3]).trim();
                 String[] range = datePart.split("~");
-                session.setStartTime(LocalDateTime.parse(range[0].trim().substring(0, 19).replace(" ", "T")));
+                session.setStartTime(LocalDateTime.parse(range[0].trim().substring(0, 19)
+                        .replace(" ", "T")));
                 if (range.length > 1 && !range[1].contains("Not Ended")) {
-                    session.setEndTime(LocalDateTime.parse(range[1].trim().substring(0, 19).replace(" ", "T")));
+                    session.setEndTime(LocalDateTime.parse(range[1].trim().substring(0, 19)
+                            .replace(" ", "T")));
                 }
             }
         } catch (Exception ignored) {}
 
+        // Table info row: "Table Name : 1-2 שאק , Creator : ..."
         Row tableRow = sheet.getRow(headerRow + 1);
         if (tableRow != null) {
             String tableInfo = getCellValue(tableRow, 0);
@@ -389,6 +278,7 @@ public class ReportService {
             }
         }
 
+        // Game type row: "Table Information : Game : NLH , ..."
         Row gameRow = sheet.getRow(headerRow + 2);
         if (gameRow != null) {
             String gameInfo = getCellValue(gameRow, 0);
@@ -404,6 +294,7 @@ public class ReportService {
     }
 
     private void parsePeriod(String periodStr, Report report) {
+        // "Period : 2026-03-13 ~ 2026-03-13 (UTC +2:00)"
         try {
             if (periodStr != null && periodStr.contains("~")) {
                 String[] parts = periodStr.replace("Period :", "").trim().split("~");
@@ -441,25 +332,6 @@ public class ReportService {
         } catch (Exception e) {
             return 0;
         }
-    }
-
-    @Transactional
-    public void deleteReport(Long reportId) {
-        List<GameSession> sessions = gameSessionRepository.findByReportId(reportId);
-        for (GameSession session : sessions) {
-            List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
-            for (GameResult result : results) {
-                Player player = result.getPlayer();
-                player.setCurrentChips(BigDecimal.ZERO);
-                BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
-                player.setBalance(BigDecimal.ZERO.subtract(credit));
-                playerRepository.save(player);
-            }
-            gameResultRepository.deleteAll(results);
-        }
-        gameSessionRepository.deleteAll(sessions);
-        reportRepository.deleteById(reportId);
-        log.info("Deleted report {} along with {} sessions", reportId, sessions.size());
     }
 
     public List<Report> getAllReports() {

@@ -38,13 +38,17 @@ public class ReportController {
     private final ReportRepository reportRepository;
 
     @PostMapping("/upload")
-    public ResponseEntity<Report> uploadReport(@RequestParam("file") MultipartFile file, Authentication auth) {
+    public ResponseEntity<?> uploadReport(
+            @RequestParam("file") MultipartFile file,
+            Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         try {
             Report report = reportService.uploadReport(file, null);
             return ResponseEntity.ok(report);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Upload failed"));
         }
     }
 
@@ -112,6 +116,17 @@ public class ReportController {
                     .body(resource);
             })
             .orElse(ResponseEntity.notFound().<Resource>build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteReport(@PathVariable Long id, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        try {
+            reportService.deleteReport(id);
+            return ResponseEntity.ok(Map.of("deleted", id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @DeleteMapping("/all")
