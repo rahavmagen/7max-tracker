@@ -52,11 +52,22 @@ public class PlayerService {
     }
 
     @Transactional
-    public Player updateCredit(Long id, BigDecimal newCreditTotal, String notes) {
+    public Player updateCredit(Long id, BigDecimal delta, String notes) {
         Player player = getPlayer(id);
-        player.setCreditTotal(newCreditTotal);
-        BigDecimal chips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
-        player.setBalance(chips.subtract(newCreditTotal));
+        BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
+        BigDecimal newChips = (player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO).add(delta);
+        player.setCreditTotal(newCredit);
+        player.setCurrentChips(newChips);
+        player.setBalance(newChips.subtract(newCredit));
+
+        Transaction tx = new Transaction();
+        tx.setPlayer(player);
+        tx.setType(delta.compareTo(BigDecimal.ZERO) >= 0 ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
+        tx.setAmount(delta.abs());
+        tx.setNotes(notes);
+        tx.setTransactionDate(java.time.LocalDate.now());
+        transactionRepository.save(tx);
+
         return playerRepository.save(player);
     }
 

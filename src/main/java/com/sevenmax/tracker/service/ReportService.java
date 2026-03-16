@@ -28,6 +28,7 @@ public class ReportService {
     private final GameSessionRepository gameSessionRepository;
     private final GameResultRepository gameResultRepository;
     private final PlayerRepository playerRepository;
+    private final TransactionRepository transactionRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
@@ -91,8 +92,65 @@ public class ReportService {
                 }
             }
 
+            // Parse Trade Record → create CREDIT/REPAYMENT transactions (skip already-imported)
+            parseTradeRecord(workbook);
+
             report.setTotalRake(totalRake);
             return reportRepository.save(report);
+        }
+    }
+
+    private void parseTradeRecord(Workbook workbook) {
+        Sheet sheet = workbook.getSheet("Trade Record");
+        if (sheet == null) return;
+
+        int lastRow = sheet.getLastRowNum();
+        for (int r = 5; r <= lastRow; r++) {  // data starts at row 5
+            Row row = sheet.getRow(r);
+            if (row == null) continue;
+
+            String dateStr = getCellValue(row, 0);
+            String tradeType = getCellValue(row, 4);
+            String amountStr = getCellValue(row, 6);
+            String clubPlayerId = getCellValue(row, 14);
+            String nickname = getCellValue(row, 15);
+
+            if (dateStr == null || dateStr.isBlank()) continue;
+            if (tradeType == null || (!tradeType.equals("Send Chips") && !tradeType.equals("Claim Chips"))) continue;
+
+            BigDecimal amount = parseBigDecimal(amountStr).abs();
+            if (amount.compareTo(BigDecimal.ZERO) == 0) continue;
+
+            // Dedup key: prevents re-importing the same trade on re-upload
+            String sourceRef = "TRADE:" + dateStr + ":" + (clubPlayerId != null ? clubPlayerId : nickname);
+            if (transactionRepository.existsBySourceRef(sourceRef)) continue;
+
+            // Find player
+            Player player = null;
+            if (clubPlayerId != null && !clubPlayerId.isBlank() && !clubPlayerId.equals("-")) {
+                player = playerRepository.findByClubPlayerId(clubPlayerId).orElse(null);
+            }
+            if (player == null && nickname != null && !nickname.isBlank()) {
+                player = playerRepository.findByUsername(nickname).orElse(null);
+            }
+            if (player == null) continue;
+
+            // Parse date (format: "2026-03-08 11:02:59")
+            LocalDate txDate;
+            try {
+                txDate = LocalDate.parse(dateStr.substring(0, 10));
+            } catch (Exception e) {
+                txDate = LocalDate.now();
+            }
+
+            Transaction tx = new Transaction();
+            tx.setPlayer(player);
+            tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
+            tx.setAmount(amount);
+            tx.setTransactionDate(txDate);
+            tx.setSourceRef(sourceRef);
+            tx.setNotes("Trade Record: " + tradeType);
+            transactionRepository.save(tx);
         }
     }
 

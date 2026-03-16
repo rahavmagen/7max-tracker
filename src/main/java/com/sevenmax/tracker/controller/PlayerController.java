@@ -48,7 +48,7 @@ public class PlayerController {
     @PatchMapping("/{id}/credit")
     public ResponseEntity<Player> updateCredit(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
-        BigDecimal amount = new BigDecimal(body.get("creditTotal").toString());
+        BigDecimal amount = new BigDecimal(body.get("delta").toString());
         String notes = body.containsKey("notes") ? body.get("notes").toString() : null;
         return ResponseEntity.ok(playerService.updateCredit(id, amount, notes));
     }

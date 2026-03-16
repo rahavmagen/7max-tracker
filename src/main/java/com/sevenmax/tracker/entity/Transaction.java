@@ -36,11 +36,14 @@ public class Transaction {
     private String notes;
     private LocalDate transactionDate;
 
+    @Column(unique = false)
+    private String sourceRef; // for dedup of imported trade records, e.g. "TRADE:2026-03-08 11:02:59:1326-0732"
+
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Type {
-        DEPOSIT, WITHDRAWAL
+        DEPOSIT, WITHDRAWAL, CREDIT, REPAYMENT
     }
 
     public enum Method {

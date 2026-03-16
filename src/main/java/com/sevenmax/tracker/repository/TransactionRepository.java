@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByPlayerIdOrderByTransactionDateDesc(Long playerId);
+    boolean existsBySourceRef(String sourceRef);
 }
