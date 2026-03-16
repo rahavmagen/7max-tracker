@@ -59,15 +59,6 @@ public class PlayerService {
         player.setCreditTotal(newCredit);
         player.setCurrentChips(newChips);
         player.setBalance(newChips.subtract(newCredit));
-
-        Transaction tx = new Transaction();
-        tx.setPlayer(player);
-        tx.setType(delta.compareTo(BigDecimal.ZERO) >= 0 ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
-        tx.setAmount(delta.abs());
-        tx.setNotes(notes);
-        tx.setTransactionDate(java.time.LocalDate.now());
-        transactionRepository.save(tx);
-
         return playerRepository.save(player);
     }
 
