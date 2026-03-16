@@ -274,9 +274,13 @@ public class ReportService {
                 String clubPlayerId = firstCell;
                 String nickname = getCellValue(row, 1);
                 BigDecimal buyIn = parseBigDecimal(getCellValue(row, 2))  // initial buy-in chips
-                        .add(parseBigDecimal(getCellValue(row, 4)))            // initial fee
+                        .add(parseBigDecimal(getCellValue(row, 3)))            // initial buy-in ticket
+                        .add(parseBigDecimal(getCellValue(row, 4)))            // initial fee chips
+                        .add(parseBigDecimal(getCellValue(row, 5)))            // initial fee ticket
                         .add(parseBigDecimal(getCellValue(row, 6)))            // re-entry chips
-                        .add(parseBigDecimal(getCellValue(row, 8)));           // re-entry fee
+                        .add(parseBigDecimal(getCellValue(row, 7)))            // re-entry ticket
+                        .add(parseBigDecimal(getCellValue(row, 8)))            // re-entry fee chips
+                        .add(parseBigDecimal(getCellValue(row, 9)));           // re-entry fee ticket
                 BigDecimal prize = parseBigDecimal(getCellValue(row, 12));
                 int hands = parseInteger(getCellValue(row, 10));
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 14));
