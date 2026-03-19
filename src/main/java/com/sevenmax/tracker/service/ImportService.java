@@ -1,7 +1,6 @@
 package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.Player;
-import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,14 +33,6 @@ public class ImportService {
     @Transactional
     public Map<String, Object> importFromFiles(MultipartFile max7File, boolean clearExisting) throws Exception {
 
-        if (clearExisting) {
-            Set<Long> withResults = new HashSet<>(gameResultRepository.findPlayerIdsWithGameResults());
-            List<Player> toDelete = playerRepository.findAll().stream()
-                    .filter(p -> !withResults.contains(p.getId()))
-                    .collect(java.util.stream.Collectors.toList());
-            playerRepository.deleteAll(toDelete);
-            log.info("Cleared {} players (skipped {} with game results)", toDelete.size(), withResults.size());
-        }
 
         // Step 1: Read max7 - users
         Map<String, Player> playerMap = new HashMap<>();
@@ -123,15 +114,6 @@ public class ImportService {
                 existing = playerRepository.findByClubPlayerId(p.getClubPlayerId());
             }
             if (existing.isPresent()) {
-                Player ex = existing.get();
-                if (p.getFullName() != null && !p.getFullName().isBlank()) ex.setFullName(p.getFullName());
-                if (p.getPhone() != null && !p.getPhone().isBlank()) ex.setPhone(p.getPhone());
-                if (p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) ex.setClubPlayerId(p.getClubPlayerId());
-                ex.setUsername(p.getUsername());
-                ex.setCreditTotal(p.getCreditTotal());
-                // Do NOT overwrite currentChips — that comes from ClubGG upload
-                ex.setBalance(ex.getCurrentChips().subtract(ex.getCreditTotal()));
-                playerRepository.save(ex);
                 updated++;
             } else {
                 playerRepository.save(p);
