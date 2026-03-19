@@ -86,12 +86,8 @@ public class ImportService {
                     BigDecimal colF = parseBD(getText(row, 5));
                     BigDecimal total = colC.add(colD).add(colE).add(colF);
 
-                    Player p = playerMap.computeIfAbsent(username.toLowerCase(), k -> {
-                        Player np = new Player();
-                        np.setUsername(username);
-                        return np;
-                    });
-                    p.setCreditTotal(total);
+                    Player p = playerMap.get(username.toLowerCase());
+                    if (p != null) p.setCreditTotal(total);
                 }
             }
         }

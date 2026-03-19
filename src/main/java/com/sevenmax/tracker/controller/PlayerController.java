@@ -2,6 +2,8 @@ package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.repository.GameResultRepository;
+import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +11,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/players")
@@ -18,6 +23,8 @@ import java.util.Map;
 public class PlayerController {
 
     private final PlayerService playerService;
+    private final PlayerRepository playerRepository;
+    private final GameResultRepository gameResultRepository;
 
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers(Authentication auth) {
@@ -67,6 +74,21 @@ public class PlayerController {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayerTransactions(id));
+    }
+
+    // Cleanup: delete players whose username contains Hebrew characters and have no game results
+    @DeleteMapping("/cleanup-hebrew")
+    public ResponseEntity<Map<String, Object>> cleanupHebrewPlayers(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        Set<Long> withResults = new HashSet<>(gameResultRepository.findPlayerIdsWithGameResults());
+        List<Player> toDelete = playerRepository.findAll().stream()
+                .filter(p -> !withResults.contains(p.getId()))
+                .filter(p -> p.getUsername() != null && p.getUsername().chars()
+                        .anyMatch(c -> c >= 0x05D0 && c <= 0x05EA))
+                .collect(Collectors.toList());
+        playerRepository.deleteAll(toDelete);
+        return ResponseEntity.ok(Map.of("deleted", toDelete.size(),
+                "names", toDelete.stream().map(Player::getUsername).collect(Collectors.toList())));
     }
 
     private boolean isPlayer(Authentication auth) {
