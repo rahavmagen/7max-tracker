@@ -12,6 +12,9 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
     List<GameResult> findByPlayerIdOrderBySessionStartTimeDesc(Long playerId);
     List<GameResult> findBySessionId(Long sessionId);
 
+    @Query("SELECT DISTINCT g.player.id FROM GameResult g")
+    List<Long> findPlayerIdsWithGameResults();
+
     @Query("SELECT COALESCE(SUM(g.resultAmount), 0) FROM GameResult g WHERE g.player.id = :playerId")
     BigDecimal sumResultByPlayerId(Long playerId);
 

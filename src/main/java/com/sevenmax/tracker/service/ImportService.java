@@ -1,6 +1,7 @@
 package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.Player;
+import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.*;
 public class ImportService {
 
     private final PlayerRepository playerRepository;
+    private final GameResultRepository gameResultRepository;
 
     /**
      * Import players from max7.xlsx:
@@ -33,9 +35,12 @@ public class ImportService {
     public Map<String, Object> importFromFiles(MultipartFile max7File, boolean clearExisting) throws Exception {
 
         if (clearExisting) {
-            long count = playerRepository.count();
-            playerRepository.deleteAll();
-            log.info("Cleared {} existing players", count);
+            Set<Long> withResults = new HashSet<>(gameResultRepository.findPlayerIdsWithGameResults());
+            List<Player> toDelete = playerRepository.findAll().stream()
+                    .filter(p -> !withResults.contains(p.getId()))
+                    .collect(java.util.stream.Collectors.toList());
+            playerRepository.deleteAll(toDelete);
+            log.info("Cleared {} players (skipped {} with game results)", toDelete.size(), withResults.size());
         }
 
         // Step 1: Read max7 - users
