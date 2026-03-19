@@ -127,7 +127,7 @@ public class ReportService {
             BigDecimal colF = parseBigDecimal(getCellValue(row, 5));
             BigDecimal total = colC.add(colD).add(colE).add(colF);
 
-            playerRepository.findByUsernameIgnoreCase(username).ifPresent(player -> {
+            playerRepository.findByUsernameCaseInsensitive(username).stream().findFirst().ifPresent(player -> {
                 player.setCreditTotal(total);
                 BigDecimal chips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
                 player.setBalance(chips.subtract(total));
@@ -168,7 +168,7 @@ public class ReportService {
                 player = playerRepository.findByClubPlayerId(clubPlayerId).orElse(null);
             }
             if (player == null && nickname != null && !nickname.isBlank()) {
-                player = playerRepository.findByUsernameIgnoreCase(nickname).orElse(null);
+                player = playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst().orElse(null);
             }
             if (player == null) continue;
 
@@ -289,7 +289,7 @@ public class ReportService {
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 11));
 
                 Player player = playerRepository.findByClubPlayerId(clubPlayerId)
-                        .or(() -> playerRepository.findByUsernameIgnoreCase(nickname))
+                        .or(() -> playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst())
                         .orElseGet(() -> {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
@@ -383,7 +383,7 @@ public class ReportService {
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 14));
 
                 Player player = playerRepository.findByClubPlayerId(clubPlayerId)
-                        .or(() -> playerRepository.findByUsernameIgnoreCase(nickname))
+                        .or(() -> playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst())
                         .orElseGet(() -> {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
