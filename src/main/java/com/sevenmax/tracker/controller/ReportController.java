@@ -81,6 +81,30 @@ public class ReportController {
         return -1L;
     }
 
+    @GetMapping("/admin/income")
+    public ResponseEntity<List<Map<String, Object>>> incomeReport(
+            @RequestParam(required = false) String dateFrom,
+            @RequestParam(required = false) String dateTo,
+            Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        LocalDateTime from = dateFrom != null ? LocalDate.parse(dateFrom).atStartOfDay() : null;
+        LocalDateTime to = dateTo != null ? LocalDate.parse(dateTo).plusDays(1).atStartOfDay() : null;
+        List<Object[]> rows = gameResultRepository.getIncomeReport(from, to);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] r : rows) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("sessionId", r[0]);
+            m.put("startTime", r[1] != null ? r[1].toString() : null);
+            m.put("tableName", r[2]);
+            m.put("gameType", r[3]);
+            m.put("playerCount", r[4]);
+            m.put("totalHands", r[5]);
+            m.put("totalRake", r[6]);
+            result.add(m);
+        }
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/admin/hands-report")
     public ResponseEntity<List<Map<String, Object>>> handsReport(
             @RequestParam String dateFrom,

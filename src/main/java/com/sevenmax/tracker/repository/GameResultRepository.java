@@ -16,6 +16,20 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
     BigDecimal sumResultByPlayerId(Long playerId);
 
     @Query(value =
+        "SELECT gs.id AS sessionId, gs.start_time AS startTime, gs.table_name AS tableName, gs.game_type AS gameType, " +
+        "COUNT(gr.id) AS playerCount, COALESCE(SUM(gr.hands_played), 0) AS totalHands, COALESCE(SUM(gr.rake_paid), 0) AS totalRake " +
+        "FROM game_sessions gs " +
+        "LEFT JOIN game_results gr ON gr.session_id = gs.id " +
+        "WHERE (:from IS NULL OR gs.start_time >= :from) AND (:to IS NULL OR gs.start_time < :to) " +
+        "GROUP BY gs.id, gs.start_time, gs.table_name, gs.game_type " +
+        "ORDER BY gs.start_time DESC",
+        nativeQuery = true)
+    List<Object[]> getIncomeReport(
+        @Param("from") LocalDateTime from,
+        @Param("to") LocalDateTime to
+    );
+
+    @Query(value =
         "SELECT p.id AS playerId, p.username AS username, p.full_name AS fullName, " +
         "SUM(gr.hands_played) AS totalHands, COUNT(gr.id) AS sessionCount " +
         "FROM game_results gr " +
