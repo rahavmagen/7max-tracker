@@ -1,6 +1,7 @@
 package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.Player;
+import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
