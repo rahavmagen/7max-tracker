@@ -131,7 +131,7 @@ public class ReportService {
                 player = playerRepository.findByClubPlayerId(clubPlayerId).orElse(null);
             }
             if (player == null && nickname != null && !nickname.isBlank()) {
-                player = playerRepository.findByUsername(nickname).orElse(null);
+                player = playerRepository.findByUsernameIgnoreCase(nickname).orElse(null);
             }
             if (player == null) continue;
 
@@ -252,7 +252,7 @@ public class ReportService {
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 11));
 
                 Player player = playerRepository.findByClubPlayerId(clubPlayerId)
-                        .or(() -> playerRepository.findByUsername(nickname))
+                        .or(() -> playerRepository.findByUsernameIgnoreCase(nickname))
                         .orElseGet(() -> {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
@@ -346,7 +346,7 @@ public class ReportService {
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 14));
 
                 Player player = playerRepository.findByClubPlayerId(clubPlayerId)
-                        .or(() -> playerRepository.findByUsername(nickname))
+                        .or(() -> playerRepository.findByUsernameIgnoreCase(nickname))
                         .orElseGet(() -> {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
