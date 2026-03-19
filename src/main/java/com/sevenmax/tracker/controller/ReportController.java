@@ -87,8 +87,8 @@ public class ReportController {
             @RequestParam(required = false) String dateTo,
             Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
-        LocalDateTime from = dateFrom != null ? LocalDate.parse(dateFrom).atStartOfDay() : null;
-        LocalDateTime to = dateTo != null ? LocalDate.parse(dateTo).plusDays(1).atStartOfDay() : null;
+        LocalDateTime from = dateFrom != null ? LocalDate.parse(dateFrom).atStartOfDay() : LocalDate.of(2000, 1, 1).atStartOfDay();
+        LocalDateTime to = dateTo != null ? LocalDate.parse(dateTo).plusDays(1).atStartOfDay() : LocalDate.of(2100, 1, 1).atStartOfDay();
         List<Object[]> rows = gameResultRepository.getIncomeReport(from, to);
         List<Map<String, Object>> result = new ArrayList<>();
         for (Object[] r : rows) {

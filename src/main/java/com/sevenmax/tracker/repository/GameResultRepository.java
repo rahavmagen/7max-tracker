@@ -20,7 +20,7 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
         "COUNT(gr.id) AS playerCount, COALESCE(SUM(gr.hands_played), 0) AS totalHands, COALESCE(SUM(gr.rake_paid), 0) AS totalRake " +
         "FROM game_sessions gs " +
         "LEFT JOIN game_results gr ON gr.session_id = gs.id " +
-        "WHERE (:from IS NULL OR gs.start_time >= :from) AND (:to IS NULL OR gs.start_time < :to) " +
+        "WHERE gs.start_time >= :from AND gs.start_time < :to " +
         "GROUP BY gs.id, gs.start_time, gs.table_name, gs.game_type " +
         "ORDER BY gs.start_time DESC",
         nativeQuery = true)
