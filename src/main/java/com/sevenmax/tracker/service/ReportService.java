@@ -332,14 +332,15 @@ public class ReportService {
             if (currentSession != null && firstCell.matches("\\d{4}-\\d{4}")) {
                 String clubPlayerId = firstCell;
                 String nickname = getCellValue(row, 1);
+                BigDecimal rake = parseBigDecimal(getCellValue(row, 4))   // initial fee chips (col E)
+                        .add(parseBigDecimal(getCellValue(row, 5)))            // initial fee ticket (col F)
+                        .add(parseBigDecimal(getCellValue(row, 8)))            // re-entry fee chips (col I)
+                        .add(parseBigDecimal(getCellValue(row, 9)));           // re-entry fee ticket (col J)
                 BigDecimal buyIn = parseBigDecimal(getCellValue(row, 2))  // initial buy-in chips
                         .add(parseBigDecimal(getCellValue(row, 3)))            // initial buy-in ticket
-                        .add(parseBigDecimal(getCellValue(row, 4)))            // initial fee chips
-                        .add(parseBigDecimal(getCellValue(row, 5)))            // initial fee ticket
+                        .add(rake)
                         .add(parseBigDecimal(getCellValue(row, 6)))            // re-entry chips
-                        .add(parseBigDecimal(getCellValue(row, 7)))            // re-entry ticket
-                        .add(parseBigDecimal(getCellValue(row, 8)))            // re-entry fee chips
-                        .add(parseBigDecimal(getCellValue(row, 9)));           // re-entry fee ticket
+                        .add(parseBigDecimal(getCellValue(row, 7)));           // re-entry ticket
                 BigDecimal prize = parseBigDecimal(getCellValue(row, 12));
                 int hands = parseInteger(getCellValue(row, 10));
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 14));
@@ -364,6 +365,7 @@ public class ReportService {
                     result.setBuyIn(result.getBuyIn().add(buyIn));
                     result.setCashout(result.getCashout().add(prize));
                     result.setHandsPlayed(result.getHandsPlayed() + hands);
+                    result.setRakePaid(result.getRakePaid().add(rake));
                     result.setResultAmount(result.getResultAmount().add(pnl));
                     gameResultRepository.save(result);
                 } else {
@@ -373,11 +375,13 @@ public class ReportService {
                     result.setBuyIn(buyIn);
                     result.setCashout(prize);
                     result.setHandsPlayed(hands);
-                    result.setRakePaid(BigDecimal.ZERO);
+                    result.setRakePaid(rake);
                     result.setResultAmount(pnl);
                     gameResultRepository.save(result);
                     resultMap.put(resultKey, result);
                 }
+
+                totalRake = totalRake.add(rake);
 
                 if (nickname != null && !nickname.isBlank()) {
                     gamePnlMap.merge(nickname.toLowerCase(), pnl, BigDecimal::add);
