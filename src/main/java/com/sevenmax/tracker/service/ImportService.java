@@ -112,6 +112,11 @@ public class ImportService {
                 existing = playerRepository.findByClubPlayerIdSafe(p.getClubPlayerId()).stream().findFirst();
             }
             if (existing.isPresent()) {
+                Player ex = existing.get();
+                ex.setCreditTotal(p.getCreditTotal());
+                BigDecimal chips = ex.getCurrentChips() != null ? ex.getCurrentChips() : BigDecimal.ZERO;
+                ex.setBalance(chips.subtract(p.getCreditTotal()));
+                playerRepository.save(ex);
                 updated++;
             } else {
                 playerRepository.save(p);
