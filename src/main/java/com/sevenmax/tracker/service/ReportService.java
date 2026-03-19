@@ -75,14 +75,23 @@ public class ReportService {
             // Parse Club Member Balance → newChipsMap (keyed by username.lower)
             Map<String, BigDecimal> newChipsMap = parseClubMemberBalance(memberBalanceSheet);
 
-            // Update player currentChips and balance directly from Club Member Balance
+            // Update player currentChips and balance from Club Member Balance; auto-create if missing
             for (Map.Entry<String, BigDecimal> entry : newChipsMap.entrySet()) {
-                String usernameKey = entry.getKey();
+                String nickname = entry.getKey();
                 BigDecimal newChips = entry.getValue();
-                Player player = playerRepository.findAll().stream()
-                        .filter(p -> p.getUsername() != null && p.getUsername().toLowerCase().equals(usernameKey))
-                        .findFirst().orElse(null);
-                if (player != null) {
+                Player player = playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst().orElse(null);
+                if (player == null) {
+                    player = new Player();
+                    player.setUsername(nickname);
+                    player.setFullName(nickname);
+                    player.setCurrentChips(newChips);
+                    player.setCreditTotal(BigDecimal.ZERO);
+                    player.setBalance(newChips.negate());
+                    player.setChipsAsOf(report.getPeriodEnd());
+                    player.setActive(true);
+                    playerRepository.save(player);
+                    log.info("Auto-created player from Club Member Balance: {}", nickname);
+                } else {
                     player.setCurrentChips(newChips);
                     BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
                     player.setBalance(newChips.subtract(credit));
@@ -231,7 +240,7 @@ public class ReportService {
             if (nickname == null || nickname.isBlank()) continue;
             String balStr = getCellValue(row, balanceCol);
             BigDecimal chips = parseBigDecimal(balStr);
-            map.put(nickname.toLowerCase(), chips);
+            map.put(nickname, chips);
         }
         return map;
     }
