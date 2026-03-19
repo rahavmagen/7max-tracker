@@ -92,11 +92,48 @@ public class ReportService {
                 }
             }
 
+            // Parse מעקב קרדיטים → update player creditTotal if sheet exists
+            parseCreditSheet(workbook);
+
             // Parse Trade Record → create CREDIT/REPAYMENT transactions (skip already-imported)
             parseTradeRecord(workbook);
 
             report.setTotalRake(totalRake);
             return reportRepository.save(report);
+        }
+    }
+
+    private void parseCreditSheet(Workbook workbook) {
+        Sheet sheet = null;
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            String name = workbook.getSheetAt(i).getSheetName();
+            if (name.contains("קרדיט") || name.toLowerCase().contains("credit")) {
+                sheet = workbook.getSheetAt(i);
+                break;
+            }
+        }
+        if (sheet == null) return;
+
+        log.info("Parsing credit sheet: {}", sheet.getSheetName());
+        for (int r = 2; r <= sheet.getLastRowNum(); r++) {
+            Row row = sheet.getRow(r);
+            if (row == null) continue;
+            String username = getCellValue(row, 0);
+            if (username == null || username.isBlank()) continue;
+
+            BigDecimal colC = parseBigDecimal(getCellValue(row, 2));
+            BigDecimal colD = parseBigDecimal(getCellValue(row, 3));
+            BigDecimal colE = parseBigDecimal(getCellValue(row, 4));
+            BigDecimal colF = parseBigDecimal(getCellValue(row, 5));
+            BigDecimal total = colC.add(colD).add(colE).add(colF);
+
+            playerRepository.findByUsernameIgnoreCase(username).ifPresent(player -> {
+                player.setCreditTotal(total);
+                BigDecimal chips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
+                player.setBalance(chips.subtract(total));
+                playerRepository.save(player);
+                log.debug("Updated credit for {}: creditTotal={}", player.getUsername(), total);
+            });
         }
     }
 

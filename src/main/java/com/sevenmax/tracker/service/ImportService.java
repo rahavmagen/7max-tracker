@@ -80,10 +80,11 @@ public class ImportService {
                     String username = getText(row, 0);
                     if (username.isBlank()) continue;
 
-                    BigDecimal col3 = parseBD(getText(row, 2)); // רועי
-                    BigDecimal col4 = parseBD(getText(row, 3)); // יאיר
-                    BigDecimal col5 = parseBD(getText(row, 4)); // אורי
-                    BigDecimal total = col3.add(col4).add(col5);
+                    BigDecimal colC = parseBD(getText(row, 2));
+                    BigDecimal colD = parseBD(getText(row, 3));
+                    BigDecimal colE = parseBD(getText(row, 4));
+                    BigDecimal colF = parseBD(getText(row, 5));
+                    BigDecimal total = colC.add(colD).add(colE).add(colF);
 
                     Player p = playerMap.computeIfAbsent(username.toLowerCase(), k -> {
                         Player np = new Player();
