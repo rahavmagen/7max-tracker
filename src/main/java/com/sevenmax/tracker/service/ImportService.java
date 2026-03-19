@@ -71,12 +71,18 @@ public class ImportService {
             }
             log.info("Found {} players in sheet 1", playerMap.size());
 
-            // Sheet 4: credits (מעקב קרדיטים) - cols: username, name, C=רועי, D=יאיר, E=אורי
-            if (wb.getNumberOfSheets() >= 4) {
-                Sheet sheet4 = wb.getSheetAt(3);
-                log.info("Reading sheet 4 '{}': {} rows", sheet4.getSheetName(), sheet4.getLastRowNum());
-                for (int r = 2; r <= sheet4.getLastRowNum(); r++) {
-                    Row row = sheet4.getRow(r);
+            // Credit sheet (מעקב קרדיטים) - find by name, cols: username(A), name(B), C, D, E, F
+            Sheet creditSheet = null;
+            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                if (wb.getSheetAt(i).getSheetName().contains("קרדיט")) {
+                    creditSheet = wb.getSheetAt(i);
+                    break;
+                }
+            }
+            if (creditSheet != null) {
+                log.info("Reading credit sheet '{}': {} rows", creditSheet.getSheetName(), creditSheet.getLastRowNum());
+                for (int r = 2; r <= creditSheet.getLastRowNum(); r++) {
+                    Row row = creditSheet.getRow(r);
                     if (row == null) continue;
                     String username = getText(row, 0);
                     if (username.isBlank()) continue;
@@ -87,9 +93,16 @@ public class ImportService {
                     BigDecimal colF = parseBD(getText(row, 5));
                     BigDecimal total = colC.add(colD).add(colE).add(colF);
 
+                    // Try col A first, then col B as username key
                     Player p = playerMap.get(username.toLowerCase());
+                    if (p == null) {
+                        String altUsername = getText(row, 1);
+                        if (!altUsername.isBlank()) p = playerMap.get(altUsername.toLowerCase());
+                    }
                     if (p != null) p.setCreditTotal(total);
                 }
+            } else {
+                log.warn("Credit sheet (מעקב קרדיטים) not found in file");
             }
         }
 
@@ -113,10 +126,12 @@ public class ImportService {
             }
             if (existing.isPresent()) {
                 Player ex = existing.get();
-                ex.setCreditTotal(p.getCreditTotal());
-                BigDecimal chips = ex.getCurrentChips() != null ? ex.getCurrentChips() : BigDecimal.ZERO;
-                ex.setBalance(chips.subtract(p.getCreditTotal()));
-                playerRepository.save(ex);
+                if (p.getCreditTotal() != null && p.getCreditTotal().compareTo(BigDecimal.ZERO) != 0) {
+                    ex.setCreditTotal(p.getCreditTotal());
+                    BigDecimal chips = ex.getCurrentChips() != null ? ex.getCurrentChips() : BigDecimal.ZERO;
+                    ex.setBalance(chips.subtract(p.getCreditTotal()));
+                    playerRepository.save(ex);
+                }
                 updated++;
             } else {
                 playerRepository.save(p);
