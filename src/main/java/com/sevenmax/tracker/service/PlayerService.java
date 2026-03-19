@@ -63,17 +63,17 @@ public class PlayerService {
     }
 
     @Transactional
-    public Player addDeposit(Long id, BigDecimal amount, String notes) {
+    public Player addDeposit(Long id, BigDecimal amount, String notes, String createdByUsername) {
         Player player = getPlayer(id);
         BigDecimal current = player.getDepositsTotal() != null ? player.getDepositsTotal() : BigDecimal.ZERO;
         player.setDepositsTotal(current.add(amount));
-        // Record transaction
         Transaction tx = new Transaction();
         tx.setPlayer(player);
         tx.setType(Transaction.Type.DEPOSIT);
         tx.setAmount(amount);
         tx.setNotes(notes);
         tx.setTransactionDate(java.time.LocalDate.now());
+        tx.setCreatedByUsername(createdByUsername);
         transactionRepository.save(tx);
         return playerRepository.save(player);
     }

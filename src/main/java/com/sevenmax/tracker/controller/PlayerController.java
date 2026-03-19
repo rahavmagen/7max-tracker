@@ -58,7 +58,7 @@ public class PlayerController {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         BigDecimal amount = new BigDecimal(body.get("amount").toString());
         String notes = body.containsKey("notes") ? body.get("notes").toString() : null;
-        return ResponseEntity.ok(playerService.addDeposit(id, amount, notes));
+        return ResponseEntity.ok(playerService.addDeposit(id, amount, notes, auth.getName()));
     }
 
     @GetMapping("/{id}/transactions")

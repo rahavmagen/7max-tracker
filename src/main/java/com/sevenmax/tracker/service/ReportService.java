@@ -150,6 +150,7 @@ public class ReportService {
             tx.setTransactionDate(txDate);
             tx.setSourceRef(sourceRef);
             tx.setNotes("Trade Record: " + tradeType);
+            tx.setCreatedByUsername("Import");
             transactionRepository.save(tx);
         }
     }

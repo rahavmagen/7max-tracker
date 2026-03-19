@@ -19,7 +19,7 @@ public class TransactionController {
     private final PlayerService playerService;
 
     @PostMapping
-    public Transaction addTransaction(@RequestBody TransactionRequest req) {
+    public Transaction addTransaction(@RequestBody TransactionRequest req, org.springframework.security.core.Authentication auth) {
         Player player = playerService.getPlayer(req.playerId());
         Transaction tx = new Transaction();
         tx.setPlayer(player);
@@ -28,6 +28,7 @@ public class TransactionController {
         tx.setMethod(req.method());
         tx.setNotes(req.notes());
         tx.setTransactionDate(req.date() != null ? req.date() : LocalDate.now());
+        tx.setCreatedByUsername(auth != null ? auth.getName() : null);
         return transactionService.addTransaction(tx);
     }
 
