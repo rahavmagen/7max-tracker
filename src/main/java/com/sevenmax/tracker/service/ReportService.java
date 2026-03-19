@@ -165,7 +165,7 @@ public class ReportService {
             // Find player
             Player player = null;
             if (clubPlayerId != null && !clubPlayerId.isBlank() && !clubPlayerId.equals("-")) {
-                player = playerRepository.findByClubPlayerId(clubPlayerId).orElse(null);
+                player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst().orElse(null);
             }
             if (player == null && nickname != null && !nickname.isBlank()) {
                 player = playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst().orElse(null);
@@ -288,7 +288,7 @@ public class ReportService {
                 BigDecimal rake = parseBigDecimal(getCellValue(row, 10));
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 11));
 
-                Player player = playerRepository.findByClubPlayerId(clubPlayerId)
+                Player player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst()
                         .or(() -> playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst())
                         .orElseGet(() -> {
                             Player p = new Player();
@@ -382,7 +382,7 @@ public class ReportService {
                 int hands = parseInteger(getCellValue(row, 10));
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 14));
 
-                Player player = playerRepository.findByClubPlayerId(clubPlayerId)
+                Player player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst()
                         .or(() -> playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst())
                         .orElseGet(() -> {
                             Player p = new Player();

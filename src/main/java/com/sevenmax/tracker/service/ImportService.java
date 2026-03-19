@@ -109,7 +109,7 @@ public class ImportService {
 
             Optional<Player> existing = playerRepository.findByUsernameCaseInsensitive(p.getUsername()).stream().findFirst();
             if (existing.isEmpty() && p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) {
-                existing = playerRepository.findByClubPlayerId(p.getClubPlayerId());
+                existing = playerRepository.findByClubPlayerIdSafe(p.getClubPlayerId()).stream().findFirst();
             }
             if (existing.isPresent()) {
                 updated++;

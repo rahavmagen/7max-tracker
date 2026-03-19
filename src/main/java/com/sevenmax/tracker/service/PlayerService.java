@@ -28,7 +28,7 @@ public class PlayerService {
     }
 
     public Player getPlayerByClubId(String clubPlayerId) {
-        return playerRepository.findByClubPlayerId(clubPlayerId).orElse(null);
+        return playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst().orElse(null);
     }
 
     public Player createPlayer(Player player) {
