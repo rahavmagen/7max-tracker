@@ -75,6 +75,9 @@ public class ReportService {
             // Parse Club Member Balance → newChipsMap (keyed by username.lower)
             Map<String, BigDecimal> newChipsMap = parseClubMemberBalance(memberBalanceSheet);
 
+            // Track which player IDs were updated from XLS
+            Set<Long> updatedPlayerIds = new java.util.HashSet<>();
+
             // Update player currentChips and balance from Club Member Balance; auto-create if missing
             for (Map.Entry<String, BigDecimal> entry : newChipsMap.entrySet()) {
                 String nickname = entry.getKey();
@@ -89,7 +92,7 @@ public class ReportService {
                     player.setBalance(newChips.negate());
                     player.setChipsAsOf(report.getPeriodEnd());
                     player.setActive(true);
-                    playerRepository.save(player);
+                    player = playerRepository.save(player);
                     log.info("Auto-created player from Club Member Balance: {}", nickname);
                 } else {
                     player.setCurrentChips(newChips);
@@ -98,6 +101,19 @@ public class ReportService {
                     player.setChipsAsOf(report.getPeriodEnd());
                     playerRepository.save(player);
                     log.debug("Updated player {}: chips={} balance={}", player.getUsername(), newChips, player.getBalance());
+                }
+                updatedPlayerIds.add(player.getId());
+            }
+
+            // Zero out chips for players NOT in this XLS (stale data from previous uploads)
+            for (Player player : playerRepository.findAll()) {
+                if (!updatedPlayerIds.contains(player.getId()) && player.getCurrentChips() != null
+                        && player.getCurrentChips().compareTo(BigDecimal.ZERO) != 0) {
+                    player.setCurrentChips(BigDecimal.ZERO);
+                    BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
+                    player.setBalance(BigDecimal.ZERO.subtract(credit));
+                    playerRepository.save(player);
+                    log.info("Zeroed chips for player not in XLS: {}", player.getUsername());
                 }
             }
 
