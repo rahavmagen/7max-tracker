@@ -105,18 +105,6 @@ public class ReportService {
                 updatedPlayerIds.add(player.getId());
             }
 
-            // Zero out chips for players NOT in this XLS (stale data from previous uploads)
-            for (Player player : playerRepository.findAll()) {
-                if (!updatedPlayerIds.contains(player.getId()) && player.getCurrentChips() != null
-                        && player.getCurrentChips().compareTo(BigDecimal.ZERO) != 0) {
-                    player.setCurrentChips(BigDecimal.ZERO);
-                    BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
-                    player.setBalance(BigDecimal.ZERO.subtract(credit));
-                    playerRepository.save(player);
-                    log.info("Zeroed chips for player not in XLS: {}", player.getUsername());
-                }
-            }
-
             // Parse מעקב קרדיטים → update player creditTotal if sheet exists
             parseCreditSheet(workbook);
 
