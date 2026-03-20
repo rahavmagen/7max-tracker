@@ -29,6 +29,7 @@ public class ReportService {
     private final GameResultRepository gameResultRepository;
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
+    private final PlayerService playerService;
 
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
@@ -564,19 +565,8 @@ public class ReportService {
         }
     }
 
-    /**
-     * Find player by username: exact case-insensitive first, then fuzzy (strips spaces/underscores/hyphens).
-     * Logs a warning when a fuzzy match is used so mismatches can be spotted.
-     */
     private Optional<Player> findPlayerByUsername(String username) {
-        List<Player> exact = playerRepository.findByUsernameCaseInsensitive(username);
-        if (!exact.isEmpty()) return Optional.of(exact.get(0));
-        List<Player> fuzzy = playerRepository.findByUsernameFuzzy(username);
-        if (!fuzzy.isEmpty()) {
-            log.warn("Fuzzy username match: '{}' -> '{}'", username, fuzzy.get(0).getUsername());
-            return Optional.of(fuzzy.get(0));
-        }
-        return Optional.empty();
+        return playerService.findPlayerByUsername(username);
     }
 
     private int parseInteger(String val) {

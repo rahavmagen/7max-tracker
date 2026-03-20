@@ -8,9 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlayerService {
@@ -80,5 +84,20 @@ public class PlayerService {
 
     public List<Transaction> getPlayerTransactions(Long playerId) {
         return transactionRepository.findByPlayerIdOrderByTransactionDateDesc(playerId);
+    }
+
+    /**
+     * Find player by username: exact case-insensitive first, then fuzzy (strips spaces/underscores/hyphens).
+     */
+    public Optional<Player> findPlayerByUsername(String username) {
+        if (username == null || username.isBlank()) return Optional.empty();
+        List<Player> exact = playerRepository.findByUsernameCaseInsensitive(username);
+        if (!exact.isEmpty()) return Optional.of(exact.get(0));
+        List<Player> fuzzy = playerRepository.findByUsernameFuzzy(username);
+        if (!fuzzy.isEmpty()) {
+            log.warn("Fuzzy username match: '{}' -> '{}'", username, fuzzy.get(0).getUsername());
+            return Optional.of(fuzzy.get(0));
+        }
+        return Optional.empty();
     }
 }

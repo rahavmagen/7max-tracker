@@ -22,6 +22,7 @@ public class ImportService {
 
     private final PlayerRepository playerRepository;
     private final GameResultRepository gameResultRepository;
+    private final PlayerService playerService;
 
     /**
      * Import players from max7.xlsx:
@@ -120,7 +121,7 @@ public class ImportService {
             p.setBalance(pnl);
             p.setActive(true);
 
-            Optional<Player> existing = playerRepository.findByUsernameCaseInsensitive(p.getUsername()).stream().findFirst();
+            Optional<Player> existing = playerService.findPlayerByUsername(p.getUsername());
             if (existing.isEmpty() && p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) {
                 existing = playerRepository.findByClubPlayerIdSafe(p.getClubPlayerId()).stream().findFirst();
             }
