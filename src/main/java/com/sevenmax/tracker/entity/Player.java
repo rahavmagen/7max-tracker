@@ -43,6 +43,9 @@ public class Player {
     // Date the chips balance was last set (from report periodEnd, represents 00:00 of that day)
     private LocalDate chipsAsOf;
 
+    // True if this player was NOT present in the most recent XLS upload
+    private Boolean chipsStale = false;
+
     private Boolean active = true;
 
     @Column(updatable = false)

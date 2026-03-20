@@ -91,6 +91,7 @@ public class ReportService {
                     player.setCreditTotal(BigDecimal.ZERO);
                     player.setBalance(newChips.negate());
                     player.setChipsAsOf(report.getPeriodEnd());
+                    player.setChipsStale(false);
                     player.setActive(true);
                     player = playerRepository.save(player);
                     log.info("Auto-created player from Club Member Balance: {}", nickname);
@@ -99,10 +100,19 @@ public class ReportService {
                     BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
                     player.setBalance(newChips.subtract(credit));
                     player.setChipsAsOf(report.getPeriodEnd());
+                    player.setChipsStale(false);
                     playerRepository.save(player);
                     log.debug("Updated player {}: chips={} balance={}", player.getUsername(), newChips, player.getBalance());
                 }
                 updatedPlayerIds.add(player.getId());
+            }
+
+            // Mark players NOT in this XLS as stale
+            for (Player player : playerRepository.findAll()) {
+                if (!updatedPlayerIds.contains(player.getId())) {
+                    player.setChipsStale(true);
+                    playerRepository.save(player);
+                }
             }
 
             // Parse מעקב קרדיטים → update player creditTotal if sheet exists
