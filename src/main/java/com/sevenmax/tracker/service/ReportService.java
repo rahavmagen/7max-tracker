@@ -82,7 +82,7 @@ public class ReportService {
             for (Map.Entry<String, BigDecimal> entry : newChipsMap.entrySet()) {
                 String nickname = entry.getKey();
                 BigDecimal newChips = entry.getValue();
-                Player player = playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst().orElse(null);
+                Player player = findPlayerByUsername(nickname).orElse(null);
                 if (player == null) {
                     player = new Player();
                     player.setUsername(nickname);
@@ -150,7 +150,7 @@ public class ReportService {
             BigDecimal colF = parseBigDecimal(getCellValue(row, 5));
             BigDecimal total = colC.add(colD).add(colE).add(colF);
 
-            playerRepository.findByUsernameCaseInsensitive(username).stream().findFirst().ifPresent(player -> {
+            findPlayerByUsername(username).ifPresent(player -> {
                 player.setCreditTotal(total);
                 BigDecimal chips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
                 player.setBalance(chips.subtract(total));
@@ -191,7 +191,7 @@ public class ReportService {
                 player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst().orElse(null);
             }
             if (player == null && nickname != null && !nickname.isBlank()) {
-                player = playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst().orElse(null);
+                player = findPlayerByUsername(nickname).orElse(null);
             }
             if (player == null) continue;
 
@@ -312,7 +312,7 @@ public class ReportService {
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 11));
 
                 Player player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst()
-                        .or(() -> playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst())
+                        .or(() -> findPlayerByUsername(nickname))
                         .orElseGet(() -> {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
@@ -406,7 +406,7 @@ public class ReportService {
                 BigDecimal pnl = parseBigDecimal(getCellValue(row, 14));
 
                 Player player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst()
-                        .or(() -> playerRepository.findByUsernameCaseInsensitive(nickname).stream().findFirst())
+                        .or(() -> findPlayerByUsername(nickname))
                         .orElseGet(() -> {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
@@ -562,6 +562,21 @@ public class ReportService {
         } catch (Exception e) {
             return BigDecimal.ZERO;
         }
+    }
+
+    /**
+     * Find player by username: exact case-insensitive first, then fuzzy (strips spaces/underscores/hyphens).
+     * Logs a warning when a fuzzy match is used so mismatches can be spotted.
+     */
+    private Optional<Player> findPlayerByUsername(String username) {
+        List<Player> exact = playerRepository.findByUsernameCaseInsensitive(username);
+        if (!exact.isEmpty()) return Optional.of(exact.get(0));
+        List<Player> fuzzy = playerRepository.findByUsernameFuzzy(username);
+        if (!fuzzy.isEmpty()) {
+            log.warn("Fuzzy username match: '{}' -> '{}'", username, fuzzy.get(0).getUsername());
+            return Optional.of(fuzzy.get(0));
+        }
+        return Optional.empty();
     }
 
     private int parseInteger(String val) {

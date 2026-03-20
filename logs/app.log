@@ -2794,3 +2794,1074 @@ Action:
 
 Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
 
+2026-03-20T02:18:03.265+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-20T02:18:03.266+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-20T02:18:03.268+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-03-20T02:18:06.390+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-6] c.s.tracker.service.ReportService        : Deleted report 34 along with 6 sessions
+2026-03-20T02:18:11.538+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Club Member Balance: nicknameCol=8 balanceCol=9 headerRow=4
+2026-03-20T02:18:11.554+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player gooshpanka: chips=3617.95 balance=3617.95
+2026-03-20T02:18:11.554+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player natke: chips=0.0 balance=0.00
+2026-03-20T02:18:11.554+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ofek111!: chips=0.0 balance=0.00
+2026-03-20T02:18:11.569+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player assilevi: chips=553.97 balance=-446.03
+2026-03-20T02:18:11.569+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Romxz: chips=21.38 balance=21.38
+2026-03-20T02:18:11.569+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player lp1976: chips=855.25 balance=-144.75
+2026-03-20T02:18:11.569+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player R_baider: chips=0.0 balance=0.00
+2026-03-20T02:18:11.569+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player EmperorAAA: chips=1955.36 balance=-44.64
+2026-03-20T02:18:11.569+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Toda1: chips=3812.97 balance=1312.97
+2026-03-20T02:18:11.585+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player melor386: chips=123.55 balance=-4876.45
+2026-03-20T02:18:11.585+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ariking50: chips=793.7 balance=-206.30
+2026-03-20T02:18:11.585+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player savta hanina: chips=314.08 balance=314.08
+2026-03-20T02:18:11.585+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yotamtheking: chips=0.0 balance=0.00
+2026-03-20T02:18:11.585+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player tolsky!: chips=89.26 balance=-910.74
+2026-03-20T02:18:11.585+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Hamisha555: chips=0.0 balance=0.00
+2026-03-20T02:18:11.585+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player liorar: chips=2345.0 balance=2345.00
+2026-03-20T02:18:11.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Shantishanti: chips=0.0 balance=0.00
+2026-03-20T02:18:11.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player wsop champ777: chips=63.61 balance=63.61
+2026-03-20T02:18:11.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Juri1717: chips=750.0 balance=-250.00
+2026-03-20T02:18:11.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Inat: chips=0.0 balance=0.00
+2026-03-20T02:18:11.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player orenpGG: chips=45.0 balance=45.00
+2026-03-20T02:18:11.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player tov tfild: chips=8.0 balance=8.00
+2026-03-20T02:18:11.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player maxsimus7: chips=0.0 balance=0.00
+2026-03-20T02:18:11.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ting Bu Dong: chips=1739.6 balance=1739.60
+2026-03-20T02:18:11.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Giocatore7: chips=3277.07 balance=1277.07
+2026-03-20T02:18:11.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player kfir tubi: chips=1650.0 balance=-350.00
+2026-03-20T02:18:11.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Edens Punts: chips=0.0 balance=0.00
+2026-03-20T02:18:11.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ronron2001: chips=929.1 balance=929.10
+2026-03-20T02:18:11.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ryuk3: chips=1199.0 balance=-801.00
+2026-03-20T02:18:11.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player inigom87: chips=173.0 balance=173.00
+2026-03-20T02:18:11.635+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player RichDog: chips=0.0 balance=0.00
+2026-03-20T02:18:11.635+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Blk_Blt_Lili: chips=1256.8 balance=1256.80
+2026-03-20T02:18:11.635+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player arspoeti1: chips=1149.38 balance=149.38
+2026-03-20T02:18:11.635+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yaya amir: chips=67.19 balance=67.19
+2026-03-20T02:18:11.635+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player zivS1411: chips=25.5 balance=25.50
+2026-03-20T02:18:11.635+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player NotL!keThat: chips=500.38 balance=500.38
+2026-03-20T02:18:11.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Zaken777: chips=0.0 balance=0.00
+2026-03-20T02:18:11.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Big meyt: chips=0.0 balance=0.00
+2026-03-20T02:18:11.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player liarn14: chips=0.0 balance=0.00
+2026-03-20T02:18:11.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player LYNRR: chips=998.0 balance=998.00
+2026-03-20T02:18:11.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player RSTil: chips=7217.0 balance=-2783.00
+2026-03-20T02:18:11.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player 2-3_shager: chips=824.0 balance=-176.00
+2026-03-20T02:18:11.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player I love J6o: chips=1337.01 balance=1337.01
+2026-03-20T02:18:11.665+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Liran11!: chips=0.0 balance=-1000.00
+2026-03-20T02:18:11.665+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ye-yo: chips=2371.16 balance=-128.84
+2026-03-20T02:18:11.665+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Donkeyshot!: chips=616.6 balance=616.60
+2026-03-20T02:18:11.665+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Mushroom_Pickin: chips=2000.67 balance=0.67
+2026-03-20T02:18:11.665+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player folduyold: chips=34.38 balance=34.38
+2026-03-20T02:18:11.681+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Gal10: chips=2642.11 balance=642.11
+2026-03-20T02:18:11.681+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Cochin: chips=1235.97 balance=1235.97
+2026-03-20T02:18:11.681+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player FLASH28: chips=2194.07 balance=2194.07
+2026-03-20T02:18:11.681+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player EladV1212: chips=0.0 balance=0.00
+2026-03-20T02:18:11.681+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player leibo10: chips=2000.0 balance=2000.00
+2026-03-20T02:18:11.681+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ron arnon: chips=322.86 balance=-677.14
+2026-03-20T02:18:11.696+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Nissus: chips=0.0 balance=0.00
+2026-03-20T02:18:11.696+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Dominator 2: chips=0.0 balance=0.00
+2026-03-20T02:18:11.696+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player moakh maim: chips=0.0 balance=0.00
+2026-03-20T02:18:11.696+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Gil-bo: chips=13.6 balance=13.60
+2026-03-20T02:18:11.696+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Abra CaDaBra: chips=0.0 balance=0.00
+2026-03-20T02:18:11.696+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player heziza: chips=0.0 balance=0.00
+2026-03-20T02:18:11.712+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player levisas: chips=2000.39 balance=2000.39
+2026-03-20T02:18:11.712+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player piu piu 7: chips=1891.79 balance=-108.21
+2026-03-20T02:18:11.712+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player GiGi66: chips=2077.71 balance=77.71
+2026-03-20T02:18:11.712+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player LIRI: chips=826.42 balance=-173.58
+2026-03-20T02:18:11.712+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yanivkain11: chips=0.0 balance=0.00
+2026-03-20T02:18:11.712+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Sick _ Duck: chips=1149.5 balance=1149.50
+2026-03-20T02:18:11.729+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Tilttaker: chips=1000.0 balance=0.00
+2026-03-20T02:18:11.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player YardenaZ: chips=0.0 balance=0.00
+2026-03-20T02:18:11.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ZALTA!: chips=1277.0 balance=1277.00
+2026-03-20T02:18:11.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player gibrio: chips=853.76 balance=-146.24
+2026-03-20T02:18:11.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Revital Sh: chips=17.8 balance=17.80
+2026-03-20T02:18:11.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player baz55: chips=908.42 balance=908.42
+2026-03-20T02:18:11.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Oriasraf12: chips=0.0 balance=0.00
+2026-03-20T02:18:11.745+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Mosh03: chips=500.0 balance=500.00
+2026-03-20T02:18:11.745+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Danos712: chips=6.49 balance=6.49
+2026-03-20T02:18:11.745+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player MALIKAU: chips=0.0 balance=0.00
+2026-03-20T02:18:11.745+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player BonitaPo9: chips=275.0 balance=275.00
+2026-03-20T02:18:11.745+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yossik@: chips=1000.0 balance=0.00
+2026-03-20T02:18:11.745+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Anitov_Atalo: chips=0.0 balance=0.00
+2026-03-20T02:18:11.745+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player OneOddGirl: chips=0.0 balance=0.00
+2026-03-20T02:18:11.760+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Tamnuna1989: chips=1000.0 balance=0.00
+2026-03-20T02:18:11.762+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ZBEYDA3: chips=1031.22 balance=31.22
+2026-03-20T02:18:11.764+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Atufon: chips=1647.37 balance=-352.63
+2026-03-20T02:18:11.764+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player AZ-ULAY-FOLD: chips=0.0 balance=0.00
+2026-03-20T02:18:11.764+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Donald1236: chips=0.0 balance=0.00
+2026-03-20T02:18:11.764+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ItzSpex: chips=0.0 balance=0.00
+2026-03-20T02:18:11.777+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ronnita: chips=0.0 balance=0.00
+2026-03-20T02:18:11.777+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player sourGinger: chips=886.05 balance=886.05
+2026-03-20T02:18:11.777+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player redflag: chips=603.0 balance=-197.00
+2026-03-20T02:18:11.777+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player EliAm1986: chips=1431.78 balance=1431.78
+2026-03-20T02:18:11.777+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player QLKTP: chips=0.0 balance=0.00
+2026-03-20T02:18:11.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Linous: chips=2000.0 balance=2000.00
+2026-03-20T02:18:11.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Idos21: chips=1061.76 balance=61.76
+2026-03-20T02:18:11.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Eldar8108: chips=1700.0 balance=-300.00
+2026-03-20T02:18:11.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Hamagr!l: chips=1000.0 balance=0.00
+2026-03-20T02:18:11.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player kilombo!!!!: chips=1275.32 balance=1275.32
+2026-03-20T02:18:11.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player EfratP: chips=15.9 balance=15.90
+2026-03-20T02:18:11.808+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Sidney Spade: chips=800.0 balance=800.00
+2026-03-20T02:18:11.808+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player mi-ze-riko: chips=2899.0 balance=2899.00
+2026-03-20T02:18:11.808+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player mangisto san: chips=1299.0 balance=299.00
+2026-03-20T02:18:11.808+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player F@Taxi Driver: chips=1536.57 balance=1536.57
+2026-03-20T02:18:11.808+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Jimmjim: chips=0.0 balance=0.00
+2026-03-20T02:18:11.808+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ilaysimantov8@: chips=0.0 balance=0.00
+2026-03-20T02:18:11.823+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Gendalfart: chips=0.0 balance=0.00
+2026-03-20T02:18:11.823+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player YarivAvitbul: chips=0.0 balance=0.00
+2026-03-20T02:18:11.823+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player HB101: chips=29.8 balance=29.80
+2026-03-20T02:18:11.823+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Hadag nahash: chips=2000.0 balance=2000.00
+2026-03-20T02:18:11.823+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player AppaYipYip: chips=0.0 balance=0.00
+2026-03-20T02:18:11.823+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player robi0102!!!!: chips=2202.02 balance=202.02
+2026-03-20T02:18:11.841+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Zes1: chips=559.8 balance=559.80
+2026-03-20T02:18:11.843+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player arsenal 1: chips=502.82 balance=2.82
+2026-03-20T02:18:11.846+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Tenesmus: chips=9.6 balance=9.60
+2026-03-20T02:18:11.848+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Taltul6: chips=761.26 balance=761.26
+2026-03-20T02:18:11.850+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player GuyZoXx: chips=0.0 balance=0.00
+2026-03-20T02:18:11.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player israelhahodi: chips=100.0 balance=100.00
+2026-03-20T02:18:11.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player onlyOnU: chips=1864.63 balance=1864.63
+2026-03-20T02:18:11.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ZigiZagZoogi: chips=731.5 balance=731.50
+2026-03-20T02:18:11.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Bruce willis: chips=547.27 balance=547.27
+2026-03-20T02:18:11.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Eliron29: chips=1606.0 balance=-394.00
+2026-03-20T02:18:11.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player snow23: chips=334.62 balance=-665.38
+2026-03-20T02:18:11.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Barak1123: chips=0.0 balance=0.00
+2026-03-20T02:18:11.872+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Arbie: chips=423.25 balance=423.25
+2026-03-20T02:18:11.872+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player YLV1: chips=0.0 balance=0.00
+2026-03-20T02:18:11.872+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ramik300: chips=33.75 balance=-966.25
+2026-03-20T02:18:11.872+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player yurzig150: chips=1008.07 balance=-991.93
+2026-03-20T02:18:11.872+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Matnika: chips=981.63 balance=-18.37
+2026-03-20T02:18:11.872+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Elad[ww: chips=0.0 balance=0.00
+2026-03-20T02:18:11.888+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player OCEANMAN27: chips=0.0 balance=0.00
+2026-03-20T02:18:11.888+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player KingiMingi: chips=500.0 balance=0.00
+2026-03-20T02:18:11.888+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player banjo thing1: chips=29.53 balance=-970.47
+2026-03-20T02:18:11.888+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player NDV_: chips=789.22 balance=789.22
+2026-03-20T02:18:11.888+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Blitz AQ: chips=1000.0 balance=1000.00
+2026-03-20T02:18:11.888+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ginat41: chips=2294.21 balance=294.21
+2026-03-20T02:18:11.903+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player T-O-M-E-R: chips=808.6 balance=-191.40
+2026-03-20T02:18:11.903+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Kdksksmak1: chips=0.0 balance=0.00
+2026-03-20T02:18:11.903+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Snow poker: chips=0.0 balance=0.00
+2026-03-20T02:18:11.903+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Merida!: chips=534.28 balance=534.28
+2026-03-20T02:18:11.903+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yossi xXx: chips=0.0 balance=0.00
+2026-03-20T02:18:11.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player kirilik!: chips=1803.0 balance=-197.00
+2026-03-20T02:18:11.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player daniela garber: chips=0.0 balance=0.00
+2026-03-20T02:18:11.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player IsraelPanda: chips=1257.64 balance=757.64
+2026-03-20T02:18:11.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player VaaamBuzel: chips=1803.0 balance=1803.00
+2026-03-20T02:18:11.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yedidi: chips=1376.89 balance=1376.89
+2026-03-20T02:18:11.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Okoro4ek: chips=750.9 balance=-249.10
+2026-03-20T02:18:11.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player FlyRobin: chips=1767.24 balance=-232.76
+2026-03-20T02:18:11.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player X-ADV 750: chips=0.29 balance=0.29
+2026-03-20T02:18:11.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Gggbgg: chips=1603.07 balance=-396.93
+2026-03-20T02:18:11.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Kerobokan: chips=0.0 balance=0.00
+2026-03-20T02:18:11.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Kid_poker7: chips=2000.0 balance=0.00
+2026-03-20T02:18:11.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Master cardead: chips=0.0 balance=0.00
+2026-03-20T02:18:11.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Lilev: chips=0.0 balance=0.00
+2026-03-20T02:18:11.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player espanovuch: chips=26.0 balance=26.00
+2026-03-20T02:18:11.951+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Dova27: chips=1.0 balance=1.00
+2026-03-20T02:18:11.951+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Mister Faf: chips=973.0 balance=973.00
+2026-03-20T02:18:11.951+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Shishlik24: chips=2434.87 balance=2434.87
+2026-03-20T02:18:11.951+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yoram Tamsot: chips=0.0 balance=0.00
+2026-03-20T02:18:11.951+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player EM44: chips=939.64 balance=-60.36
+2026-03-20T02:18:11.951+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player rachelkey: chips=0.0 balance=0.00
+2026-03-20T02:18:11.951+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player yallababala: chips=0.0 balance=0.00
+2026-03-20T02:18:11.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player AK-47s: chips=750.0 balance=0.00
+2026-03-20T02:18:11.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player AB73759: chips=1544.59 balance=1544.59
+2026-03-20T02:18:11.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Dangurrr: chips=0.0 balance=0.00
+2026-03-20T02:18:11.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Moshe hanoch: chips=0.0 balance=-1000.00
+2026-03-20T02:18:11.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Tuff DP: chips=35.0 balance=35.00
+2026-03-20T02:18:11.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Of_Spades: chips=0.0 balance=0.00
+2026-03-20T02:18:11.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player kashmish: chips=1472.66 balance=472.66
+2026-03-20T02:18:11.983+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player SneakyCat!: chips=35.0 balance=35.00
+2026-03-20T02:18:11.985+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player snowmen-88: chips=1981.0 balance=-19.00
+2026-03-20T02:18:11.985+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ShaulW: chips=2000.0 balance=0.00
+2026-03-20T02:18:11.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player masi248: chips=1000.0 balance=0.00
+2026-03-20T02:18:11.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Cavalleros: chips=0.0 balance=0.00
+2026-03-20T02:18:11.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ilaysimantov: chips=0.0 balance=0.00
+2026-03-20T02:18:11.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Shalev28: chips=0.0 balance=0.00
+2026-03-20T02:18:11.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player TheotheThird: chips=0.0 balance=0.00
+2026-03-20T02:18:11.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yeledatuf: chips=0.0 balance=0.00
+2026-03-20T02:18:11.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Lem44: chips=8.95 balance=-991.05
+2026-03-20T02:18:11.998+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player asafbinyamin: chips=915.0 balance=-85.00
+2026-03-20T02:18:11.998+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Mystery-klaf: chips=3153.66 balance=1153.66
+2026-03-20T02:18:11.998+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player booboozoo: chips=1485.81 balance=485.81
+2026-03-20T02:18:11.998+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Dimrix2121: chips=14.5 balance=14.50
+2026-03-20T02:18:11.998+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Avisav: chips=0.0 balance=0.00
+2026-03-20T02:18:11.998+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player N-Gr!mbo: chips=999.2 balance=-0.80
+2026-03-20T02:18:12.014+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Kabash: chips=0.0 balance=0.00
+2026-03-20T02:18:12.014+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ze_babariver: chips=1094.42 balance=94.42
+2026-03-20T02:18:12.014+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Guymalka: chips=999.8 balance=999.80
+2026-03-20T02:18:12.014+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player NACHE S: chips=200.0 balance=200.00
+2026-03-20T02:18:12.014+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Nivzadikenson: chips=1531.52 balance=1531.52
+2026-03-20T02:18:12.014+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Eyal_bentolila: chips=0.0 balance=0.00
+2026-03-20T02:18:12.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Lady or: chips=0.0 balance=0.00
+2026-03-20T02:18:12.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player FC HAMO111: chips=693.08 balance=693.08
+2026-03-20T02:18:12.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player VardaM: chips=346.9 balance=346.90
+2026-03-20T02:18:12.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player BatmanAK: chips=3001.9 balance=1.90
+2026-03-20T02:18:12.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ozse: chips=0.0 balance=0.00
+2026-03-20T02:18:12.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Diamonds77: chips=1000.0 balance=0.00
+2026-03-20T02:18:12.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Idoos: chips=17.07 balance=17.07
+2026-03-20T02:18:12.046+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Thomas Cooler: chips=1213.24 balance=-786.76
+2026-03-20T02:18:12.046+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player SHALVA JJs!: chips=0.0 balance=0.00
+2026-03-20T02:18:12.046+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player habozez: chips=1000.0 balance=0.00
+2026-03-20T02:18:12.046+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Kimhi the Kid: chips=0.0 balance=0.00
+2026-03-20T02:18:12.046+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player MrPerfecto_: chips=1009.8 balance=1009.80
+2026-03-20T02:18:12.046+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player LavanMiday: chips=7943.02 balance=-2056.98
+2026-03-20T02:18:12.046+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player yab1986: chips=0.0 balance=0.00
+2026-03-20T02:18:12.062+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player goddess!: chips=1089.61 balance=89.61
+2026-03-20T02:18:12.065+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ediventura: chips=1723.0 balance=-277.00
+2026-03-20T02:18:12.067+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Camavingaaaa: chips=3323.42 balance=3323.42
+2026-03-20T02:18:12.067+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player yanivhamagniv: chips=9.43 balance=9.43
+2026-03-20T02:18:12.067+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ThisMyJoy: chips=0.0 balance=0.00
+2026-03-20T02:18:12.067+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player qwertas9: chips=150.0 balance=150.00
+2026-03-20T02:18:12.067+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player RonenNissim1978: chips=0.0 balance=0.00
+2026-03-20T02:18:12.077+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player joy1111: chips=0.0 balance=0.00
+2026-03-20T02:18:12.077+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player P3785-7008: chips=53.15 balance=53.15
+2026-03-20T02:18:12.077+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Mezot: chips=1000.0 balance=0.00
+2026-03-20T02:18:12.077+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player moisron: chips=2423.73 balance=2423.73
+2026-03-20T02:18:12.077+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player nirk_007: chips=1795.76 balance=-204.24
+2026-03-20T02:18:12.077+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Hashwakal: chips=3628.75 balance=2628.75
+2026-03-20T02:18:12.092+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Mor K: chips=23.9 balance=23.90
+2026-03-20T02:18:12.095+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Nero Daytona: chips=12.42 balance=12.42
+2026-03-20T02:18:12.097+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player itap301: chips=0.0 balance=0.00
+2026-03-20T02:18:12.099+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ronitj: chips=0.0 balance=0.00
+2026-03-20T02:18:12.099+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player RonenRonen: chips=1051.8 balance=51.80
+2026-03-20T02:18:12.101+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Dolev8Haziza: chips=33.82 balance=33.82
+2026-03-20T02:18:12.103+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Harbo112: chips=356.8 balance=-143.20
+2026-03-20T02:18:12.105+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Tomics: chips=0.0 balance=0.00
+2026-03-20T02:18:12.107+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Coco Nutsy: chips=2000.0 balance=0.00
+2026-03-20T02:18:12.107+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Shalevdayan1: chips=0.0 balance=0.00
+2026-03-20T02:18:12.110+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Yardena20: chips=5.9 balance=5.90
+2026-03-20T02:18:12.113+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player babysharktududu: chips=1115.02 balance=-384.98
+2026-03-20T02:18:12.117+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player amirosben: chips=589.57 balance=589.57
+2026-03-20T02:18:12.117+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player revital dray: chips=2.3 balance=2.30
+2026-03-20T02:18:12.124+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Wembluffyama1: chips=657.69 balance=657.69
+2026-03-20T02:18:12.130+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ZenSteps88: chips=1991.74 balance=-8.26
+2026-03-20T02:18:12.134+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Dragon_Rider: chips=13.63 balance=13.63
+2026-03-20T02:18:12.134+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Mickey Mouse 2: chips=0.0 balance=0.00
+2026-03-20T02:18:12.145+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player lazar1309: chips=154.2 balance=-2845.80
+2026-03-20T02:18:12.145+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ratzik: chips=0.0 balance=0.00
+2026-03-20T02:18:12.157+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player loftus-check: chips=1590.63 balance=-409.37
+2026-03-20T02:18:12.163+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player BEBBERT2304: chips=957.41 balance=-42.59
+2026-03-20T02:18:12.171+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Urbanleg: chips=0.0 balance=0.00
+2026-03-20T02:18:12.173+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player yana79: chips=1564.8 balance=-935.20
+2026-03-20T02:18:12.181+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player AAKK1312: chips=395.14 balance=395.14
+2026-03-20T02:18:12.186+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Sarit Mor: chips=3.2 balance=3.20
+2026-03-20T02:18:12.192+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player WEEDPIG420: chips=2535.11 balance=2535.11
+2026-03-20T02:18:12.194+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Adrian-mateos: chips=67.62 balance=67.62
+2026-03-20T02:18:12.194+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player L0L!: chips=2531.51 balance=2531.51
+2026-03-20T02:18:12.204+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ZAV889: chips=11.9 balance=11.90
+2026-03-20T02:18:12.204+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player sarqueen: chips=34.1 balance=34.10
+2026-03-20T02:18:12.204+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player thedub11: chips=2000.71 balance=0.71
+2026-03-20T02:18:12.204+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player DoritQ: chips=27.0 balance=27.00
+2026-03-20T02:18:12.220+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player SlagterP: chips=0.0 balance=0.00
+2026-03-20T02:18:12.220+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ItzShad0w: chips=0.0 balance=0.00
+2026-03-20T02:18:12.229+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player NHBK: chips=34.08 balance=34.08
+2026-03-20T02:18:12.231+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Jordymac52: chips=0.0 balance=0.00
+2026-03-20T02:18:12.236+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player CTower: chips=0.0 balance=0.00
+2026-03-20T02:18:12.236+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Shaypi: chips=780.27 balance=-219.73
+2026-03-20T02:18:12.236+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Pinto13: chips=0.0 balance=-2000.00
+2026-03-20T02:18:12.236+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player S_A_11: chips=0.0 balance=0.00
+2026-03-20T02:18:12.252+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player BBG888: chips=3000.0 balance=3000.00
+2026-03-20T02:18:12.252+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Dani-Din5: chips=1259.0 balance=1259.00
+2026-03-20T02:18:12.252+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Lord@Vader: chips=2000.0 balance=0.00
+2026-03-20T02:18:12.252+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player NikkyBananas: chips=88.0 balance=88.00
+2026-03-20T02:18:12.268+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Rami bakhar: chips=1000.28 balance=1000.28
+2026-03-20T02:18:12.268+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player JoNeu: chips=79.56 balance=79.56
+2026-03-20T02:18:12.268+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Ranoss: chips=2130.27 balance=1130.27
+2026-03-20T02:18:12.284+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Gili1515: chips=1000.0 balance=0.00
+2026-03-20T02:18:12.290+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Hadar Levy: chips=0.0 balance=0.00
+2026-03-20T02:18:12.290+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player adamush: chips=916.0 balance=-84.00
+2026-03-20T02:18:12.299+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Beastys: chips=1098.37 balance=-1901.63
+2026-03-20T02:18:12.299+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Boobcat: chips=1059.57 balance=1059.57
+2026-03-20T02:18:12.307+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Tomer BA: chips=0.0 balance=0.00
+2026-03-20T02:18:12.309+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player OrbitKing: chips=200.0 balance=200.00
+2026-03-20T02:18:12.309+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player I_own_bensi: chips=0.0 balance=0.00
+2026-03-20T02:18:12.316+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player itsAbluff75: chips=1000.0 balance=0.00
+2026-03-20T02:18:12.318+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player simbak: chips=0.0 balance=0.00
+2026-03-20T02:18:12.318+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player captain nuts: chips=1265.8 balance=-734.20
+2026-03-20T02:18:12.318+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Sorry-_-: chips=0.0 balance=0.00
+2026-03-20T02:18:12.318+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player hanoi4: chips=1816.73 balance=1816.73
+2026-03-20T02:18:12.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player pikolo_: chips=0.37 balance=0.37
+2026-03-20T02:18:12.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Garlic Jr: chips=0.0 balance=0.00
+2026-03-20T02:18:12.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player CyberGuy: chips=57.58 balance=57.58
+2026-03-20T02:18:12.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player D1Hundred: chips=713.75 balance=-86.25
+2026-03-20T02:18:12.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player ipics: chips=1950.26 balance=950.26
+2026-03-20T02:18:12.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player MesiCasa: chips=1181.03 balance=181.03
+2026-03-20T02:18:12.347+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player guy ei: chips=1131.94 balance=-868.06
+2026-03-20T02:18:12.347+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player Eylon: chips=0.0 balance=0.00
+2026-03-20T02:18:12.347+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player lilya: chips=11.0 balance=11.00
+2026-03-20T02:18:12.347+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player MichMo: chips=258.0 balance=258.00
+2026-03-20T02:18:12.363+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Updated player urisof10qc: chips=1385.7 balance=-614.30
+2026-03-20T11:53:11.505+02:00  WARN 22724 --- [7max] [HikariPool-45:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-45 - Thread starvation or clock leap detected (housekeeper delta=7h13m47s435ms551µs200ns).
+2026-03-20T13:10:59.770+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-10] c.s.tracker.service.ReportService        : Deleted report 35 along with 6 sessions
+2026-03-20T13:11:08.960+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Club Member Balance: nicknameCol=8 balanceCol=9 headerRow=4
+2026-03-20T13:11:08.985+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player gooshpanka: chips=3617.95 balance=3617.95
+2026-03-20T13:11:08.991+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player natke: chips=0.0 balance=0.00
+2026-03-20T13:11:08.995+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ofek111!: chips=0.0 balance=0.00
+2026-03-20T13:11:09.000+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player assilevi: chips=553.97 balance=-446.03
+2026-03-20T13:11:09.004+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Romxz: chips=21.38 balance=21.38
+2026-03-20T13:11:09.007+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player lp1976: chips=855.25 balance=-144.75
+2026-03-20T13:11:09.015+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player R_baider: chips=0.0 balance=0.00
+2026-03-20T13:11:09.020+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player EmperorAAA: chips=1955.36 balance=-44.64
+2026-03-20T13:11:09.025+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Toda1: chips=3812.97 balance=1312.97
+2026-03-20T13:11:09.033+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player melor386: chips=123.55 balance=-4876.45
+2026-03-20T13:11:09.044+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ariking50: chips=793.7 balance=-206.30
+2026-03-20T13:11:09.050+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player savta hanina: chips=314.08 balance=314.08
+2026-03-20T13:11:09.054+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yotamtheking: chips=0.0 balance=0.00
+2026-03-20T13:11:09.057+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player tolsky!: chips=89.26 balance=-910.74
+2026-03-20T13:11:09.060+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Hamisha555: chips=0.0 balance=0.00
+2026-03-20T13:11:09.066+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player liorar: chips=2345.0 balance=2345.00
+2026-03-20T13:11:09.070+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Shantishanti: chips=0.0 balance=0.00
+2026-03-20T13:11:09.074+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player wsop champ777: chips=63.61 balance=63.61
+2026-03-20T13:11:09.079+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Juri1717: chips=750.0 balance=-250.00
+2026-03-20T13:11:09.094+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Inat: chips=0.0 balance=0.00
+2026-03-20T13:11:09.099+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player orenpGG: chips=45.0 balance=45.00
+2026-03-20T13:11:09.103+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player tov tfild: chips=8.0 balance=8.00
+2026-03-20T13:11:09.107+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player maxsimus7: chips=0.0 balance=0.00
+2026-03-20T13:11:09.113+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ting Bu Dong: chips=1739.6 balance=1739.60
+2026-03-20T13:11:09.119+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Giocatore7: chips=3277.07 balance=1277.07
+2026-03-20T13:11:09.124+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player kfir tubi: chips=1650.0 balance=-350.00
+2026-03-20T13:11:09.129+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Edens Punts: chips=0.0 balance=0.00
+2026-03-20T13:11:09.136+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ronron2001: chips=929.1 balance=929.10
+2026-03-20T13:11:09.142+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ryuk3: chips=1199.0 balance=-801.00
+2026-03-20T13:11:09.150+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player inigom87: chips=173.0 balance=173.00
+2026-03-20T13:11:09.155+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player RichDog: chips=0.0 balance=0.00
+2026-03-20T13:11:09.159+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Blk_Blt_Lili: chips=1256.8 balance=1256.80
+2026-03-20T13:11:09.163+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player arspoeti1: chips=1149.38 balance=149.38
+2026-03-20T13:11:09.169+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yaya amir: chips=67.19 balance=67.19
+2026-03-20T13:11:09.173+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player zivS1411: chips=25.5 balance=25.50
+2026-03-20T13:11:09.179+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player NotL!keThat: chips=500.38 balance=500.38
+2026-03-20T13:11:09.184+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Zaken777: chips=0.0 balance=0.00
+2026-03-20T13:11:09.188+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Big meyt: chips=0.0 balance=0.00
+2026-03-20T13:11:09.193+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player liarn14: chips=0.0 balance=0.00
+2026-03-20T13:11:09.198+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player LYNRR: chips=998.0 balance=998.00
+2026-03-20T13:11:09.203+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player RSTil: chips=7217.0 balance=-2783.00
+2026-03-20T13:11:09.208+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player 2-3_shager: chips=824.0 balance=-176.00
+2026-03-20T13:11:09.210+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player I love J6o: chips=1337.01 balance=1337.01
+2026-03-20T13:11:09.215+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Liran11!: chips=0.0 balance=-1000.00
+2026-03-20T13:11:09.219+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ye-yo: chips=2371.16 balance=-128.84
+2026-03-20T13:11:09.225+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Donkeyshot!: chips=616.6 balance=616.60
+2026-03-20T13:11:09.232+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Mushroom_Pickin: chips=2000.67 balance=0.67
+2026-03-20T13:11:09.237+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player folduyold: chips=34.38 balance=34.38
+2026-03-20T13:11:09.239+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Gal10: chips=2642.11 balance=642.11
+2026-03-20T13:11:09.245+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Cochin: chips=1235.97 balance=1235.97
+2026-03-20T13:11:09.252+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player FLASH28: chips=2194.07 balance=2194.07
+2026-03-20T13:11:09.256+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player EladV1212: chips=0.0 balance=0.00
+2026-03-20T13:11:09.259+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player leibo10: chips=2000.0 balance=2000.00
+2026-03-20T13:11:09.263+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ron arnon: chips=322.86 balance=-677.14
+2026-03-20T13:11:09.267+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Nissus: chips=0.0 balance=0.00
+2026-03-20T13:11:09.272+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Dominator 2: chips=0.0 balance=0.00
+2026-03-20T13:11:09.276+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player moakh maim: chips=0.0 balance=0.00
+2026-03-20T13:11:09.280+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Gil-bo: chips=13.6 balance=13.60
+2026-03-20T13:11:09.286+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Abra CaDaBra: chips=0.0 balance=0.00
+2026-03-20T13:11:09.289+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player heziza: chips=0.0 balance=0.00
+2026-03-20T13:11:09.292+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player levisas: chips=2000.39 balance=2000.39
+2026-03-20T13:11:09.298+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player piu piu 7: chips=1891.79 balance=-108.21
+2026-03-20T13:11:09.308+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player GiGi66: chips=2077.71 balance=77.71
+2026-03-20T13:11:09.314+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player LIRI: chips=826.42 balance=-173.58
+2026-03-20T13:11:09.323+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yanivkain11: chips=0.0 balance=0.00
+2026-03-20T13:11:09.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Sick _ Duck: chips=1149.5 balance=1149.50
+2026-03-20T13:11:09.334+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Tilttaker: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.339+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player YardenaZ: chips=0.0 balance=0.00
+2026-03-20T13:11:09.342+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ZALTA!: chips=1277.0 balance=1277.00
+2026-03-20T13:11:09.345+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player gibrio: chips=853.76 balance=-146.24
+2026-03-20T13:11:09.350+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Revital Sh: chips=17.8 balance=17.80
+2026-03-20T13:11:09.355+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player baz55: chips=908.42 balance=908.42
+2026-03-20T13:11:09.360+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Oriasraf12: chips=0.0 balance=0.00
+2026-03-20T13:11:09.364+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Mosh03: chips=500.0 balance=500.00
+2026-03-20T13:11:09.372+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Danos712: chips=6.49 balance=6.49
+2026-03-20T13:11:09.379+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player MALIKAU: chips=0.0 balance=0.00
+2026-03-20T13:11:09.383+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player BonitaPo9: chips=275.0 balance=275.00
+2026-03-20T13:11:09.389+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yossik@: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.395+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Anitov_Atalo: chips=0.0 balance=0.00
+2026-03-20T13:11:09.399+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player OneOddGirl: chips=0.0 balance=0.00
+2026-03-20T13:11:09.404+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Tamnuna1989: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.409+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ZBEYDA3: chips=1031.22 balance=31.22
+2026-03-20T13:11:09.412+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Atufon: chips=1647.37 balance=-352.63
+2026-03-20T13:11:09.417+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player AZ-ULAY-FOLD: chips=0.0 balance=0.00
+2026-03-20T13:11:09.423+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Donald1236: chips=0.0 balance=0.00
+2026-03-20T13:11:09.427+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ItzSpex: chips=0.0 balance=0.00
+2026-03-20T13:11:09.430+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ronnita: chips=0.0 balance=0.00
+2026-03-20T13:11:09.435+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player sourGinger: chips=886.05 balance=886.05
+2026-03-20T13:11:09.439+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player redflag: chips=603.0 balance=-197.00
+2026-03-20T13:11:09.442+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player EliAm1986: chips=1431.78 balance=1431.78
+2026-03-20T13:11:09.445+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player QLKTP: chips=0.0 balance=0.00
+2026-03-20T13:11:09.450+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Linous: chips=2000.0 balance=2000.00
+2026-03-20T13:11:09.454+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Idos21: chips=1061.76 balance=61.76
+2026-03-20T13:11:09.459+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Eldar8108: chips=1700.0 balance=-300.00
+2026-03-20T13:11:09.463+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Hamagr!l: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.468+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player kilombo!!!!: chips=1275.32 balance=1275.32
+2026-03-20T13:11:09.474+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player EfratP: chips=15.9 balance=15.90
+2026-03-20T13:11:09.481+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Sidney Spade: chips=800.0 balance=800.00
+2026-03-20T13:11:09.490+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player mi-ze-riko: chips=2899.0 balance=2899.00
+2026-03-20T13:11:09.498+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player mangisto san: chips=1299.0 balance=299.00
+2026-03-20T13:11:09.504+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player F@Taxi Driver: chips=1536.57 balance=1536.57
+2026-03-20T13:11:09.509+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Jimmjim: chips=0.0 balance=0.00
+2026-03-20T13:11:09.514+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ilaysimantov8@: chips=0.0 balance=0.00
+2026-03-20T13:11:09.519+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Gendalfart: chips=0.0 balance=0.00
+2026-03-20T13:11:09.524+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player YarivAvitbul: chips=0.0 balance=0.00
+2026-03-20T13:11:09.529+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player HB101: chips=29.8 balance=29.80
+2026-03-20T13:11:09.535+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Hadag nahash: chips=2000.0 balance=2000.00
+2026-03-20T13:11:09.540+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player AppaYipYip: chips=0.0 balance=0.00
+2026-03-20T13:11:09.549+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player robi0102!!!!: chips=2202.02 balance=202.02
+2026-03-20T13:11:09.560+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Zes1: chips=559.8 balance=559.80
+2026-03-20T13:11:09.568+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player arsenal 1: chips=502.82 balance=2.82
+2026-03-20T13:11:09.576+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Tenesmus: chips=9.6 balance=9.60
+2026-03-20T13:11:09.582+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Taltul6: chips=761.26 balance=761.26
+2026-03-20T13:11:09.587+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player GuyZoXx: chips=0.0 balance=0.00
+2026-03-20T13:11:09.592+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player israelhahodi: chips=100.0 balance=100.00
+2026-03-20T13:11:09.596+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player onlyOnU: chips=1864.63 balance=1864.63
+2026-03-20T13:11:09.600+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ZigiZagZoogi: chips=731.5 balance=731.50
+2026-03-20T13:11:09.605+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Bruce willis: chips=547.27 balance=547.27
+2026-03-20T13:11:09.608+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Eliron29: chips=1606.0 balance=-394.00
+2026-03-20T13:11:09.610+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player snow23: chips=334.62 balance=-665.38
+2026-03-20T13:11:09.612+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Barak1123: chips=0.0 balance=0.00
+2026-03-20T13:11:09.615+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Arbie: chips=423.25 balance=423.25
+2026-03-20T13:11:09.620+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player YLV1: chips=0.0 balance=0.00
+2026-03-20T13:11:09.624+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ramik300: chips=33.75 balance=-966.25
+2026-03-20T13:11:09.629+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player yurzig150: chips=1008.07 balance=-991.93
+2026-03-20T13:11:09.637+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Matnika: chips=981.63 balance=-18.37
+2026-03-20T13:11:09.640+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Elad[ww: chips=0.0 balance=0.00
+2026-03-20T13:11:09.645+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player OCEANMAN27: chips=0.0 balance=0.00
+2026-03-20T13:11:09.649+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player KingiMingi: chips=500.0 balance=0.00
+2026-03-20T13:11:09.652+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player banjo thing1: chips=29.53 balance=-970.47
+2026-03-20T13:11:09.656+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player NDV_: chips=789.22 balance=789.22
+2026-03-20T13:11:09.659+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Blitz AQ: chips=1000.0 balance=1000.00
+2026-03-20T13:11:09.662+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ginat41: chips=2294.21 balance=294.21
+2026-03-20T13:11:09.666+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player T-O-M-E-R: chips=808.6 balance=-191.40
+2026-03-20T13:11:09.670+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Kdksksmak1: chips=0.0 balance=0.00
+2026-03-20T13:11:09.675+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Snow poker: chips=0.0 balance=0.00
+2026-03-20T13:11:09.679+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Merida!: chips=534.28 balance=534.28
+2026-03-20T13:11:09.684+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yossi xXx: chips=0.0 balance=0.00
+2026-03-20T13:11:09.688+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player kirilik!: chips=1803.0 balance=-197.00
+2026-03-20T13:11:09.692+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player daniela garber: chips=0.0 balance=0.00
+2026-03-20T13:11:09.695+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player IsraelPanda: chips=1257.64 balance=757.64
+2026-03-20T13:11:09.699+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player VaaamBuzel: chips=1803.0 balance=1803.00
+2026-03-20T13:11:09.703+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yedidi: chips=1376.89 balance=1376.89
+2026-03-20T13:11:09.708+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Okoro4ek: chips=750.9 balance=-249.10
+2026-03-20T13:11:09.711+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player FlyRobin: chips=1767.24 balance=-232.76
+2026-03-20T13:11:09.716+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player X-ADV 750: chips=0.29 balance=0.29
+2026-03-20T13:11:09.720+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Gggbgg: chips=1603.07 balance=-396.93
+2026-03-20T13:11:09.723+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Kerobokan: chips=0.0 balance=0.00
+2026-03-20T13:11:09.727+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Kid_poker7: chips=2000.0 balance=0.00
+2026-03-20T13:11:09.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Master cardead: chips=0.0 balance=0.00
+2026-03-20T13:11:09.734+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Lilev: chips=0.0 balance=0.00
+2026-03-20T13:11:09.738+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player espanovuch: chips=26.0 balance=26.00
+2026-03-20T13:11:09.742+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Dova27: chips=1.0 balance=1.00
+2026-03-20T13:11:09.744+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Mister Faf: chips=973.0 balance=973.00
+2026-03-20T13:11:09.746+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Shishlik24: chips=2434.87 balance=2434.87
+2026-03-20T13:11:09.751+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yoram Tamsot: chips=0.0 balance=0.00
+2026-03-20T13:11:09.755+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player EM44: chips=939.64 balance=-60.36
+2026-03-20T13:11:09.759+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player rachelkey: chips=0.0 balance=0.00
+2026-03-20T13:11:09.763+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player yallababala: chips=0.0 balance=0.00
+2026-03-20T13:11:09.767+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player AK-47s: chips=750.0 balance=0.00
+2026-03-20T13:11:09.772+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player AB73759: chips=1544.59 balance=1544.59
+2026-03-20T13:11:09.775+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Dangurrr: chips=0.0 balance=0.00
+2026-03-20T13:11:09.780+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Moshe hanoch: chips=0.0 balance=-1000.00
+2026-03-20T13:11:09.783+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Tuff DP: chips=35.0 balance=35.00
+2026-03-20T13:11:09.788+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Of_Spades: chips=0.0 balance=0.00
+2026-03-20T13:11:09.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player kashmish: chips=1472.66 balance=472.66
+2026-03-20T13:11:09.796+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player SneakyCat!: chips=35.0 balance=35.00
+2026-03-20T13:11:09.800+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player snowmen-88: chips=1981.0 balance=-19.00
+2026-03-20T13:11:09.804+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ShaulW: chips=2000.0 balance=0.00
+2026-03-20T13:11:09.808+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player masi248: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.811+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Cavalleros: chips=0.0 balance=0.00
+2026-03-20T13:11:09.814+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ilaysimantov: chips=0.0 balance=0.00
+2026-03-20T13:11:09.818+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Shalev28: chips=0.0 balance=0.00
+2026-03-20T13:11:09.820+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player TheotheThird: chips=0.0 balance=0.00
+2026-03-20T13:11:09.824+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yeledatuf: chips=0.0 balance=0.00
+2026-03-20T13:11:09.828+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Lem44: chips=8.95 balance=-991.05
+2026-03-20T13:11:09.832+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player asafbinyamin: chips=915.0 balance=-85.00
+2026-03-20T13:11:09.836+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Mystery-klaf: chips=3153.66 balance=1153.66
+2026-03-20T13:11:09.839+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player booboozoo: chips=1485.81 balance=485.81
+2026-03-20T13:11:09.842+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Dimrix2121: chips=14.5 balance=14.50
+2026-03-20T13:11:09.845+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Avisav: chips=0.0 balance=0.00
+2026-03-20T13:11:09.848+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player N-Gr!mbo: chips=999.2 balance=-0.80
+2026-03-20T13:11:09.851+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Kabash: chips=0.0 balance=0.00
+2026-03-20T13:11:09.853+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ze_babariver: chips=1094.42 balance=94.42
+2026-03-20T13:11:09.858+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Guymalka: chips=999.8 balance=999.80
+2026-03-20T13:11:09.859+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player NACHE S: chips=200.0 balance=200.00
+2026-03-20T13:11:09.863+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Nivzadikenson: chips=1531.52 balance=1531.52
+2026-03-20T13:11:09.868+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Eyal_bentolila: chips=0.0 balance=0.00
+2026-03-20T13:11:09.870+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Lady or: chips=0.0 balance=0.00
+2026-03-20T13:11:09.875+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player FC HAMO111: chips=693.08 balance=693.08
+2026-03-20T13:11:09.879+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player VardaM: chips=346.9 balance=346.90
+2026-03-20T13:11:09.888+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player BatmanAK: chips=3001.9 balance=1.90
+2026-03-20T13:11:09.892+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ozse: chips=0.0 balance=0.00
+2026-03-20T13:11:09.895+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Diamonds77: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.899+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Idoos: chips=17.07 balance=17.07
+2026-03-20T13:11:09.904+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Thomas Cooler: chips=1213.24 balance=-786.76
+2026-03-20T13:11:09.907+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player SHALVA JJs!: chips=0.0 balance=0.00
+2026-03-20T13:11:09.910+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player habozez: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.915+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Kimhi the Kid: chips=0.0 balance=0.00
+2026-03-20T13:11:09.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player MrPerfecto_: chips=1009.8 balance=1009.80
+2026-03-20T13:11:09.922+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player LavanMiday: chips=7943.02 balance=-2056.98
+2026-03-20T13:11:09.926+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player yab1986: chips=0.0 balance=0.00
+2026-03-20T13:11:09.931+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player goddess!: chips=1089.61 balance=89.61
+2026-03-20T13:11:09.935+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ediventura: chips=1723.0 balance=-277.00
+2026-03-20T13:11:09.939+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Camavingaaaa: chips=3323.42 balance=3323.42
+2026-03-20T13:11:09.943+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player yanivhamagniv: chips=9.43 balance=9.43
+2026-03-20T13:11:09.946+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ThisMyJoy: chips=0.0 balance=0.00
+2026-03-20T13:11:09.949+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player qwertas9: chips=150.0 balance=150.00
+2026-03-20T13:11:09.954+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player RonenNissim1978: chips=0.0 balance=0.00
+2026-03-20T13:11:09.958+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player joy1111: chips=0.0 balance=0.00
+2026-03-20T13:11:09.962+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player P3785-7008: chips=53.15 balance=53.15
+2026-03-20T13:11:09.966+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Mezot: chips=1000.0 balance=0.00
+2026-03-20T13:11:09.969+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player moisron: chips=2423.73 balance=2423.73
+2026-03-20T13:11:09.975+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player nirk_007: chips=1795.76 balance=-204.24
+2026-03-20T13:11:09.980+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Hashwakal: chips=3628.75 balance=2628.75
+2026-03-20T13:11:09.985+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Mor K: chips=23.9 balance=23.90
+2026-03-20T13:11:09.991+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Nero Daytona: chips=12.42 balance=12.42
+2026-03-20T13:11:09.994+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player itap301: chips=0.0 balance=0.00
+2026-03-20T13:11:09.998+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ronitj: chips=0.0 balance=0.00
+2026-03-20T13:11:10.000+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player RonenRonen: chips=1051.8 balance=51.80
+2026-03-20T13:11:10.005+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Dolev8Haziza: chips=33.82 balance=33.82
+2026-03-20T13:11:10.009+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Harbo112: chips=356.8 balance=-143.20
+2026-03-20T13:11:10.012+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Tomics: chips=0.0 balance=0.00
+2026-03-20T13:11:10.016+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Coco Nutsy: chips=2000.0 balance=0.00
+2026-03-20T13:11:10.020+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Shalevdayan1: chips=0.0 balance=0.00
+2026-03-20T13:11:10.024+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Yardena20: chips=5.9 balance=5.90
+2026-03-20T13:11:10.026+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player babysharktududu: chips=1115.02 balance=-384.98
+2026-03-20T13:11:10.030+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player amirosben: chips=589.57 balance=589.57
+2026-03-20T13:11:10.035+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player revital dray: chips=2.3 balance=2.30
+2026-03-20T13:11:10.039+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Wembluffyama1: chips=657.69 balance=657.69
+2026-03-20T13:11:10.044+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ZenSteps88: chips=1991.74 balance=-8.26
+2026-03-20T13:11:10.048+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Dragon_Rider: chips=13.63 balance=13.63
+2026-03-20T13:11:10.051+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Mickey Mouse 2: chips=0.0 balance=0.00
+2026-03-20T13:11:10.054+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player lazar1309: chips=154.2 balance=-2845.80
+2026-03-20T13:11:10.058+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ratzik: chips=0.0 balance=0.00
+2026-03-20T13:11:10.062+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player loftus-check: chips=1590.63 balance=-409.37
+2026-03-20T13:11:10.066+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player BEBBERT2304: chips=957.41 balance=-42.59
+2026-03-20T13:11:10.069+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Urbanleg: chips=0.0 balance=0.00
+2026-03-20T13:11:10.074+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player yana79: chips=1564.8 balance=-935.20
+2026-03-20T13:11:10.079+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player AAKK1312: chips=395.14 balance=395.14
+2026-03-20T13:11:10.084+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Sarit Mor: chips=3.2 balance=3.20
+2026-03-20T13:11:10.089+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player WEEDPIG420: chips=2535.11 balance=2535.11
+2026-03-20T13:11:10.093+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Adrian-mateos: chips=67.62 balance=67.62
+2026-03-20T13:11:10.097+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player L0L!: chips=2531.51 balance=2531.51
+2026-03-20T13:11:10.100+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ZAV889: chips=11.9 balance=11.90
+2026-03-20T13:11:10.103+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player sarqueen: chips=34.1 balance=34.10
+2026-03-20T13:11:10.105+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player thedub11: chips=2000.71 balance=0.71
+2026-03-20T13:11:10.110+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player DoritQ: chips=27.0 balance=27.00
+2026-03-20T13:11:10.114+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player SlagterP: chips=0.0 balance=0.00
+2026-03-20T13:11:10.118+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ItzShad0w: chips=0.0 balance=0.00
+2026-03-20T13:11:10.122+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player NHBK: chips=34.08 balance=34.08
+2026-03-20T13:11:10.125+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Jordymac52: chips=0.0 balance=0.00
+2026-03-20T13:11:10.129+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player CTower: chips=0.0 balance=0.00
+2026-03-20T13:11:10.133+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Shaypi: chips=780.27 balance=-219.73
+2026-03-20T13:11:10.136+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Pinto13: chips=0.0 balance=-2000.00
+2026-03-20T13:11:10.140+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player S_A_11: chips=0.0 balance=0.00
+2026-03-20T13:11:10.144+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player BBG888: chips=3000.0 balance=3000.00
+2026-03-20T13:11:10.148+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Dani-Din5: chips=1259.0 balance=1259.00
+2026-03-20T13:11:10.150+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Lord@Vader: chips=2000.0 balance=0.00
+2026-03-20T13:11:10.156+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player NikkyBananas: chips=88.0 balance=88.00
+2026-03-20T13:11:10.159+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Rami bakhar: chips=1000.28 balance=1000.28
+2026-03-20T13:11:10.164+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player JoNeu: chips=79.56 balance=79.56
+2026-03-20T13:11:10.170+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Ranoss: chips=2130.27 balance=1130.27
+2026-03-20T13:11:10.175+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Gili1515: chips=1000.0 balance=0.00
+2026-03-20T13:11:10.179+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Hadar Levy: chips=0.0 balance=0.00
+2026-03-20T13:11:10.184+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player adamush: chips=916.0 balance=-84.00
+2026-03-20T13:11:10.193+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Beastys: chips=1098.37 balance=-1901.63
+2026-03-20T13:11:10.196+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Boobcat: chips=1059.57 balance=1059.57
+2026-03-20T13:11:10.201+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Tomer BA: chips=0.0 balance=0.00
+2026-03-20T13:11:10.205+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player OrbitKing: chips=200.0 balance=200.00
+2026-03-20T13:11:10.209+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player I_own_bensi: chips=0.0 balance=0.00
+2026-03-20T13:11:10.213+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player itsAbluff75: chips=1000.0 balance=0.00
+2026-03-20T13:11:10.218+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player simbak: chips=0.0 balance=0.00
+2026-03-20T13:11:10.223+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player captain nuts: chips=1265.8 balance=-734.20
+2026-03-20T13:11:10.228+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Sorry-_-: chips=0.0 balance=0.00
+2026-03-20T13:11:10.233+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player hanoi4: chips=1816.73 balance=1816.73
+2026-03-20T13:11:10.237+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player pikolo_: chips=0.37 balance=0.37
+2026-03-20T13:11:10.240+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Garlic Jr: chips=0.0 balance=0.00
+2026-03-20T13:11:10.245+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player CyberGuy: chips=57.58 balance=57.58
+2026-03-20T13:11:10.249+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player D1Hundred: chips=713.75 balance=-86.25
+2026-03-20T13:11:10.254+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player ipics: chips=1950.26 balance=950.26
+2026-03-20T13:11:10.259+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player MesiCasa: chips=1181.03 balance=181.03
+2026-03-20T13:11:10.262+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player guy ei: chips=1131.94 balance=-868.06
+2026-03-20T13:11:10.268+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player Eylon: chips=0.0 balance=0.00
+2026-03-20T13:11:10.272+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player lilya: chips=11.0 balance=11.00
+2026-03-20T13:11:10.275+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player MichMo: chips=258.0 balance=258.00
+2026-03-20T13:11:10.279+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-9] c.s.tracker.service.ReportService        : Updated player urisof10qc: chips=1385.7 balance=-614.30
+2026-03-20T13:24:45.573+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Club Member Balance: nicknameCol=8 balanceCol=9 headerRow=4
+2026-03-20T13:24:45.582+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player gooshpanka: chips=3467.2 balance=3467.20
+2026-03-20T13:24:45.587+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player natke: chips=0.0 balance=0.00
+2026-03-20T13:24:45.591+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ofek111!: chips=0.0 balance=0.00
+2026-03-20T13:24:45.597+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player assilevi: chips=553.97 balance=-446.03
+2026-03-20T13:24:45.601+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Romxz: chips=21.38 balance=21.38
+2026-03-20T13:24:45.604+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player lp1976: chips=970.85 balance=-29.15
+2026-03-20T13:24:45.607+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player R_baider: chips=0.0 balance=0.00
+2026-03-20T13:24:45.613+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player EmperorAAA: chips=1955.36 balance=-44.64
+2026-03-20T13:24:45.617+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Toda1: chips=3812.97 balance=1312.97
+2026-03-20T13:24:45.622+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player melor386: chips=123.55 balance=-4876.45
+2026-03-20T13:24:45.625+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ariking50: chips=793.7 balance=-206.30
+2026-03-20T13:24:45.629+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player savta hanina: chips=641.43 balance=641.43
+2026-03-20T13:24:45.633+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yotamtheking: chips=0.0 balance=0.00
+2026-03-20T13:24:45.637+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player tolsky!: chips=5.26 balance=-994.74
+2026-03-20T13:24:45.640+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Hamisha555: chips=0.0 balance=0.00
+2026-03-20T13:24:45.643+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player liorar: chips=2345.0 balance=2345.00
+2026-03-20T13:24:45.647+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Shantishanti: chips=0.0 balance=0.00
+2026-03-20T13:24:45.650+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player wsop champ777: chips=63.61 balance=63.61
+2026-03-20T13:24:45.654+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Juri1717: chips=750.0 balance=-250.00
+2026-03-20T13:24:45.659+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Inat: chips=0.0 balance=0.00
+2026-03-20T13:24:45.663+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player orenpGG: chips=45.0 balance=45.00
+2026-03-20T13:24:45.666+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player tov tfild: chips=8.0 balance=8.00
+2026-03-20T13:24:45.669+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player maxsimus7: chips=0.0 balance=0.00
+2026-03-20T13:24:45.673+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ting Bu Dong: chips=1773.73 balance=1773.73
+2026-03-20T13:24:45.676+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Giocatore7: chips=3080.07 balance=1080.07
+2026-03-20T13:24:45.680+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player kfir tubi: chips=1650.0 balance=-350.00
+2026-03-20T13:24:45.683+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Edens Punts: chips=0.0 balance=0.00
+2026-03-20T13:24:45.687+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ronron2001: chips=327.1 balance=327.10
+2026-03-20T13:24:45.692+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ryuk3: chips=1199.0 balance=-801.00
+2026-03-20T13:24:45.696+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player inigom87: chips=173.0 balance=173.00
+2026-03-20T13:24:45.699+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player RichDog: chips=0.0 balance=0.00
+2026-03-20T13:24:45.701+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Blk_Blt_Lili: chips=1256.8 balance=1256.80
+2026-03-20T13:24:45.705+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player arspoeti1: chips=592.88 balance=-407.12
+2026-03-20T13:24:45.720+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yaya amir: chips=67.19 balance=67.19
+2026-03-20T13:24:45.723+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player zivS1411: chips=25.5 balance=25.50
+2026-03-20T13:24:45.728+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player NotL!keThat: chips=500.38 balance=500.38
+2026-03-20T13:24:45.732+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Zaken777: chips=0.0 balance=0.00
+2026-03-20T13:24:45.734+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Big meyt: chips=0.0 balance=0.00
+2026-03-20T13:24:45.737+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player liarn14: chips=0.0 balance=0.00
+2026-03-20T13:24:45.742+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player LYNRR: chips=885.76 balance=885.76
+2026-03-20T13:24:45.746+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player RSTil: chips=7294.11 balance=-2705.89
+2026-03-20T13:24:45.750+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player 2-3_shager: chips=824.0 balance=-176.00
+2026-03-20T13:24:45.754+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player I love J6o: chips=1337.01 balance=1337.01
+2026-03-20T13:24:45.759+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Liran11!: chips=0.0 balance=-1000.00
+2026-03-20T13:24:45.762+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ye-yo: chips=1071.16 balance=-1428.84
+2026-03-20T13:24:45.764+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Donkeyshot!: chips=616.6 balance=616.60
+2026-03-20T13:24:45.769+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Mushroom_Pickin: chips=2000.67 balance=0.67
+2026-03-20T13:24:45.773+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player folduyold: chips=34.38 balance=34.38
+2026-03-20T13:24:45.776+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Gal10: chips=2558.11 balance=558.11
+2026-03-20T13:24:45.781+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Cochin: chips=1151.97 balance=1151.97
+2026-03-20T13:24:45.785+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player FLASH28: chips=1716.07 balance=1716.07
+2026-03-20T13:24:45.789+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player EladV1212: chips=0.0 balance=0.00
+2026-03-20T13:24:45.792+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player leibo10: chips=2000.0 balance=2000.00
+2026-03-20T13:24:45.796+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ron arnon: chips=322.86 balance=-677.14
+2026-03-20T13:24:45.800+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Nissus: chips=0.0 balance=0.00
+2026-03-20T13:24:45.804+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Dominator 2: chips=0.0 balance=0.00
+2026-03-20T13:24:45.806+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player moakh maim: chips=0.0 balance=0.00
+2026-03-20T13:24:45.809+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Gil-bo: chips=13.6 balance=13.60
+2026-03-20T13:24:45.812+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Abra CaDaBra: chips=0.0 balance=0.00
+2026-03-20T13:24:45.816+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player heziza: chips=0.0 balance=0.00
+2026-03-20T13:24:45.819+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player levisas: chips=1900.39 balance=1900.39
+2026-03-20T13:24:45.822+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player piu piu 7: chips=1891.79 balance=-108.21
+2026-03-20T13:24:45.825+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player GiGi66: chips=2077.71 balance=77.71
+2026-03-20T13:24:45.830+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player LIRI: chips=826.42 balance=-173.58
+2026-03-20T13:24:45.833+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yanivkain11: chips=0.0 balance=0.00
+2026-03-20T13:24:45.838+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Auto-created player from Club Member Balance: Avico_69
+2026-03-20T13:24:45.842+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Sick _ Duck: chips=1149.5 balance=1149.50
+2026-03-20T13:24:45.846+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Tilttaker: chips=1000.0 balance=0.00
+2026-03-20T13:24:45.850+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player YardenaZ: chips=0.0 balance=0.00
+2026-03-20T13:24:45.855+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ZALTA!: chips=1958.75 balance=1958.75
+2026-03-20T13:24:45.857+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player gibrio: chips=853.76 balance=-146.24
+2026-03-20T13:24:45.861+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Revital Sh: chips=17.8 balance=17.80
+2026-03-20T13:24:45.865+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player baz55: chips=2477.44 balance=2477.44
+2026-03-20T13:24:45.869+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Oriasraf12: chips=0.0 balance=0.00
+2026-03-20T13:24:45.872+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Mosh03: chips=500.0 balance=500.00
+2026-03-20T13:24:45.875+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Danos712: chips=6.49 balance=6.49
+2026-03-20T13:24:45.880+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player MALIKAU: chips=0.0 balance=0.00
+2026-03-20T13:24:45.883+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player BonitaPo9: chips=275.0 balance=275.00
+2026-03-20T13:24:45.886+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yossik@: chips=1000.0 balance=0.00
+2026-03-20T13:24:45.891+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Anitov_Atalo: chips=0.0 balance=0.00
+2026-03-20T13:24:45.895+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player OneOddGirl: chips=0.0 balance=0.00
+2026-03-20T13:24:45.899+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Tamnuna1989: chips=1000.0 balance=0.00
+2026-03-20T13:24:45.902+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ZBEYDA3: chips=1031.22 balance=31.22
+2026-03-20T13:24:45.905+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Atufon: chips=1802.37 balance=-197.63
+2026-03-20T13:24:45.908+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player AZ-ULAY-FOLD: chips=0.0 balance=0.00
+2026-03-20T13:24:45.911+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Donald1236: chips=0.0 balance=0.00
+2026-03-20T13:24:45.916+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ItzSpex: chips=0.0 balance=0.00
+2026-03-20T13:24:45.919+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ronnita: chips=0.0 balance=0.00
+2026-03-20T13:24:45.922+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player sourGinger: chips=1739.24 balance=1739.24
+2026-03-20T13:24:45.926+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player redflag: chips=603.0 balance=-197.00
+2026-03-20T13:24:45.929+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player EliAm1986: chips=1304.15 balance=1304.15
+2026-03-20T13:24:45.933+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player QLKTP: chips=0.0 balance=0.00
+2026-03-20T13:24:45.936+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Linous: chips=2000.0 balance=2000.00
+2026-03-20T13:24:45.941+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Idos21: chips=1061.76 balance=61.76
+2026-03-20T13:24:45.945+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Eldar8108: chips=1700.0 balance=-300.00
+2026-03-20T13:24:45.949+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Hamagr!l: chips=803.0 balance=-197.00
+2026-03-20T13:24:45.952+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player kilombo!!!!: chips=1275.32 balance=1275.32
+2026-03-20T13:24:45.957+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player EfratP: chips=15.9 balance=15.90
+2026-03-20T13:24:45.960+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Sidney Spade: chips=800.0 balance=800.00
+2026-03-20T13:24:45.964+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player mi-ze-riko: chips=2899.0 balance=2899.00
+2026-03-20T13:24:45.967+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player mangisto san: chips=1299.0 balance=299.00
+2026-03-20T13:24:45.971+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player F@Taxi Driver: chips=1536.57 balance=1536.57
+2026-03-20T13:24:45.974+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Jimmjim: chips=0.0 balance=0.00
+2026-03-20T13:24:45.980+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ilaysimantov8@: chips=0.0 balance=0.00
+2026-03-20T13:24:45.984+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Gendalfart: chips=0.0 balance=0.00
+2026-03-20T13:24:45.987+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player YarivAvitbul: chips=0.0 balance=0.00
+2026-03-20T13:24:45.991+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player HB101: chips=29.8 balance=29.80
+2026-03-20T13:24:45.997+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Hadag nahash: chips=2000.0 balance=2000.00
+2026-03-20T13:24:46.001+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player AppaYipYip: chips=0.0 balance=0.00
+2026-03-20T13:24:46.004+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player robi0102!!!!: chips=2202.02 balance=202.02
+2026-03-20T13:24:46.008+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Zes1: chips=559.8 balance=559.80
+2026-03-20T13:24:46.013+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player arsenal 1: chips=305.82 balance=-194.18
+2026-03-20T13:24:46.016+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Tenesmus: chips=9.6 balance=9.60
+2026-03-20T13:24:46.021+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Taltul6: chips=0.0 balance=0.00
+2026-03-20T13:24:46.024+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player GuyZoXx: chips=0.0 balance=0.00
+2026-03-20T13:24:46.028+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player israelhahodi: chips=100.0 balance=100.00
+2026-03-20T13:24:46.032+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player onlyOnU: chips=1864.63 balance=1864.63
+2026-03-20T13:24:46.036+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ZigiZagZoogi: chips=731.5 balance=731.50
+2026-03-20T13:24:46.041+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Bruce willis: chips=547.27 balance=547.27
+2026-03-20T13:24:46.044+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Eliron29: chips=1606.0 balance=-394.00
+2026-03-20T13:24:46.047+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player snow23: chips=334.62 balance=-665.38
+2026-03-20T13:24:46.051+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Barak1123: chips=0.0 balance=0.00
+2026-03-20T13:24:46.055+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Arbie: chips=423.25 balance=423.25
+2026-03-20T13:24:46.059+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player YLV1: chips=0.0 balance=0.00
+2026-03-20T13:24:46.062+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ramik300: chips=33.75 balance=-966.25
+2026-03-20T13:24:46.066+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player yurzig150: chips=1008.07 balance=-991.93
+2026-03-20T13:24:46.069+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Matnika: chips=982.63 balance=-17.37
+2026-03-20T13:24:46.071+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Elad[ww: chips=0.0 balance=0.00
+2026-03-20T13:24:46.075+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player OCEANMAN27: chips=0.0 balance=0.00
+2026-03-20T13:24:46.077+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player KingiMingi: chips=500.0 balance=0.00
+2026-03-20T13:24:46.082+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player banjo thing1: chips=29.53 balance=-970.47
+2026-03-20T13:24:46.085+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player NDV_: chips=789.22 balance=789.22
+2026-03-20T13:24:46.089+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Blitz AQ: chips=1000.0 balance=1000.00
+2026-03-20T13:24:46.093+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ginat41: chips=1194.49 balance=-805.51
+2026-03-20T13:24:46.097+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player T-O-M-E-R: chips=808.6 balance=-191.40
+2026-03-20T13:24:46.101+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Kdksksmak1: chips=0.0 balance=0.00
+2026-03-20T13:24:46.104+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Snow poker: chips=0.0 balance=0.00
+2026-03-20T13:24:46.109+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Merida!: chips=534.28 balance=534.28
+2026-03-20T13:24:46.112+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yossi xXx: chips=0.0 balance=0.00
+2026-03-20T13:24:46.116+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player kirilik!: chips=1803.0 balance=-197.00
+2026-03-20T13:24:46.120+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player daniela garber: chips=0.0 balance=0.00
+2026-03-20T13:24:46.123+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player IsraelPanda: chips=1232.04 balance=732.04
+2026-03-20T13:24:46.129+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player VaaamBuzel: chips=1803.0 balance=1803.00
+2026-03-20T13:24:46.132+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yedidi: chips=1376.89 balance=1376.89
+2026-03-20T13:24:46.137+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Okoro4ek: chips=750.9 balance=-249.10
+2026-03-20T13:24:46.141+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player FlyRobin: chips=1285.19 balance=-714.81
+2026-03-20T13:24:46.146+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player X-ADV 750: chips=0.29 balance=0.29
+2026-03-20T13:24:46.149+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Gggbgg: chips=1603.07 balance=-396.93
+2026-03-20T13:24:46.153+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Kerobokan: chips=0.0 balance=0.00
+2026-03-20T13:24:46.156+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Kid_poker7: chips=2000.0 balance=0.00
+2026-03-20T13:24:46.161+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Master cardead: chips=0.0 balance=0.00
+2026-03-20T13:24:46.165+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Lilev: chips=0.0 balance=0.00
+2026-03-20T13:24:46.169+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player espanovuch: chips=26.0 balance=26.00
+2026-03-20T13:24:46.173+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Dova27: chips=1.0 balance=1.00
+2026-03-20T13:24:46.177+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Mister Faf: chips=973.0 balance=973.00
+2026-03-20T13:24:46.182+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Shishlik24: chips=3622.2 balance=3622.20
+2026-03-20T13:24:46.186+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yoram Tamsot: chips=0.0 balance=0.00
+2026-03-20T13:24:46.190+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player EM44: chips=2024.98 balance=1024.98
+2026-03-20T13:24:46.194+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player rachelkey: chips=0.0 balance=0.00
+2026-03-20T13:24:46.200+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player yallababala: chips=0.0 balance=0.00
+2026-03-20T13:24:46.205+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player AK-47s: chips=750.0 balance=0.00
+2026-03-20T13:24:46.210+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player AB73759: chips=1544.59 balance=1544.59
+2026-03-20T13:24:46.213+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Dangurrr: chips=0.0 balance=0.00
+2026-03-20T13:24:46.217+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Moshe hanoch: chips=0.0 balance=-1000.00
+2026-03-20T13:24:46.221+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Tuff DP: chips=35.0 balance=35.00
+2026-03-20T13:24:46.224+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Of_Spades: chips=0.0 balance=0.00
+2026-03-20T13:24:46.229+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player kashmish: chips=1472.66 balance=472.66
+2026-03-20T13:24:46.233+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player SneakyCat!: chips=35.0 balance=35.00
+2026-03-20T13:24:46.237+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player snowmen-88: chips=1981.0 balance=-19.00
+2026-03-20T13:24:46.242+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ShaulW: chips=2000.0 balance=0.00
+2026-03-20T13:24:46.247+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player masi248: chips=1000.0 balance=0.00
+2026-03-20T13:24:46.251+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Cavalleros: chips=0.0 balance=0.00
+2026-03-20T13:24:46.255+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ilaysimantov: chips=0.0 balance=0.00
+2026-03-20T13:24:46.258+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Shalev28: chips=0.0 balance=0.00
+2026-03-20T13:24:46.264+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player TheotheThird: chips=0.0 balance=0.00
+2026-03-20T13:24:46.269+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yeledatuf: chips=0.0 balance=0.00
+2026-03-20T13:24:46.274+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Lem44: chips=8.95 balance=-991.05
+2026-03-20T13:24:46.280+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player asafbinyamin: chips=915.0 balance=-85.00
+2026-03-20T13:24:46.283+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Mystery-klaf: chips=3153.66 balance=1153.66
+2026-03-20T13:24:46.287+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player booboozoo: chips=1335.06 balance=335.06
+2026-03-20T13:24:46.291+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Dimrix2121: chips=14.5 balance=14.50
+2026-03-20T13:24:46.294+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Avisav: chips=0.0 balance=0.00
+2026-03-20T13:24:46.299+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player N-Gr!mbo: chips=999.2 balance=-0.80
+2026-03-20T13:24:46.303+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Kabash: chips=0.0 balance=0.00
+2026-03-20T13:24:46.309+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ze_babariver: chips=1094.42 balance=94.42
+2026-03-20T13:24:46.313+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Guymalka: chips=999.8 balance=999.80
+2026-03-20T13:24:46.317+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player NACHE S: chips=200.0 balance=200.00
+2026-03-20T13:24:46.321+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Nivzadikenson: chips=734.52 balance=734.52
+2026-03-20T13:24:46.324+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Eyal_bentolila: chips=0.0 balance=0.00
+2026-03-20T13:24:46.330+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Lady or: chips=0.0 balance=0.00
+2026-03-20T13:24:46.334+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player FC HAMO111: chips=693.08 balance=693.08
+2026-03-20T13:24:46.338+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player VardaM: chips=346.9 balance=346.90
+2026-03-20T13:24:46.342+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player BatmanAK: chips=3001.9 balance=1.90
+2026-03-20T13:24:46.346+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ozse: chips=0.0 balance=0.00
+2026-03-20T13:24:46.351+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Diamonds77: chips=1000.0 balance=0.00
+2026-03-20T13:24:46.355+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Idoos: chips=17.07 balance=17.07
+2026-03-20T13:24:46.359+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Thomas Cooler: chips=1213.24 balance=-786.76
+2026-03-20T13:24:46.364+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player SHALVA JJs!: chips=0.0 balance=0.00
+2026-03-20T13:24:46.369+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player habozez: chips=1000.0 balance=0.00
+2026-03-20T13:24:46.373+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Auto-created player from Club Member Balance: daled1212
+2026-03-20T13:24:46.377+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Kimhi the Kid: chips=0.0 balance=0.00
+2026-03-20T13:24:46.383+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player MrPerfecto_: chips=1009.8 balance=1009.80
+2026-03-20T13:24:46.389+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player LavanMiday: chips=7649.79 balance=-2350.21
+2026-03-20T13:24:46.393+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player yab1986: chips=0.0 balance=0.00
+2026-03-20T13:24:46.397+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player goddess!: chips=1089.61 balance=89.61
+2026-03-20T13:24:46.402+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ediventura: chips=2335.36 balance=335.36
+2026-03-20T13:24:46.406+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Camavingaaaa: chips=3323.42 balance=3323.42
+2026-03-20T13:24:46.410+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player yanivhamagniv: chips=9.43 balance=9.43
+2026-03-20T13:24:46.416+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ThisMyJoy: chips=0.0 balance=0.00
+2026-03-20T13:24:46.421+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player qwertas9: chips=150.0 balance=150.00
+2026-03-20T13:24:46.425+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player RonenNissim1978: chips=0.0 balance=0.00
+2026-03-20T13:24:46.430+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player joy1111: chips=0.0 balance=0.00
+2026-03-20T13:24:46.434+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player P3785-7008: chips=53.15 balance=53.15
+2026-03-20T13:24:46.439+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Mezot: chips=1000.0 balance=0.00
+2026-03-20T13:24:46.444+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player moisron: chips=2323.73 balance=2323.73
+2026-03-20T13:24:46.449+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player nirk_007: chips=1795.76 balance=-204.24
+2026-03-20T13:24:46.453+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Hashwakal: chips=3628.75 balance=2628.75
+2026-03-20T13:24:46.459+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Mor K: chips=23.9 balance=23.90
+2026-03-20T13:24:46.463+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Nero Daytona: chips=12.42 balance=12.42
+2026-03-20T13:24:46.468+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player itap301: chips=0.0 balance=0.00
+2026-03-20T13:24:46.473+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ronitj: chips=0.0 balance=0.00
+2026-03-20T13:24:46.479+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player RonenRonen: chips=1051.8 balance=51.80
+2026-03-20T13:24:46.483+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Dolev8Haziza: chips=33.82 balance=33.82
+2026-03-20T13:24:46.487+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Harbo112: chips=356.8 balance=-143.20
+2026-03-20T13:24:46.493+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Tomics: chips=0.0 balance=0.00
+2026-03-20T13:24:46.497+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Coco Nutsy: chips=2000.0 balance=0.00
+2026-03-20T13:24:46.505+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Shalevdayan1: chips=0.0 balance=0.00
+2026-03-20T13:24:46.510+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Yardena20: chips=5.9 balance=5.90
+2026-03-20T13:24:46.515+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player babysharktududu: chips=1115.02 balance=-384.98
+2026-03-20T13:24:46.519+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player amirosben: chips=589.57 balance=589.57
+2026-03-20T13:24:46.523+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player revital dray: chips=2.3 balance=2.30
+2026-03-20T13:24:46.527+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Wembluffyama1: chips=657.69 balance=657.69
+2026-03-20T13:24:46.532+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ZenSteps88: chips=1991.74 balance=-8.26
+2026-03-20T13:24:46.537+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Dragon_Rider: chips=13.63 balance=13.63
+2026-03-20T13:24:46.542+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Mickey Mouse 2: chips=0.0 balance=0.00
+2026-03-20T13:24:46.546+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player lazar1309: chips=154.2 balance=-2845.80
+2026-03-20T13:24:46.550+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Pinhas2208: chips=258.0 balance=258.0
+2026-03-20T13:24:46.554+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ratzik: chips=0.0 balance=0.00
+2026-03-20T13:24:46.557+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player loftus-check: chips=1590.63 balance=-409.37
+2026-03-20T13:24:46.562+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player BEBBERT2304: chips=957.41 balance=-42.59
+2026-03-20T13:24:46.566+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Urbanleg: chips=0.0 balance=0.00
+2026-03-20T13:24:46.571+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player yana79: chips=1564.8 balance=-935.20
+2026-03-20T13:24:46.576+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player AAKK1312: chips=395.14 balance=395.14
+2026-03-20T13:24:46.581+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Sarit Mor: chips=3.2 balance=3.20
+2026-03-20T13:24:46.586+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player WEEDPIG420: chips=2535.11 balance=2535.11
+2026-03-20T13:24:46.590+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Adrian-mateos: chips=67.62 balance=67.62
+2026-03-20T13:24:46.595+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player L0L!: chips=2531.51 balance=2531.51
+2026-03-20T13:24:46.600+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ZAV889: chips=11.9 balance=11.90
+2026-03-20T13:24:46.606+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player sarqueen: chips=34.1 balance=34.10
+2026-03-20T13:24:46.611+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player thedub11: chips=2000.71 balance=0.71
+2026-03-20T13:24:46.615+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player DoritQ: chips=27.0 balance=27.00
+2026-03-20T13:24:46.620+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player SlagterP: chips=0.0 balance=0.00
+2026-03-20T13:24:46.625+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ItzShad0w: chips=0.0 balance=0.00
+2026-03-20T13:24:46.631+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player NHBK: chips=34.08 balance=34.08
+2026-03-20T13:24:46.635+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Jordymac52: chips=0.0 balance=0.00
+2026-03-20T13:24:46.640+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player CTower: chips=0.0 balance=0.00
+2026-03-20T13:24:46.643+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Shaypi: chips=766.24 balance=-233.76
+2026-03-20T13:24:46.647+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Pinto13: chips=0.0 balance=-2000.00
+2026-03-20T13:24:46.652+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player S_A_11: chips=0.0 balance=0.00
+2026-03-20T13:24:46.657+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player BBG888: chips=3000.0 balance=3000.00
+2026-03-20T13:24:46.661+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Dani-Din5: chips=1259.0 balance=1259.00
+2026-03-20T13:24:46.665+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Lord@Vader: chips=1700.0 balance=-300.00
+2026-03-20T13:24:46.670+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player NikkyBananas: chips=88.0 balance=88.00
+2026-03-20T13:24:46.675+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Rami bakhar: chips=1000.28 balance=1000.28
+2026-03-20T13:24:46.680+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player JoNeu: chips=79.56 balance=79.56
+2026-03-20T13:24:46.684+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Ranoss: chips=2088.27 balance=1088.27
+2026-03-20T13:24:46.691+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Gili1515: chips=1000.0 balance=0.00
+2026-03-20T13:24:46.698+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Hadar Levy: chips=0.0 balance=0.00
+2026-03-20T13:24:46.702+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player adamush: chips=916.0 balance=-84.00
+2026-03-20T13:24:46.708+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Beastys: chips=1098.37 balance=-1901.63
+2026-03-20T13:24:46.714+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Boobcat: chips=759.57 balance=759.57
+2026-03-20T13:24:46.718+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Tomer BA: chips=0.0 balance=0.00
+2026-03-20T13:24:46.722+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player OrbitKing: chips=200.0 balance=200.00
+2026-03-20T13:24:46.726+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player I_own_bensi: chips=0.0 balance=0.00
+2026-03-20T13:24:46.730+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player itsAbluff75: chips=1000.0 balance=0.00
+2026-03-20T13:24:46.735+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player simbak: chips=0.0 balance=0.00
+2026-03-20T13:24:46.739+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player captain nuts: chips=2281.51 balance=281.51
+2026-03-20T13:24:46.743+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Sorry-_-: chips=0.0 balance=0.00
+2026-03-20T13:24:46.748+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player hanoi4: chips=1665.98 balance=1665.98
+2026-03-20T13:24:46.753+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player pikolo_: chips=0.37 balance=0.37
+2026-03-20T13:24:46.760+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Garlic Jr: chips=0.0 balance=0.00
+2026-03-20T13:24:46.764+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player YNoSuckOut8: chips=0.0 balance=0.00
+2026-03-20T13:24:46.770+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player CyberGuy: chips=57.58 balance=57.58
+2026-03-20T13:24:46.775+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player D1Hundred: chips=713.75 balance=-86.25
+2026-03-20T13:24:46.782+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player ipics: chips=1270.23 balance=270.23
+2026-03-20T13:24:46.786+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player MesiCasa: chips=1181.03 balance=181.03
+2026-03-20T13:24:46.790+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player guy ei: chips=1131.94 balance=-868.06
+2026-03-20T13:24:46.794+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player Eylon: chips=0.0 balance=0.00
+2026-03-20T13:24:46.799+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player lilya: chips=11.0 balance=11.00
+2026-03-20T13:24:46.804+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player MichMo: chips=258.0 balance=258.00
+2026-03-20T13:24:46.809+02:00 DEBUG 22724 --- [7max] [http-nio-8080-exec-5] c.s.tracker.service.ReportService        : Updated player urisof10qc: chips=1415.56 balance=-584.44
+2026-03-20T18:07:36.898+02:00  WARN 22724 --- [7max] [HikariPool-45:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-45 - Thread starvation or clock leap detected (housekeeper delta=41m49s937ms303µs).
+2026-03-20T18:18:18.017+02:00  INFO 22724 --- [7max] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 39 class path changes (0 additions, 39 deletions, 0 modifications)
+2026-03-20T18:18:18.024+02:00  INFO 22724 --- [7max] [Thread-185] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-20T18:18:18.043+02:00  INFO 22724 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-03-20T18:18:18.043+02:00  INFO 22724 --- [7max] [Thread-185] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T18:18:18.052+02:00  INFO 22724 --- [7max] [Thread-185] com.zaxxer.hikari.HikariDataSource       : HikariPool-45 - Shutdown initiated...
+2026-03-20T18:18:18.057+02:00  INFO 22724 --- [7max] [Thread-185] com.zaxxer.hikari.HikariDataSource       : HikariPool-45 - Shutdown completed.
+2026-03-20T18:18:18.332+02:00  INFO 22724 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 22724 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-03-20T18:18:18.333+02:00 DEBUG 22724 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-03-20T18:18:18.333+02:00  INFO 22724 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : The following 1 profile is active: "local"
+2026-03-20T18:18:18.969+02:00  INFO 22724 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-20T18:18:18.978+02:00  INFO 22724 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 6 ms. Found 0 JPA repository interfaces.
+2026-03-20T18:18:19.261+02:00  INFO 22724 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-20T18:18:19.265+02:00  INFO 22724 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-20T18:18:19.266+02:00  INFO 22724 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-03-20T18:18:19.331+02:00  INFO 22724 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-20T18:18:19.332+02:00  INFO 22724 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 990 ms
+2026-03-20T18:18:19.438+02:00  WARN 22724 --- [7max] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Unsatisfied dependency expressed through method 'entityManagerFactory' parameter 1: Error creating bean with name 'persistenceManagedTypes' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/JpaBaseConfiguration$PersistenceManagedTypesConfiguration.class]: Failed to instantiate [org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes]: Factory method 'persistenceManagedTypes' threw exception with message: Failed to read candidate component class: file [C:\projects\tracker\target\classes\com\sevenmax\tracker\Application.class]
+2026-03-20T18:18:19.440+02:00  INFO 22724 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-03-20T18:18:19.449+02:00  INFO 22724 --- [7max] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-03-20T18:18:19.455+02:00 ERROR 22724 --- [7max] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Unsatisfied dependency expressed through method 'entityManagerFactory' parameter 1: Error creating bean with name 'persistenceManagedTypes' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/JpaBaseConfiguration$PersistenceManagedTypesConfiguration.class]: Failed to instantiate [org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes]: Factory method 'persistenceManagedTypes' threw exception with message: Failed to read candidate component class: file [C:\projects\tracker\target\classes\com\sevenmax\tracker\Application.class]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:546) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:974) ~[spring-context-6.2.16.jar:6.2.16]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:628) ~[spring-context-6.2.16.jar:6.2.16]
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146) ~[spring-boot-3.5.11.jar:3.5.11]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752) ~[spring-boot-3.5.11.jar:3.5.11]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439) ~[spring-boot-3.5.11.jar:3.5.11]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318) ~[spring-boot-3.5.11.jar:3.5.11]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361) ~[spring-boot-3.5.11.jar:3.5.11]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350) ~[spring-boot-3.5.11.jar:3.5.11]
+	at com.sevenmax.tracker.Application.main(Application.java:10) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50) ~[spring-boot-devtools-3.5.11.jar:3.5.11]
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'persistenceManagedTypes' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/JpaBaseConfiguration$PersistenceManagedTypesConfiguration.class]: Failed to instantiate [org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes]: Factory method 'persistenceManagedTypes' threw exception with message: Failed to read candidate component class: file [C:\projects\tracker\target\classes\com\sevenmax\tracker\Application.class]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:657) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:645) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1375) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1205) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:373) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1708) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1653) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791) ~[spring-beans-6.2.16.jar:6.2.16]
+	... 21 common frames omitted
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes]: Factory method 'persistenceManagedTypes' threw exception with message: Failed to read candidate component class: file [C:\projects\tracker\target\classes\com\sevenmax\tracker\Application.class]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:200) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiateWithFactoryMethod(SimpleInstantiationStrategy.java:89) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:169) ~[spring-beans-6.2.16.jar:6.2.16]
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:653) ~[spring-beans-6.2.16.jar:6.2.16]
+	... 34 common frames omitted
+Caused by: jakarta.persistence.PersistenceException: Failed to read candidate component class: file [C:\projects\tracker\target\classes\com\sevenmax\tracker\Application.class]
+	at org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypesScanner.scanPackage(PersistenceManagedTypesScanner.java:165) ~[spring-orm-6.2.16.jar:6.2.16]
+	at org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypesScanner.scan(PersistenceManagedTypesScanner.java:117) ~[spring-orm-6.2.16.jar:6.2.16]
+	at org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration$PersistenceManagedTypesConfiguration.persistenceManagedTypes(JpaBaseConfiguration.java:226) ~[spring-boot-autoconfigure-3.5.11.jar:3.5.11]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.lambda$instantiate$0(SimpleInstantiationStrategy.java:172) ~[spring-beans-6.2.16.jar:6.2.16]
+	... 37 common frames omitted
+Caused by: java.lang.ArrayIndexOutOfBoundsException: Index 8 out of bounds for length 0
+	at org.springframework.asm.ClassReader.readUnsignedShort(ClassReader.java:3637) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.asm.ClassReader.<init>(ClassReader.java:208) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.asm.ClassReader.<init>(ClassReader.java:180) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.asm.ClassReader.<init>(ClassReader.java:166) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.asm.ClassReader.<init>(ClassReader.java:292) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.core.type.classreading.SimpleMetadataReader.getClassReader(SimpleMetadataReader.java:56) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.core.type.classreading.SimpleMetadataReader.<init>(SimpleMetadataReader.java:48) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.core.type.classreading.SimpleMetadataReaderFactory.getMetadataReader(SimpleMetadataReaderFactory.java:103) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.core.type.classreading.CachingMetadataReaderFactory.getMetadataReader(CachingMetadataReaderFactory.java:122) ~[spring-core-6.2.16.jar:6.2.16]
+	at org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypesScanner.scanPackage(PersistenceManagedTypesScanner.java:140) ~[spring-orm-6.2.16.jar:6.2.16]
+	... 42 common frames omitted
+
+2026-03-20T18:18:21.837+02:00  INFO 22724 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 22724 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-03-20T18:18:21.837+02:00 DEBUG 22724 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-03-20T18:18:21.838+02:00  INFO 22724 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : The following 1 profile is active: "local"
+2026-03-20T18:18:22.299+02:00  INFO 22724 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-20T18:18:22.368+02:00  INFO 22724 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 64 ms. Found 7 JPA repository interfaces.
+2026-03-20T18:18:22.591+02:00  INFO 22724 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-20T18:18:22.596+02:00  INFO 22724 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-20T18:18:22.596+02:00  INFO 22724 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-03-20T18:18:22.663+02:00  INFO 22724 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring embedded WebApplicationContext
+2026-03-20T18:18:22.663+02:00  INFO 22724 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 825 ms
+2026-03-20T18:18:22.677+02:00 DEBUG 22724 --- [7max] [restartedMain] c.sevenmax.tracker.security.JwtFilter    : Filter 'jwtFilter' configured for use
+2026-03-20T18:18:22.731+02:00  INFO 22724 --- [7max] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-20T18:18:22.734+02:00  INFO 22724 --- [7max] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-20T18:18:22.774+02:00  INFO 22724 --- [7max] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-20T18:18:22.774+02:00  INFO 22724 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-46 - Starting...
+2026-03-20T18:18:22.909+02:00  INFO 22724 --- [7max] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-46 - Added connection org.postgresql.jdbc.PgConnection@b1e2b69
+2026-03-20T18:18:22.911+02:00  INFO 22724 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-46 - Start completed.
+2026-03-20T18:18:22.918+02:00  WARN 22724 --- [7max] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-20T18:18:22.921+02:00  INFO 22724 --- [7max] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-46)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-20T18:18:23.358+02:00  INFO 22724 --- [7max] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-20T18:18:23.464+02:00  INFO 22724 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T18:18:23.666+02:00  INFO 22724 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: transactions type constraint updated
+2026-03-20T18:18:23.903+02:00  WARN 22724 --- [7max] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-20T18:18:24.063+02:00  WARN 22724 --- [7max] [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 973ae675-7333-4419-8727-9b117618bc47
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-20T18:18:24.068+02:00  INFO 22724 --- [7max] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-20T18:18:24.247+02:00  INFO 22724 --- [7max] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-20T18:18:24.272+02:00  INFO 22724 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-20T18:18:24.276+02:00  INFO 22724 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Started Application in 2.496 seconds (process running for 522606.506)
+2026-03-20T18:18:24.502+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-1] o.a.c.c.C.[Tomcat-1].[localhost].[/]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-20T18:18:24.504+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-20T18:18:24.506+02:00  INFO 22724 --- [7max] [http-nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-03-20T18:18:25.402+02:00  INFO 22724 --- [7max] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
+2026-03-20T18:18:25.937+02:00  INFO 298756 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 298756 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-03-20T18:18:25.943+02:00 DEBUG 298756 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-03-20T18:18:25.945+02:00  INFO 298756 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-03-20T18:18:26.003+02:00  INFO 298756 --- [7max] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-20T18:18:26.003+02:00  INFO 298756 --- [7max] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-20T18:18:26.857+02:00  INFO 298756 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-20T18:18:26.923+02:00  INFO 298756 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 59 ms. Found 7 JPA repository interfaces.
+2026-03-20T18:18:27.439+02:00  INFO 298756 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-20T18:18:27.453+02:00  INFO 298756 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-20T18:18:27.454+02:00  INFO 298756 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-03-20T18:18:27.495+02:00  INFO 298756 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-20T18:18:27.495+02:00  INFO 298756 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1489 ms
+2026-03-20T18:18:27.530+02:00 DEBUG 298756 --- [7max] [restartedMain] c.sevenmax.tracker.security.JwtFilter    : Filter 'jwtFilter' configured for use
+2026-03-20T18:18:27.644+02:00  INFO 298756 --- [7max] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-20T18:18:27.708+02:00  INFO 298756 --- [7max] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.42.Final
+2026-03-20T18:18:27.735+02:00  INFO 298756 --- [7max] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-20T18:18:28.221+02:00  INFO 298756 --- [7max] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-20T18:18:28.287+02:00  INFO 298756 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-20T18:18:28.826+02:00  INFO 298756 --- [7max] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@192d32e7
+2026-03-20T18:18:28.835+02:00  INFO 298756 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-20T18:18:28.940+02:00  WARN 298756 --- [7max] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-20T18:18:28.988+02:00  INFO 298756 --- [7max] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-20T18:18:31.504+02:00  INFO 298756 --- [7max] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-20T18:18:31.782+02:00  INFO 298756 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T18:18:32.421+02:00  INFO 298756 --- [7max] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-20T18:18:33.293+02:00  INFO 298756 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: transactions type constraint updated
+2026-03-20T18:18:33.908+02:00  WARN 298756 --- [7max] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-20T18:18:34.292+02:00  WARN 298756 --- [7max] [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: efb1c78a-13d0-4778-a8fe-d8fa48f8ab12
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-20T18:18:34.309+02:00  INFO 298756 --- [7max] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-20T18:18:34.893+02:00  WARN 298756 --- [7max] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : Unable to start LiveReload server
+2026-03-20T18:18:34.933+02:00  WARN 298756 --- [7max] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-03-20T18:18:34.937+02:00  INFO 298756 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-20T18:18:34.947+02:00  INFO 298756 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-03-20T18:18:34.958+02:00  INFO 298756 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-20T18:18:34.984+02:00  INFO 298756 --- [7max] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-03-20T18:18:35.023+02:00 ERROR 298756 --- [7max] [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+

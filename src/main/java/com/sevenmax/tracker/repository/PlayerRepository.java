@@ -14,6 +14,10 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @Query("SELECT p FROM Player p WHERE LOWER(p.username) = LOWER(:username)")
     List<Player> findByUsernameCaseInsensitive(@Param("username") String username);
 
+    // Fuzzy: strip spaces, underscores, hyphens before comparing
+    @Query(value = "SELECT * FROM players WHERE LOWER(REGEXP_REPLACE(username, '[\\s_\\-]', '', 'g')) = LOWER(REGEXP_REPLACE(:username, '[\\s_\\-]', '', 'g'))", nativeQuery = true)
+    List<Player> findByUsernameFuzzy(@Param("username") String username);
+
     @Query("SELECT p FROM Player p WHERE p.clubPlayerId = :clubPlayerId")
     List<Player> findByClubPlayerIdSafe(@Param("clubPlayerId") String clubPlayerId);
 }
