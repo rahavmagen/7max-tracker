@@ -72,6 +72,20 @@ public class ImportService {
             }
             log.info("Found {} players in sheet 1", playerMap.size());
 
+            // Build secondary lookup by full name (for when credit sheet username differs from players sheet)
+            Map<String, Player> fullNameMap = new HashMap<>();
+            for (Player p : playerMap.values()) {
+                if (p.getFullName() != null && !p.getFullName().isBlank()) {
+                    fullNameMap.put(p.getFullName().trim().toLowerCase(), p);
+                }
+            }
+
+            // Build fuzzy lookup (strips spaces/underscores/hyphens) for username matching
+            Map<String, Player> fuzzyMap = new HashMap<>();
+            for (Map.Entry<String, Player> e : playerMap.entrySet()) {
+                fuzzyMap.put(e.getKey().replaceAll("[ _\\-]", ""), e.getValue());
+            }
+
             // Credit sheet (מעקב קרדיטים) - find by name, cols: username(A), name(B), C, D, E, F
             Sheet creditSheet = null;
             for (int i = 0; i < wb.getNumberOfSheets(); i++) {
@@ -94,13 +108,23 @@ public class ImportService {
                     BigDecimal colF = parseBD(getText(row, 5));
                     BigDecimal total = colC.add(colD).add(colE).add(colF);
 
-                    // Try col A first, then col B as username key
+                    // 1. Exact username match
                     Player p = playerMap.get(username.toLowerCase());
+                    // 2. Fuzzy username match (strips spaces/underscores/hyphens)
                     if (p == null) {
-                        String altUsername = getText(row, 1);
-                        if (!altUsername.isBlank()) p = playerMap.get(altUsername.toLowerCase());
+                        p = fuzzyMap.get(username.toLowerCase().replaceAll("[ _\\-]", ""));
+                        if (p != null) log.warn("Credit fuzzy username match: '{}' -> '{}'", username, p.getUsername());
+                    }
+                    // 3. Match by full name (col B) — handles cases where usernames differ between sheets
+                    if (p == null) {
+                        String fullName = getText(row, 1);
+                        if (!fullName.isBlank()) {
+                            p = fullNameMap.get(fullName.trim().toLowerCase());
+                            if (p != null) log.warn("Credit full-name match: '{}' -> player '{}'", username, p.getUsername());
+                        }
                     }
                     if (p != null) p.setCreditTotal(total);
+                    else log.warn("Credit row unmatched: '{}'", username);
                 }
             } else {
                 log.warn("Credit sheet (מעקב קרדיטים) not found in file");
