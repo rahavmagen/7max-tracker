@@ -45,7 +45,7 @@ public class ImportController {
         }
     }
 
-    @DeleteMapping("/reset-all")
+    @PostMapping("/reset-all")
     public ResponseEntity<Map<String, Object>> resetAll() {
         long players = playerRepository.count();
         gameResultRepository.deleteAll();
