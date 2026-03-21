@@ -1,7 +1,7 @@
 package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.ImportSummary;
-import com.sevenmax.tracker.repository.ImportSummaryRepository;
+import com.sevenmax.tracker.repository.*;
 import com.sevenmax.tracker.service.ImportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +18,11 @@ public class ImportController {
 
     private final ImportService importService;
     private final ImportSummaryRepository importSummaryRepository;
+    private final PlayerRepository playerRepository;
+    private final TransactionRepository transactionRepository;
+    private final GameResultRepository gameResultRepository;
+    private final GameSessionRepository gameSessionRepository;
+    private final ReportRepository reportRepository;
 
     @PostMapping("/players")
     public ResponseEntity<Map<String, Object>> importPlayers(
@@ -38,6 +43,18 @@ public class ImportController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @DeleteMapping("/reset-all")
+    public ResponseEntity<Map<String, Object>> resetAll() {
+        long players = playerRepository.count();
+        gameResultRepository.deleteAll();
+        gameSessionRepository.deleteAll();
+        reportRepository.deleteAll();
+        transactionRepository.deleteAll();
+        playerRepository.deleteAll();
+        importSummaryRepository.deleteAll();
+        return ResponseEntity.ok(Map.of("deleted", Map.of("players", players)));
     }
 
     @GetMapping("/profit-summary")
