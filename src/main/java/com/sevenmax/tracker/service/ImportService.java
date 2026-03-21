@@ -217,8 +217,18 @@ public class ImportService {
             p.setActive(true);
 
             Optional<Player> existing = playerService.findPlayerByUsername(p.getUsername());
-            if (existing.isEmpty() && p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) {
-                existing = playerRepository.findByClubPlayerIdSafe(p.getClubPlayerId()).stream().findFirst();
+            if (p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) {
+                Optional<Player> byClubId = playerRepository.findByClubPlayerIdSafe(p.getClubPlayerId()).stream().findFirst();
+                if (byClubId.isPresent()) {
+                    // Always prefer the player that owns the clubPlayerId — avoids duplicate key constraint
+                    if (existing.isEmpty() || (existing.get().getClubPlayerId() == null)) {
+                        if (existing.isPresent()) {
+                            log.warn("Import: '{}' username matched player without clubPlayerId; using clubPlayerId owner '{}' instead",
+                                    p.getUsername(), byClubId.get().getUsername());
+                        }
+                        existing = byClubId;
+                    }
+                }
             }
             if (existing.isPresent()) {
                 Player ex = existing.get();
