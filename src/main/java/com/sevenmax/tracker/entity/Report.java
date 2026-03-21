@@ -36,4 +36,8 @@ public class Report {
     /** Transient: populated after upload, not persisted */
     @Transient
     private List<Map<String, String>> leftClub;
+
+    /** Transient: players who were stale but found in this upload's balance (recovered) */
+    @Transient
+    private List<Map<String, String>> recovered;
 }

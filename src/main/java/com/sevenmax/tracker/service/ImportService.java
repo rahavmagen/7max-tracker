@@ -105,16 +105,17 @@ public class ImportService {
             }
             if (creditSheet != null) {
                 log.info("Reading credit sheet '{}': {} rows", creditSheet.getSheetName(), creditSheet.getLastRowNum());
+                org.apache.poi.ss.usermodel.FormulaEvaluator creditEval = wb.getCreationHelper().createFormulaEvaluator();
                 for (int r = 2; r <= creditSheet.getLastRowNum(); r++) {
                     Row row = creditSheet.getRow(r);
                     if (row == null) continue;
                     String username = getText(row, 0);
                     if (username.isBlank()) continue;
 
-                    BigDecimal colC = parseBD(getText(row, 2));
-                    BigDecimal colD = parseBD(getText(row, 3));
-                    BigDecimal colE = parseBD(getText(row, 4));
-                    BigDecimal colF = parseBD(getText(row, 5));
+                    BigDecimal colC = parseBD(getTextEvaluated(row, 2, creditEval));
+                    BigDecimal colD = parseBD(getTextEvaluated(row, 3, creditEval));
+                    BigDecimal colE = parseBD(getTextEvaluated(row, 4, creditEval));
+                    BigDecimal colF = parseBD(getTextEvaluated(row, 5, creditEval));
                     BigDecimal total = colC.add(colD).add(colE).add(colF);
 
                     // 1. Exact username match
@@ -157,39 +158,25 @@ public class ImportService {
                 log.info("Expenses: generalExpenses={} willExpense={}", generalExpenses, willExpense);
             }
 
-            // מעקב הפקדות ומשיכות sheet: cols C+D+E = bank deposits (reuven/yair/tomer)
-            Sheet depSheet = null;
+            // מיקום הכסף sheet: B2 + I2 = bank deposits
+            Sheet moneySheet = null;
             for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-                if (wb.getSheetAt(i).getSheetName().contains("הפקדות")) {
-                    depSheet = wb.getSheetAt(i);
+                if (wb.getSheetAt(i).getSheetName().contains("מיקום הכסף")) {
+                    moneySheet = wb.getSheetAt(i);
                     break;
                 }
             }
-            if (depSheet != null) {
-                // E1 cell contains SUM formula like "SUM(E3:E69)" — use its end row as the deposit section boundary
-                int depositEndRow = 69; // default fallback
-                org.apache.poi.ss.usermodel.Row headerRow = depSheet.getRow(0);
-                if (headerRow != null) {
-                    org.apache.poi.ss.usermodel.Cell e1 = headerRow.getCell(4); // E1
-                    if (e1 != null && e1.getCellType() == CellType.FORMULA) {
-                        try {
-                            String f = e1.getCellFormula(); // e.g. "SUM(E3:E69)"
-                            java.util.regex.Matcher m = java.util.regex.Pattern.compile(":(\\w+)\\)").matcher(f);
-                            if (m.find()) depositEndRow = Integer.parseInt(m.group(1).replaceAll("[^0-9]", "")) - 1;
-                        } catch (Exception ignored) {}
-                    }
+            if (moneySheet != null) {
+                Row row2 = moneySheet.getRow(1); // row 2 (0-indexed = 1)
+                if (row2 != null) {
+                    org.apache.poi.ss.usermodel.FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+                    BigDecimal b2 = parseBD(getTextEvaluated(row2, 1, evaluator)); // B2
+                    BigDecimal i2 = parseBD(getTextEvaluated(row2, 8, evaluator)); // I2
+                    bankDeposits = b2.add(i2);
+                    log.info("Bank deposits from מיקום הכסף: B2={} I2={} total={}", b2, i2, bankDeposits);
                 }
-                log.info("Deposit section rows 2-{}", depositEndRow);
-                for (int r = 2; r <= depositEndRow; r++) {
-                    Row row = depSheet.getRow(r);
-                    if (row == null) continue;
-                    // Only sum POSITIVE values (skip withdrawals which are negative)
-                    for (int c = 2; c <= 4; c++) {
-                        BigDecimal v = parseLeadingNumber(getText(row, c));
-                        if (v.compareTo(BigDecimal.ZERO) > 0) bankDeposits = bankDeposits.add(v);
-                    }
-                }
-                log.info("Bank deposits: {}", bankDeposits);
+            } else {
+                log.warn("Sheet מיקום הכסף not found");
             }
         }
 
@@ -231,11 +218,10 @@ public class ImportService {
                 if (p.getFullName() != null && !p.getFullName().isBlank()) ex.setFullName(p.getFullName());
                 if (p.getPhone() != null && !p.getPhone().isBlank()) ex.setPhone(p.getPhone());
                 if (p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) ex.setClubPlayerId(p.getClubPlayerId());
-                if (p.getCreditTotal() != null && p.getCreditTotal().compareTo(BigDecimal.ZERO) != 0) {
-                    ex.setCreditTotal(p.getCreditTotal());
-                    BigDecimal chips = ex.getCurrentChips() != null ? ex.getCurrentChips() : BigDecimal.ZERO;
-                    ex.setBalance(chips.subtract(p.getCreditTotal()));
-                }
+                BigDecimal newCredit = p.getCreditTotal() != null ? p.getCreditTotal() : BigDecimal.ZERO;
+                ex.setCreditTotal(newCredit);
+                BigDecimal chips = ex.getCurrentChips() != null ? ex.getCurrentChips() : BigDecimal.ZERO;
+                ex.setBalance(chips.subtract(newCredit));
                 playerRepository.save(ex);
                 updated++;
             } else {
@@ -337,6 +323,22 @@ public class ImportService {
                 if (v == Math.floor(v)) yield String.valueOf((long) v);
                 yield String.valueOf(v);
             }
+            default -> "";
+        };
+    }
+
+    private String getTextEvaluated(Row row, int col, org.apache.poi.ss.usermodel.FormulaEvaluator evaluator) {
+        Cell cell = row.getCell(col);
+        if (cell == null) return "";
+        org.apache.poi.ss.usermodel.CellValue cv = evaluator.evaluate(cell);
+        if (cv == null) return "";
+        return switch (cv.getCellType()) {
+            case NUMERIC -> {
+                double v = cv.getNumberValue();
+                if (v == Math.floor(v)) yield String.valueOf((long) v);
+                yield String.valueOf(v);
+            }
+            case STRING -> cv.getStringValue().trim();
             default -> "";
         };
     }

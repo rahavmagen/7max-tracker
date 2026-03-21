@@ -22,6 +22,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -79,6 +80,62 @@ public class ReportController {
             if (v instanceof Number n) return n.longValue();
         }
         return -1L;
+    }
+
+    @GetMapping("/sessions")
+    public ResponseEntity<List<Map<String, Object>>> getSessions(Authentication auth) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        gameSessionRepository.findAll().stream()
+            .filter(s -> s.getGameType() == com.sevenmax.tracker.entity.GameSession.GameType.MTT
+                      || s.getGameType() == com.sevenmax.tracker.entity.GameSession.GameType.SNG)
+            .sorted((a, b) -> b.getStartTime() != null && a.getStartTime() != null
+                ? b.getStartTime().compareTo(a.getStartTime()) : 0)
+            .forEach(s -> {
+                List<GameResult> sessionResults = gameResultRepository.findBySessionId(s.getId());
+                long playerCount = sessionResults.size();
+                int entries = s.getEntryCount() != null ? s.getEntryCount() : (int) playerCount;
+                BigDecimal rakeTotal = sessionResults.stream()
+                    .map(r -> r.getRakePaid() != null ? r.getRakePaid() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", s.getId());
+                m.put("tableName", s.getTableName());
+                m.put("gameType", s.getGameType());
+                m.put("startTime", s.getStartTime() != null ? s.getStartTime().toString() : null);
+                m.put("endTime", s.getEndTime() != null ? s.getEndTime().toString() : null);
+                m.put("rakeTotal", rakeTotal);
+                m.put("playerCount", playerCount);
+                m.put("entryCount", entries);
+                m.put("reEntryCount", entries - (int) playerCount);
+                result.add(m);
+            });
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/sessions/{id}/results")
+    public ResponseEntity<List<Map<String, Object>>> getSessionResults(@PathVariable Long id) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        gameResultRepository.findBySessionId(id).stream()
+            .sorted((a, b) -> {
+                if (a.getTournamentPlace() != null && b.getTournamentPlace() != null)
+                    return Integer.compare(a.getTournamentPlace(), b.getTournamentPlace());
+                if (a.getTournamentPlace() != null) return -1;
+                if (b.getTournamentPlace() != null) return 1;
+                return 0;
+            })
+            .forEach(r -> {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("playerId", r.getPlayer().getId());
+                m.put("username", r.getPlayer().getUsername());
+                m.put("fullName", r.getPlayer().getFullName());
+                m.put("buyIn", r.getBuyIn());
+                m.put("cashout", r.getCashout());
+                m.put("rakePaid", r.getRakePaid());
+                m.put("resultAmount", r.getResultAmount());
+                m.put("tournamentPlace", r.getTournamentPlace());
+                result.add(m);
+            });
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/admin/income")

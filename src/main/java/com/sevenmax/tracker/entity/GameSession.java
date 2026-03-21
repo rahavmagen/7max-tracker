@@ -25,6 +25,8 @@ public class GameSession {
     @Column(precision = 12, scale = 2)
     private BigDecimal rakeTotal = BigDecimal.ZERO;
 
+    private Integer entryCount;
+
     @ManyToOne
     @JoinColumn(name = "report_id")
     private Report report;

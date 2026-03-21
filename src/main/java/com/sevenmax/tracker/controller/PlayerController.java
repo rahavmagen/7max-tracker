@@ -32,6 +32,22 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.getAllPlayers());
     }
 
+    @GetMapping("/stale")
+    public ResponseEntity<List<Map<String, String>>> getStalePlayers() {
+        List<Map<String, String>> stale = playerRepository.findAll().stream()
+            .filter(p -> Boolean.TRUE.equals(p.getChipsStale()))
+            .map(p -> {
+                Map<String, String> info = new java.util.LinkedHashMap<>();
+                info.put("id", String.valueOf(p.getId()));
+                info.put("username", p.getUsername());
+                info.put("fullName", p.getFullName() != null ? p.getFullName() : "");
+                info.put("clubPlayerId", p.getClubPlayerId() != null ? p.getClubPlayerId() : "");
+                return info;
+            })
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(stale);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayer(@PathVariable Long id, Authentication auth) {
         if (isPlayer(auth) && !id.equals(getPlayerId(auth))) {
