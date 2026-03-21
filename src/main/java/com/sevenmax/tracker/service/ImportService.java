@@ -1,7 +1,9 @@
 package com.sevenmax.tracker.service;
 
+import com.sevenmax.tracker.entity.ImportSummary;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.repository.GameResultRepository;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ public class ImportService {
     private final PlayerRepository playerRepository;
     private final GameResultRepository gameResultRepository;
     private final PlayerService playerService;
+    private final ImportSummaryRepository importSummaryRepository;
 
     /**
      * Import players from max7.xlsx:
@@ -38,6 +41,11 @@ public class ImportService {
 
         // Step 1: Read max7 - users
         Map<String, Player> playerMap = new HashMap<>();
+
+        // Profit summary metrics (computed from the XLS, stored in DB)
+        BigDecimal willExpense = BigDecimal.ZERO;
+        BigDecimal generalExpenses = BigDecimal.ZERO;
+        BigDecimal bankDeposits = BigDecimal.ZERO;
 
         try (InputStream is = max7File.getInputStream();
              Workbook wb = new XSSFWorkbook(is)) {
@@ -129,7 +137,55 @@ public class ImportService {
             } else {
                 log.warn("Credit sheet (מעקב קרדיטים) not found in file");
             }
+
+            // הוצאות sheet: col C = general expenses, col H = will/גלגל expenses
+            Sheet expSheet = null;
+            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                if (wb.getSheetAt(i).getSheetName().contains("הוצאות")) {
+                    expSheet = wb.getSheetAt(i);
+                    break;
+                }
+            }
+            if (expSheet != null) {
+                for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
+                    Row row = expSheet.getRow(r);
+                    if (row == null) continue;
+                    generalExpenses = generalExpenses.add(parseBD(getText(row, 2)));
+                    willExpense = willExpense.add(parseBD(getText(row, 7)));
+                }
+                log.info("Expenses: generalExpenses={} willExpense={}", generalExpenses, willExpense);
+            }
+
+            // מעקב הפקדות ומשיכות sheet: cols C+D+E = bank deposits (reuven/yair/tomer)
+            Sheet depSheet = null;
+            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                if (wb.getSheetAt(i).getSheetName().contains("הפקדות")) {
+                    depSheet = wb.getSheetAt(i);
+                    break;
+                }
+            }
+            if (depSheet != null) {
+                for (int r = 2; r <= depSheet.getLastRowNum(); r++) {
+                    Row row = depSheet.getRow(r);
+                    if (row == null) continue;
+                    // Deposit cols: C(2)=רועי, D(3)=יאיר, E(4)=תומר — parse leading number from text cells
+                    for (int c = 2; c <= 4; c++) {
+                        bankDeposits = bankDeposits.add(parseLeadingNumber(getText(row, c)));
+                    }
+                }
+                log.info("Bank deposits: {}", bankDeposits);
+            }
         }
+
+        // Save profit summary as singleton row
+        ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+        summary.setId(1L);
+        summary.setWillExpense(willExpense);
+        summary.setGeneralExpenses(generalExpenses);
+        summary.setBankDeposits(bankDeposits);
+        summary.setLastUpdated(java.time.LocalDateTime.now());
+        importSummaryRepository.save(summary);
+        log.info("Saved ImportSummary: will={} expenses={} deposits={}", willExpense, generalExpenses, bankDeposits);
 
         log.info("max7 import done: {} players in map", playerMap.size());
 
@@ -192,5 +248,23 @@ public class ImportService {
         } catch (Exception e) {
             return BigDecimal.ZERO;
         }
+    }
+
+    /** Extract leading number from a cell that may contain text like "1437 ביט לרועי" */
+    private BigDecimal parseLeadingNumber(String val) {
+        if (val == null || val.isBlank()) return BigDecimal.ZERO;
+        val = val.trim();
+        // Try direct parse first
+        try {
+            return new BigDecimal(val.replace(",", ""));
+        } catch (Exception ignored) {}
+        // Extract leading digits (possibly with decimal point)
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^-?[\\d,]+(\\.[\\d]+)?").matcher(val);
+        if (m.find()) {
+            try {
+                return new BigDecimal(m.group().replace(",", ""));
+            } catch (Exception ignored) {}
+        }
+        return BigDecimal.ZERO;
     }
 }

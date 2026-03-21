@@ -17,6 +17,19 @@ public class SchemaMigration {
     public void migrate() {
         try {
             jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS import_summary (" +
+                "id BIGINT PRIMARY KEY, " +
+                "will_expense NUMERIC(12,2), " +
+                "general_expenses NUMERIC(12,2), " +
+                "bank_deposits NUMERIC(12,2), " +
+                "last_updated TIMESTAMP)"
+            );
+            log.info("SchemaMigration: import_summary table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: import_summary table: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute(
                 "ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check"
             );
             jdbcTemplate.execute(

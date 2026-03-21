@@ -1,5 +1,7 @@
 package com.sevenmax.tracker.controller;
 
+import com.sevenmax.tracker.entity.ImportSummary;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.service.ImportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import java.util.Map;
 public class ImportController {
 
     private final ImportService importService;
+    private final ImportSummaryRepository importSummaryRepository;
 
     @PostMapping("/players")
     public ResponseEntity<Map<String, Object>> importPlayers(
@@ -26,5 +29,12 @@ public class ImportController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/profit-summary")
+    public ResponseEntity<ImportSummary> getProfitSummary() {
+        return importSummaryRepository.findById(1L)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.noContent().build());
     }
 }
