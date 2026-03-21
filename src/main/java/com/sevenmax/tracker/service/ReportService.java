@@ -74,24 +74,35 @@ public class ReportService {
             totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap, nicknameToClubId));
             totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap, nicknameToClubId));
 
-            // Parse Club Member Balance → newChipsMap (keyed by nickname)
-            Map<String, BigDecimal> newChipsMap = parseClubMemberBalance(memberBalanceSheet);
+            // Parse Club Member Balance → map of nickname → [chips, clubId]
+            Map<String, Object[]> newChipsMap = parseClubMemberBalance(memberBalanceSheet);
 
             // Track which player IDs were updated from XLS
             Set<Long> updatedPlayerIds = new java.util.HashSet<>();
 
             // Update player currentChips and balance from Club Member Balance; auto-create if missing
-            for (Map.Entry<String, BigDecimal> entry : newChipsMap.entrySet()) {
+            for (Map.Entry<String, Object[]> entry : newChipsMap.entrySet()) {
                 String nickname = entry.getKey();
-                BigDecimal newChips = entry.getValue();
-                Player player = findPlayerByUsername(nickname).orElse(null);
-                // Fallback: use club ID from Ring/MTT detail to find the right player
+                BigDecimal newChips = (BigDecimal) entry.getValue()[0];
+                String balanceClubId = (String) entry.getValue()[1];
+
+                Player player = null;
+                // 1. Match by club ID from the balance sheet itself (most reliable)
+                if (balanceClubId != null) {
+                    player = playerRepository.findByClubPlayerIdSafe(balanceClubId).stream().findFirst().orElse(null);
+                    if (player != null) log.debug("Balance: matched '{}' by clubId {}", nickname, balanceClubId);
+                }
+                // 2. Match by club ID from Ring/MTT Detail (same upload)
                 if (player == null) {
                     String clubId = nicknameToClubId.get(nickname.toLowerCase());
                     if (clubId != null) {
                         player = playerRepository.findByClubPlayerIdSafe(clubId).stream().findFirst().orElse(null);
-                        if (player != null) log.warn("Balance club-ID fallback: '{}' → player '{}' via clubId {}", nickname, player.getUsername(), clubId);
+                        if (player != null) log.warn("Balance Ring/MTT fallback: '{}' → player '{}' via clubId {}", nickname, player.getUsername(), clubId);
                     }
+                }
+                // 3. Match by username (exact, fuzzy, alphanumeric)
+                if (player == null) {
+                    player = findPlayerByUsername(nickname).orElse(null);
                 }
                 if (player == null) {
                     player = new Player();
@@ -225,13 +236,14 @@ public class ReportService {
         }
     }
 
-    private Map<String, BigDecimal> parseClubMemberBalance(Sheet sheet) {
-        Map<String, BigDecimal> map = new HashMap<>();
+    // Entry: nickname → [chips, clubPlayerId_or_null]
+    private Map<String, Object[]> parseClubMemberBalance(Sheet sheet) {
+        Map<String, Object[]> map = new HashMap<>();
         if (sheet == null) return map;
 
-        // Find header row to locate Nickname and Balance columns
         int nicknameCol = -1;
         int balanceCol = -1;
+        int clubIdCol = -1;
         int headerRowIdx = -1;
 
         for (int r = 0; r <= Math.min(sheet.getLastRowNum(), 10); r++) {
@@ -243,6 +255,7 @@ public class ReportService {
                 String lower = val.toLowerCase();
                 if (lower.contains("nickname") || lower.equals("name")) nicknameCol = c;
                 if (lower.contains("balance") || lower.contains("chips")) balanceCol = c;
+                if (lower.contains("member id") || lower.contains("club id") || lower.contains("player id") || lower.equals("id")) clubIdCol = c;
             }
             if (nicknameCol >= 0 && balanceCol >= 0) {
                 headerRowIdx = r;
@@ -255,16 +268,24 @@ public class ReportService {
             return map;
         }
 
-        log.debug("Club Member Balance: nicknameCol={} balanceCol={} headerRow={}", nicknameCol, balanceCol, headerRowIdx);
+        log.info("Club Member Balance: nicknameCol={} balanceCol={} clubIdCol={} headerRow={}", nicknameCol, balanceCol, clubIdCol, headerRowIdx);
 
         for (int r = headerRowIdx + 1; r <= sheet.getLastRowNum(); r++) {
             Row row = sheet.getRow(r);
             if (row == null) continue;
             String nickname = getCellValue(row, nicknameCol);
             if (nickname == null || nickname.isBlank()) continue;
-            String balStr = getCellValue(row, balanceCol);
-            BigDecimal chips = parseBigDecimal(balStr);
-            map.put(nickname, chips);
+            BigDecimal chips = parseBigDecimal(getCellValue(row, balanceCol));
+            String clubId = null;
+            if (clubIdCol >= 0) {
+                String raw = getCellValue(row, clubIdCol);
+                if (raw != null && raw.matches("\\d{4}-\\d{4}")) clubId = raw;
+                else if (raw != null && raw.replaceAll("[^0-9]", "").length() == 8) {
+                    String digits = raw.replaceAll("[^0-9]", "");
+                    clubId = digits.substring(0, 4) + "-" + digits.substring(4);
+                }
+            }
+            map.put(nickname, new Object[]{chips, clubId});
         }
         return map;
     }
