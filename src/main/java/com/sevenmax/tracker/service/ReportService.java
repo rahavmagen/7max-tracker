@@ -128,13 +128,24 @@ public class ReportService {
                 updatedPlayerIds.add(player.getId());
             }
 
-            // Mark players NOT in this XLS as stale
+            // Mark players NOT in this XLS as stale; collect club members who left
+            List<Map<String, String>> leftClub = new java.util.ArrayList<>();
             for (Player player : playerRepository.findAll()) {
                 if (!updatedPlayerIds.contains(player.getId())) {
                     player.setChipsStale(true);
                     playerRepository.save(player);
+                    // Only flag as "left club" if they were a real club member (have clubPlayerId)
+                    if (player.getClubPlayerId() != null && !player.getClubPlayerId().isBlank()) {
+                        Map<String, String> info = new java.util.LinkedHashMap<>();
+                        info.put("username", player.getUsername());
+                        info.put("fullName", player.getFullName() != null ? player.getFullName() : "");
+                        info.put("clubPlayerId", player.getClubPlayerId());
+                        leftClub.add(info);
+                        log.warn("Left club: {} ({})", player.getUsername(), player.getClubPlayerId());
+                    }
                 }
             }
+            report.setLeftClub(leftClub);
 
             // Parse מעקב קרדיטים → update player creditTotal if sheet exists
             parseCreditSheet(workbook);

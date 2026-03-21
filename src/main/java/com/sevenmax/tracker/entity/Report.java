@@ -5,6 +5,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "reports")
@@ -30,4 +32,8 @@ public class Report {
 
     private String fileName;
     private String filePath;
+
+    /** Transient: populated after upload, not persisted */
+    @Transient
+    private List<Map<String, String>> leftClub;
 }
