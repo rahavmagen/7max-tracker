@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -41,7 +42,6 @@ public class ImportService {
 
         // Step 1: Read max7 - users
         Map<String, Player> playerMap = new HashMap<>();
-        List<String> duplicateWarnings = new ArrayList<>();
 
         // Profit summary metrics (computed from the XLS, stored in DB)
         BigDecimal willExpense = BigDecimal.ZERO;
@@ -77,30 +77,9 @@ public class ImportService {
                     }
                     p.setClubPlayerId(rawId);
                 }
-                String key = username.toLowerCase();
-                if (playerMap.containsKey(key)) {
-                    Player existing2 = playerMap.get(key);
-                    String warn = "Row " + (r+1) + ": duplicate username '" + username + "' (conflicts with '" + existing2.getUsername() + "') — skipped";
-                    duplicateWarnings.add(warn);
-                    log.warn(warn);
-                } else {
-                    // Also check for duplicate clubPlayerId within this import
-                    if (p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) {
-                        boolean clubIdDup = playerMap.values().stream()
-                            .anyMatch(ep -> p.getClubPlayerId().equalsIgnoreCase(ep.getClubPlayerId() != null ? ep.getClubPlayerId() : ""));
-                        if (clubIdDup) {
-                            String warn2 = "Row " + (r+1) + ": duplicate clubPlayerId '" + p.getClubPlayerId() + "' for username '" + username + "' — skipped";
-                            duplicateWarnings.add(warn2);
-                            log.warn(warn2);
-                        } else {
-                            playerMap.put(key, p);
-                        }
-                    } else {
-                        playerMap.put(key, p);
-                    }
-                }
+                playerMap.put(username.toLowerCase(), p);
             }
-            log.info("Found {} players in sheet 1 ({} duplicates skipped)", playerMap.size(), duplicateWarnings.size());
+            log.info("Found {} players in sheet 1", playerMap.size());
 
             // Build secondary lookup by full name (for when credit sheet username differs from players sheet)
             Map<String, Player> fullNameMap = new HashMap<>();
@@ -269,9 +248,82 @@ public class ImportService {
         result.put("created", created);
         result.put("updated", updated);
         result.put("total", playerMap.size());
-        if (!duplicateWarnings.isEmpty()) {
-            result.put("duplicates", duplicateWarnings);
+        return result;
+    }
+
+    /** Compare XLS players sheet against DB — returns who is in XLS but not in DB */
+    public Map<String, Object> compareWithXls(MultipartFile max7File) throws Exception {
+        List<Map<String, String>> inXls = new java.util.ArrayList<>();
+        List<Map<String, String>> missingFromDb = new java.util.ArrayList<>();
+        List<Map<String, String>> xlsDuplicates = new java.util.ArrayList<>();
+
+        Set<String> seenUsernames = new java.util.LinkedHashSet<>();
+        Set<String> seenClubIds = new java.util.LinkedHashSet<>();
+
+        try (InputStream is = max7File.getInputStream();
+             Workbook wb = new XSSFWorkbook(is)) {
+            Sheet sheet1 = wb.getSheetAt(0);
+            for (int r = 1; r <= sheet1.getLastRowNum(); r++) {
+                Row row = sheet1.getRow(r);
+                if (row == null) continue;
+                String username = getText(row, 0);
+                if (username.isBlank()) continue;
+
+                String fullName = getText(row, 1);
+                String phone = getText(row, 2);
+                String rawId = getText(row, 3);
+                if (!rawId.isBlank()) {
+                    rawId = rawId.replace(".0", "").trim();
+                    if (rawId.length() == 8) rawId = rawId.substring(0, 4) + "-" + rawId.substring(4);
+                }
+
+                Map<String, String> entry = new java.util.LinkedHashMap<>();
+                entry.put("row", String.valueOf(r + 1));
+                entry.put("username", username);
+                entry.put("fullName", fullName);
+                entry.put("clubPlayerId", rawId);
+
+                // Check for duplicates within XLS
+                boolean isDup = false;
+                if (!rawId.isBlank() && seenClubIds.contains(rawId.toLowerCase())) {
+                    entry.put("dupReason", "duplicate clubPlayerId in XLS: " + rawId);
+                    xlsDuplicates.add(entry);
+                    isDup = true;
+                } else if (seenUsernames.contains(username.toLowerCase())) {
+                    entry.put("dupReason", "duplicate username in XLS: " + username);
+                    xlsDuplicates.add(entry);
+                    isDup = true;
+                }
+                if (!rawId.isBlank()) seenClubIds.add(rawId.toLowerCase());
+                seenUsernames.add(username.toLowerCase());
+
+                if (!isDup) inXls.add(entry);
+            }
         }
+
+        // Check each XLS player against DB
+        for (Map<String, String> xlsPlayer : inXls) {
+            String clubId = xlsPlayer.get("clubPlayerId");
+            String username = xlsPlayer.get("username");
+
+            boolean foundInDb = false;
+            if (!clubId.isBlank()) {
+                foundInDb = !playerRepository.findByClubPlayerIdSafe(clubId).isEmpty();
+            }
+            if (!foundInDb) {
+                foundInDb = playerService.findPlayerByUsername(username).isPresent();
+            }
+            if (!foundInDb) {
+                missingFromDb.add(xlsPlayer);
+            }
+        }
+
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("xlsCount", inXls.size() + xlsDuplicates.size());
+        result.put("xlsUniqueCount", inXls.size());
+        result.put("dbCount", playerRepository.count());
+        result.put("missingFromDb", missingFromDb);
+        result.put("xlsDuplicates", xlsDuplicates);
         return result;
     }
 

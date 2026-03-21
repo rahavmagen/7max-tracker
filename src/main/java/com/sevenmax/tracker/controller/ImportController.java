@@ -31,6 +31,15 @@ public class ImportController {
         }
     }
 
+    @PostMapping("/compare")
+    public ResponseEntity<?> compareWithXls(@RequestParam("max7") MultipartFile max7File) {
+        try {
+            return ResponseEntity.ok(importService.compareWithXls(max7File));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/profit-summary")
     public ResponseEntity<ImportSummary> getProfitSummary() {
         return importSummaryRepository.findById(1L)
