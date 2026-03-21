@@ -67,13 +67,14 @@ public class ReportService {
                 report.setFilePath(dest.toString());
             } catch (Exception ignored) {}
 
-            // Parse game results
+            // Parse game results — also build nickname→clubPlayerId map for balance fallback lookup
             Map<String, BigDecimal> gamePnlMap = new HashMap<>();
+            Map<String, String> nicknameToClubId = new HashMap<>();
             BigDecimal totalRake = BigDecimal.ZERO;
-            totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap));
-            totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap));
+            totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap, nicknameToClubId));
+            totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap, nicknameToClubId));
 
-            // Parse Club Member Balance → newChipsMap (keyed by username.lower)
+            // Parse Club Member Balance → newChipsMap (keyed by nickname)
             Map<String, BigDecimal> newChipsMap = parseClubMemberBalance(memberBalanceSheet);
 
             // Track which player IDs were updated from XLS
@@ -84,6 +85,14 @@ public class ReportService {
                 String nickname = entry.getKey();
                 BigDecimal newChips = entry.getValue();
                 Player player = findPlayerByUsername(nickname).orElse(null);
+                // Fallback: use club ID from Ring/MTT detail to find the right player
+                if (player == null) {
+                    String clubId = nicknameToClubId.get(nickname.toLowerCase());
+                    if (clubId != null) {
+                        player = playerRepository.findByClubPlayerIdSafe(clubId).stream().findFirst().orElse(null);
+                        if (player != null) log.warn("Balance club-ID fallback: '{}' → player '{}' via clubId {}", nickname, player.getUsername(), clubId);
+                    }
+                }
                 if (player == null) {
                     player = new Player();
                     player.setUsername(nickname);
@@ -270,7 +279,7 @@ public class ReportService {
         return null;
     }
 
-    private BigDecimal parseRingGameDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap) {
+    private BigDecimal parseRingGameDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId) {
         Sheet sheet = workbook.getSheet("Ring Game Detail");
         if (sheet == null) return BigDecimal.ZERO;
 
@@ -350,6 +359,7 @@ public class ReportService {
 
                 if (nickname != null && !nickname.isBlank()) {
                     gamePnlMap.merge(nickname.toLowerCase(), pnl, BigDecimal::add);
+                    nicknameToClubId.put(nickname.toLowerCase(), clubPlayerId);
                 }
 
                 totalRake = totalRake.add(rake);
@@ -358,7 +368,7 @@ public class ReportService {
         return totalRake;
     }
 
-    private BigDecimal parseMttDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap) {
+    private BigDecimal parseMttDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId) {
         Sheet sheet = workbook.getSheet("MTT Detail");
         if (sheet == null) return BigDecimal.ZERO;
 
@@ -446,6 +456,7 @@ public class ReportService {
 
                 if (nickname != null && !nickname.isBlank()) {
                     gamePnlMap.merge(nickname.toLowerCase(), pnl, BigDecimal::add);
+                    nicknameToClubId.put(nickname.toLowerCase(), clubPlayerId);
                 }
             }
         }
