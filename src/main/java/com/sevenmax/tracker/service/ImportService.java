@@ -41,6 +41,7 @@ public class ImportService {
 
         // Step 1: Read max7 - users
         Map<String, Player> playerMap = new HashMap<>();
+        List<String> duplicateWarnings = new ArrayList<>();
 
         // Profit summary metrics (computed from the XLS, stored in DB)
         BigDecimal willExpense = BigDecimal.ZERO;
@@ -76,9 +77,30 @@ public class ImportService {
                     }
                     p.setClubPlayerId(rawId);
                 }
-                playerMap.put(username.toLowerCase(), p);
+                String key = username.toLowerCase();
+                if (playerMap.containsKey(key)) {
+                    Player existing2 = playerMap.get(key);
+                    String warn = "Row " + (r+1) + ": duplicate username '" + username + "' (conflicts with '" + existing2.getUsername() + "') — skipped";
+                    duplicateWarnings.add(warn);
+                    log.warn(warn);
+                } else {
+                    // Also check for duplicate clubPlayerId within this import
+                    if (p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) {
+                        boolean clubIdDup = playerMap.values().stream()
+                            .anyMatch(ep -> p.getClubPlayerId().equalsIgnoreCase(ep.getClubPlayerId() != null ? ep.getClubPlayerId() : ""));
+                        if (clubIdDup) {
+                            String warn2 = "Row " + (r+1) + ": duplicate clubPlayerId '" + p.getClubPlayerId() + "' for username '" + username + "' — skipped";
+                            duplicateWarnings.add(warn2);
+                            log.warn(warn2);
+                        } else {
+                            playerMap.put(key, p);
+                        }
+                    } else {
+                        playerMap.put(key, p);
+                    }
+                }
             }
-            log.info("Found {} players in sheet 1", playerMap.size());
+            log.info("Found {} players in sheet 1 ({} duplicates skipped)", playerMap.size(), duplicateWarnings.size());
 
             // Build secondary lookup by full name (for when credit sheet username differs from players sheet)
             Map<String, Player> fullNameMap = new HashMap<>();
@@ -247,6 +269,9 @@ public class ImportService {
         result.put("created", created);
         result.put("updated", updated);
         result.put("total", playerMap.size());
+        if (!duplicateWarnings.isEmpty()) {
+            result.put("duplicates", duplicateWarnings);
+        }
         return result;
     }
 
