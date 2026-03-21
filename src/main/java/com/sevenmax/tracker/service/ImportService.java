@@ -165,12 +165,27 @@ public class ImportService {
                 }
             }
             if (depSheet != null) {
-                for (int r = 2; r <= depSheet.getLastRowNum(); r++) {
+                // E1 cell contains SUM formula like "SUM(E3:E69)" — use its end row as the deposit section boundary
+                int depositEndRow = 69; // default fallback
+                org.apache.poi.ss.usermodel.Row headerRow = depSheet.getRow(0);
+                if (headerRow != null) {
+                    org.apache.poi.ss.usermodel.Cell e1 = headerRow.getCell(4); // E1
+                    if (e1 != null && e1.getCellType() == CellType.FORMULA) {
+                        try {
+                            String f = e1.getCellFormula(); // e.g. "SUM(E3:E69)"
+                            java.util.regex.Matcher m = java.util.regex.Pattern.compile(":(\\w+)\\)").matcher(f);
+                            if (m.find()) depositEndRow = Integer.parseInt(m.group(1).replaceAll("[^0-9]", "")) - 1;
+                        } catch (Exception ignored) {}
+                    }
+                }
+                log.info("Deposit section rows 2-{}", depositEndRow);
+                for (int r = 2; r <= depositEndRow; r++) {
                     Row row = depSheet.getRow(r);
                     if (row == null) continue;
-                    // Deposit cols: C(2)=רועי, D(3)=יאיר, E(4)=תומר — parse leading number from text cells
+                    // Only sum POSITIVE values (skip withdrawals which are negative)
                     for (int c = 2; c <= 4; c++) {
-                        bankDeposits = bankDeposits.add(parseLeadingNumber(getText(row, c)));
+                        BigDecimal v = parseLeadingNumber(getText(row, c));
+                        if (v.compareTo(BigDecimal.ZERO) > 0) bankDeposits = bankDeposits.add(v);
                     }
                 }
                 log.info("Bank deposits: {}", bankDeposits);
