@@ -222,12 +222,16 @@ public class ImportService {
             }
             if (existing.isPresent()) {
                 Player ex = existing.get();
+                // Always sync name, phone, clubPlayerId from XLS (authoritative source)
+                if (p.getFullName() != null && !p.getFullName().isBlank()) ex.setFullName(p.getFullName());
+                if (p.getPhone() != null && !p.getPhone().isBlank()) ex.setPhone(p.getPhone());
+                if (p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()) ex.setClubPlayerId(p.getClubPlayerId());
                 if (p.getCreditTotal() != null && p.getCreditTotal().compareTo(BigDecimal.ZERO) != 0) {
                     ex.setCreditTotal(p.getCreditTotal());
                     BigDecimal chips = ex.getCurrentChips() != null ? ex.getCurrentChips() : BigDecimal.ZERO;
                     ex.setBalance(chips.subtract(p.getCreditTotal()));
-                    playerRepository.save(ex);
                 }
+                playerRepository.save(ex);
                 updated++;
             } else {
                 playerRepository.save(p);
