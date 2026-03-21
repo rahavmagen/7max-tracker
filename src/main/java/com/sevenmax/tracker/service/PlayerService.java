@@ -87,7 +87,7 @@ public class PlayerService {
     }
 
     /**
-     * Find player by username: exact case-insensitive first, then fuzzy (strips spaces/underscores/hyphens).
+     * Find player by username: exact case-insensitive → fuzzy (strips spaces/underscores/hyphens) → alphanumeric (strips ALL special chars like !).
      */
     public Optional<Player> findPlayerByUsername(String username) {
         if (username == null || username.isBlank()) return Optional.empty();
@@ -97,6 +97,11 @@ public class PlayerService {
         if (!fuzzy.isEmpty()) {
             log.warn("Fuzzy username match: '{}' -> '{}'", username, fuzzy.get(0).getUsername());
             return Optional.of(fuzzy.get(0));
+        }
+        List<Player> alphanum = playerRepository.findByUsernameAlphanumeric(username);
+        if (!alphanum.isEmpty()) {
+            log.warn("Alphanumeric username match: '{}' -> '{}'", username, alphanum.get(0).getUsername());
+            return Optional.of(alphanum.get(0));
         }
         return Optional.empty();
     }
