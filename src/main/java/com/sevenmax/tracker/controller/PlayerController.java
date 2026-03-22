@@ -83,10 +83,12 @@ public class PlayerController {
     }
 
     @PatchMapping("/{id}/credit")
-    public ResponseEntity<Player> updateCredit(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+    public ResponseEntity<?> updateCredit(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
-        BigDecimal amount = new BigDecimal(body.get("delta").toString());
-        String notes = body.containsKey("notes") ? body.get("notes").toString() : null;
+        Object deltaVal = body.get("delta");
+        if (deltaVal == null) return ResponseEntity.badRequest().body(Map.of("error", "delta is required"));
+        BigDecimal amount = new BigDecimal(deltaVal.toString());
+        String notes = (body.get("notes") != null) ? body.get("notes").toString() : null;
         return ResponseEntity.ok(playerService.updateCredit(id, amount, notes));
     }
 
