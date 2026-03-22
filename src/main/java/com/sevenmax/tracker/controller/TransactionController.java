@@ -58,6 +58,7 @@ public class TransactionController {
         LocalDateTime since = LocalDateTime.now().minusDays(days);
         List<Transaction.Type> types = List.of(Transaction.Type.CREDIT, Transaction.Type.DEPOSIT);
         return transactionRepository.findRecentByTypes(types, since).stream()
+                .filter(tx -> tx.getSourceRef() == null || !tx.getSourceRef().startsWith("TRANSFER:"))
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
