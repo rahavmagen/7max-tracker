@@ -29,6 +29,7 @@ public class ReportService {
     private final GameResultRepository gameResultRepository;
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
+    private final PlayerTransferRepository playerTransferRepository;
     private final PlayerService playerService;
 
     @Transactional(rollbackFor = Exception.class)
@@ -273,6 +274,34 @@ public class ReportService {
             } catch (Exception e) {
                 txDate = LocalDate.now();
             }
+
+            // Check for matching pending PlayerTransfer — if found, confirm it and skip creating XLS transaction
+            if (tradeType.equals("Send Chips")) {
+                var matchedTransfer = playerTransferRepository.findFirstByFromPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
+                if (matchedTransfer.isPresent()) {
+                    PlayerTransfer transfer = matchedTransfer.get();
+                    transfer.setConfirmed(true);
+                    playerTransferRepository.save(transfer);
+                    log.info("XLS matched pending transfer id={} (Send Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
+                    continue;
+                }
+            } else {
+                var matchedTransfer = playerTransferRepository.findFirstByToPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
+                if (matchedTransfer.isPresent()) {
+                    PlayerTransfer transfer = matchedTransfer.get();
+                    transfer.setConfirmed(true);
+                    playerTransferRepository.save(transfer);
+                    log.info("XLS matched pending transfer id={} (Claim Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
+                    continue;
+                }
+            }
+
+            // Check for matching pending Transaction (credit or promotion) — if found, confirm it
+            transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
+                pendingTx.setPendingConfirmation(false);
+                transactionRepository.save(pendingTx);
+                log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), player.getUsername(), amount);
+            });
 
             Transaction tx = new Transaction();
             tx.setPlayer(player);
