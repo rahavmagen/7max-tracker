@@ -49,6 +49,6 @@ public class Transaction {
     }
 
     public enum Method {
-        BIT, PAYBOX, CASH, BANK_TRANSFER, OTHER
+        BIT, PAYBOX, KASHCASH, CASH, BANK_TRANSFER, OTHER
     }
 }
