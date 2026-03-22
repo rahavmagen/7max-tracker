@@ -38,7 +38,19 @@ public class TransactionController {
         tx.setNotes(req.notes());
         tx.setTransactionDate(req.date() != null ? req.date() : LocalDate.now());
         tx.setCreatedByUsername(auth != null ? auth.getName() : null);
+        tx.setPendingConfirmation(Boolean.TRUE.equals(req.pendingConfirmation()));
+        if (req.sourceRef() != null) tx.setSourceRef(req.sourceRef());
         return transactionService.addTransaction(tx);
+    }
+
+    @PostMapping("/{id}/confirm")
+    public ResponseEntity<?> confirmTransaction(@PathVariable Long id) {
+        try {
+            transactionService.confirmTransaction(id);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
@@ -84,6 +96,8 @@ public class TransactionController {
             BigDecimal amount,
             Transaction.Method method,
             String notes,
-            LocalDate date
+            LocalDate date,
+            Boolean pendingConfirmation,
+            String sourceRef
     ) {}
 }

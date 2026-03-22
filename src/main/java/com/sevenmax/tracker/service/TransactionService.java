@@ -45,4 +45,12 @@ public class TransactionService {
         if (newNotes != null) tx.setNotes(newNotes);
         return transactionRepository.save(tx);
     }
+
+    @Transactional
+    public void confirmTransaction(Long id) {
+        Transaction tx = transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+        tx.setPendingConfirmation(false);
+        transactionRepository.save(tx);
+    }
 }

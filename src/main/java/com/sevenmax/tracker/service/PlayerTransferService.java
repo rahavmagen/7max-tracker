@@ -123,6 +123,35 @@ public class PlayerTransferService {
         return transferRepository.findByConfirmedFalseOrderByCreatedAtDesc();
     }
 
+    public List<Map<String, Object>> getAllPending() {
+        List<Map<String, Object>> result = new java.util.ArrayList<>();
+
+        // Credits and promotions (screen-created, pending confirmation)
+        transactionRepository.findByPendingConfirmationTrueOrderByCreatedAtDesc().forEach(tx -> {
+            Map<String, Object> item = new HashMap<>();
+            String ref = tx.getSourceRef();
+            item.put("pendingType", ref != null && ref.startsWith("SCREEN:PROMO") ? "PROMOTION" : "CREDIT");
+            item.put("id", tx.getId());
+            item.put("transactionDate", tx.getTransactionDate() != null ? tx.getTransactionDate().toString() : null);
+            item.put("playerId", tx.getPlayer().getId());
+            item.put("playerName", tx.getPlayer().getUsername());
+            item.put("playerFullName", tx.getPlayer().getFullName());
+            item.put("amount", tx.getAmount());
+            item.put("notes", tx.getNotes());
+            item.put("createdByUsername", tx.getCreatedByUsername());
+            result.add(item);
+        });
+
+        // Player transfers
+        transferRepository.findByConfirmedFalseOrderByCreatedAtDesc().forEach(t -> {
+            Map<String, Object> item = toDto(t);
+            item.put("pendingType", "TRANSFER");
+            result.add(item);
+        });
+
+        return result;
+    }
+
     @Transactional
     public void confirmTransfer(Long id, String confirmedBy) {
         PlayerTransfer transfer = transferRepository.findById(id)

@@ -44,6 +44,11 @@ public class PlayerTransferController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/all-pending")
+    public List<Map<String, Object>> getAllPending() {
+        return transferService.getAllPending();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         try {

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,14 +57,28 @@ public class PlayerService {
     }
 
     @Transactional
-    public Player updateCredit(Long id, BigDecimal delta, String notes) {
+    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername) {
         Player player = getPlayer(id);
         BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
         BigDecimal newChips = (player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO).add(delta);
         player.setCreditTotal(newCredit);
         player.setCurrentChips(newChips);
         player.setBalance(newChips.subtract(newCredit));
-        return playerRepository.save(player);
+        Player saved = playerRepository.save(player);
+
+        // Save a pending Transaction record for reconciliation against XLS upload
+        Transaction tx = new Transaction();
+        tx.setPlayer(player);
+        tx.setType(delta.compareTo(BigDecimal.ZERO) >= 0 ? Transaction.Type.DEPOSIT : Transaction.Type.WITHDRAWAL);
+        tx.setAmount(delta.abs());
+        tx.setNotes("Manual Credit" + (notes != null ? " - " + notes : ""));
+        tx.setTransactionDate(LocalDate.now());
+        tx.setCreatedByUsername(createdByUsername);
+        tx.setPendingConfirmation(true);
+        tx.setSourceRef("SCREEN:CREDIT");
+        transactionRepository.save(tx);
+
+        return saved;
     }
 
     @Transactional

@@ -41,6 +41,8 @@ public class Transaction {
 
     private String createdByUsername;
 
+    private Boolean pendingConfirmation = false;
+
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
