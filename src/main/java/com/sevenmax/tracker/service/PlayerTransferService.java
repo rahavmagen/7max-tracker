@@ -1,8 +1,12 @@
 package com.sevenmax.tracker.service;
 
+import com.sevenmax.tracker.entity.GameResult;
+import com.sevenmax.tracker.entity.GameSession;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.PlayerTransfer;
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.repository.GameResultRepository;
+import com.sevenmax.tracker.repository.GameSessionRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
@@ -16,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,8 @@ public class PlayerTransferService {
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
+    private final GameSessionRepository gameSessionRepository;
+    private final GameResultRepository gameResultRepository;
 
     @Transactional
     public PlayerTransfer createTransfer(Long fromPlayerId, Long toPlayerId, BigDecimal amount,
@@ -43,27 +50,27 @@ public class PlayerTransferService {
 
         transfer = transferRepository.save(transfer);
 
-        // Register as WITHDRAWAL for the sender (if not CLUB)
+        // Sender pays → CREDIT (shown as "Payment")
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(fromPlayer);
-            tx.setType(Transaction.Type.WITHDRAWAL);
+            tx.setType(Transaction.Type.CREDIT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Transfer to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             transactionService.addTransaction(tx);
         }
 
-        // Register as DEPOSIT for the receiver (if not CLUB)
+        // Receiver gets money → REPAYMENT (shown as "Cashout")
         if (toPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(toPlayer);
-            tx.setType(Transaction.Type.DEPOSIT);
+            tx.setType(Transaction.Type.REPAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Transfer from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Cashout from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             transactionService.addTransaction(tx);
@@ -84,6 +91,40 @@ public class PlayerTransferService {
         transfer.setConfirmedAt(LocalDateTime.now());
         transfer.setConfirmedBy(confirmedBy);
         transferRepository.save(transfer);
+    }
+
+    // Returns the MTT session starting within ±40 min of 21:00 on the given date,
+    // with each participant's cost (buyIn + rakePaid).
+    public Map<String, Object> getLastNightMtt(LocalDate date) {
+        LocalDateTime windowStart = date.atTime(20, 20);
+        LocalDateTime windowEnd = date.atTime(21, 40);
+
+        List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
+                GameSession.GameType.MTT, windowStart, windowEnd);
+
+        if (sessions.isEmpty()) return null;
+
+        GameSession session = sessions.get(0);
+        List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
+
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id", session.getId());
+        dto.put("tableName", session.getTableName());
+        dto.put("startTime", session.getStartTime().toString());
+
+        List<Map<String, Object>> participants = results.stream().map(r -> {
+            Map<String, Object> p = new HashMap<>();
+            p.put("playerId", r.getPlayer().getId());
+            p.put("username", r.getPlayer().getUsername());
+            p.put("fullName", r.getPlayer().getFullName());
+            BigDecimal cost = (r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
+                    .add(r.getRakePaid() != null ? r.getRakePaid() : BigDecimal.ZERO);
+            p.put("cost", cost);
+            return p;
+        }).collect(Collectors.toList());
+
+        dto.put("participants", participants);
+        return dto;
     }
 
     public Map<String, Object> toDto(PlayerTransfer t) {

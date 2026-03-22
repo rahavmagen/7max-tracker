@@ -133,8 +133,11 @@ public class ImportService {
                             if (p != null) log.warn("Credit full-name match: '{}' -> player '{}'", username, p.getUsername());
                         }
                     }
-                    if (p != null) p.setCreditTotal(total);
-                    else log.warn("Credit row unmatched: '{}'", username);
+                    if (p != null) {
+                        p.setCreditTotal(total);
+                        if (total.compareTo(BigDecimal.ZERO) != 0)
+                            log.info("Credit set: '{}' -> C={} D={} E={} F={} total={}", username, colC, colD, colE, colF, total);
+                    } else log.warn("Credit row unmatched: '{}'", username);
                 }
             } else {
                 log.warn("Credit sheet (מעקב קרדיטים) not found in file");

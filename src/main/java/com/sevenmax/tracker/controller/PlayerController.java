@@ -4,6 +4,7 @@ import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
+import com.sevenmax.tracker.repository.UserRepository;
 import com.sevenmax.tracker.service.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +27,23 @@ public class PlayerController {
     private final PlayerService playerService;
     private final PlayerRepository playerRepository;
     private final GameResultRepository gameResultRepository;
+    private final UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers(Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(playerService.getAllPlayers());
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<Map<String, Object>>> getActivePlayers() {
+        LocalDateTime since = LocalDateTime.now().minusDays(30);
+        List<Map<String, Object>> result = gameResultRepository.findActivePlayers(since).stream()
+            .filter(p -> Boolean.TRUE.equals(p.getActive()))
+            .map(p -> { Map<String, Object> m = new java.util.HashMap<>(); m.put("username", p.getUsername()); m.put("fullName", p.getFullName() != null ? p.getFullName() : ""); return m; })
+            .sorted((a, b) -> a.get("username").toString().compareToIgnoreCase(b.get("username").toString()))
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/stale")
@@ -90,6 +104,17 @@ public class PlayerController {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayerTransactions(id));
+    }
+
+    @GetMapping("/{id}/login-stats")
+    public ResponseEntity<Map<String, Object>> getLoginStats(@PathVariable Long id, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        Map<String, Object> m = new java.util.HashMap<>();
+        userRepository.findByPlayerId(id).ifPresent(u -> {
+            m.put("loginCount", u.getLoginCount() != null ? u.getLoginCount() : 0);
+            m.put("lastLoginAt", u.getLastLoginAt() != null ? u.getLastLoginAt().toString() : null);
+        });
+        return ResponseEntity.ok(m);
     }
 
     // Cleanup: delete players whose username contains Hebrew characters and have no game results

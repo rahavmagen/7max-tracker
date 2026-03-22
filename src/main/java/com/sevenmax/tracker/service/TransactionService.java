@@ -21,10 +21,10 @@ public class TransactionService {
     public Transaction addTransaction(Transaction transaction) {
         Player player = transaction.getPlayer();
 
-        // Update balance: deposit = +amount, withdrawal = -amount
-        BigDecimal delta = transaction.getType() == Transaction.Type.DEPOSIT
-                ? transaction.getAmount()
-                : transaction.getAmount().negate();
+        // DEPOSIT and REPAYMENT (cashout) add to balance; everything else subtracts
+        boolean isCredit = transaction.getType() == Transaction.Type.DEPOSIT
+                || transaction.getType() == Transaction.Type.REPAYMENT;
+        BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
 
         player.setBalance(player.getBalance().add(delta));
         playerRepository.save(player);

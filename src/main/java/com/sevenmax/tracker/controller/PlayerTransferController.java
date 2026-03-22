@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,5 +52,13 @@ public class PlayerTransferController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    @GetMapping("/last-night-mtt")
+    public ResponseEntity<?> getLastNightMtt(@RequestParam(required = false) String date) {
+        LocalDate d = (date != null && !date.isBlank()) ? LocalDate.parse(date) : LocalDate.now().minusDays(1);
+        Map<String, Object> result = transferService.getLastNightMtt(d);
+        if (result == null) return ResponseEntity.ok(Map.of());
+        return ResponseEntity.ok(result);
     }
 }

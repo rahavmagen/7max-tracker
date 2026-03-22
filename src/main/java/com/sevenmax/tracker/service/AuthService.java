@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,10 @@ public class AuthService {
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new RuntimeException("Invalid credentials");
         }
+
+        user.setLoginCount((user.getLoginCount() == null ? 0 : user.getLoginCount()) + 1);
+        user.setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user);
 
         String token = jwtUtil.generate(user);
 
@@ -57,6 +62,13 @@ public class AuthService {
 
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(false);
+        userRepository.save(user);
+    }
+
+    public void changeRole(String targetUsername, String newRole) {
+        User user = userRepository.findByUsername(targetUsername)
+                .orElseThrow(() -> new RuntimeException("User not found: " + targetUsername));
+        user.setRole(User.Role.valueOf(newRole));
         userRepository.save(user);
     }
 

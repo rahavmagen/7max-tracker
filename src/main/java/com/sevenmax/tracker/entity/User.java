@@ -36,6 +36,10 @@ public class User {
 
     private Boolean mustChangePassword = true;
 
+    private Integer loginCount = 0;
+
+    private LocalDateTime lastLoginAt;
+
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
