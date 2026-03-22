@@ -305,7 +305,7 @@ public class ReportService {
                 transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
                     pendingTx.setPendingConfirmation(false);
                     transactionRepository.save(pendingTx);
-                    log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), player.getUsername(), amount);
+                    log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), pendingTx.getPlayer().getUsername(), amount);
                 });
             }
 
