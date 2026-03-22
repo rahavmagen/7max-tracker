@@ -255,7 +255,7 @@ public class ReportService {
 
             // Dedup key: prevents re-importing the same trade on re-upload
             String sourceRef = "TRADE:" + dateStr + ":" + (clubPlayerId != null ? clubPlayerId : nickname);
-            if (transactionRepository.existsBySourceRef(sourceRef)) continue;
+            boolean alreadyImported = transactionRepository.existsBySourceRef(sourceRef);
 
             // Find player
             Player player = null;
@@ -275,33 +275,41 @@ public class ReportService {
                 txDate = LocalDate.now();
             }
 
-            // Check for matching pending PlayerTransfer — if found, confirm it and skip creating XLS transaction
-            if (tradeType.equals("Send Chips")) {
-                var matchedTransfer = playerTransferRepository.findFirstByFromPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
-                if (matchedTransfer.isPresent()) {
-                    PlayerTransfer transfer = matchedTransfer.get();
-                    transfer.setConfirmed(true);
-                    playerTransferRepository.save(transfer);
-                    log.info("XLS matched pending transfer id={} (Send Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
-                    continue;
-                }
-            } else {
-                var matchedTransfer = playerTransferRepository.findFirstByToPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
-                if (matchedTransfer.isPresent()) {
-                    PlayerTransfer transfer = matchedTransfer.get();
-                    transfer.setConfirmed(true);
-                    playerTransferRepository.save(transfer);
-                    log.info("XLS matched pending transfer id={} (Claim Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
-                    continue;
+            // Check for matching pending PlayerTransfer — only if not already imported to avoid double-confirm
+            boolean transferConfirmed = false;
+            if (!alreadyImported) {
+                if (tradeType.equals("Send Chips")) {
+                    var matchedTransfer = playerTransferRepository.findFirstByFromPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
+                    if (matchedTransfer.isPresent()) {
+                        PlayerTransfer transfer = matchedTransfer.get();
+                        transfer.setConfirmed(true);
+                        playerTransferRepository.save(transfer);
+                        log.info("XLS matched pending transfer id={} (Send Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
+                        transferConfirmed = true;
+                    }
+                } else {
+                    var matchedTransfer = playerTransferRepository.findFirstByToPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
+                    if (matchedTransfer.isPresent()) {
+                        PlayerTransfer transfer = matchedTransfer.get();
+                        transfer.setConfirmed(true);
+                        playerTransferRepository.save(transfer);
+                        log.info("XLS matched pending transfer id={} (Claim Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
+                        transferConfirmed = true;
+                    }
                 }
             }
 
-            // Check for matching pending Transaction (credit or promotion) — if found, confirm it
-            transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
-                pendingTx.setPendingConfirmation(false);
-                transactionRepository.save(pendingTx);
-                log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), player.getUsername(), amount);
-            });
+            // Check for matching pending Transaction (credit/promo) — run even if already imported,
+            // so re-uploading an XLS can still confirm a pending promotion/credit
+            if (!transferConfirmed) {
+                transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
+                    pendingTx.setPendingConfirmation(false);
+                    transactionRepository.save(pendingTx);
+                    log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), player.getUsername(), amount);
+                });
+            }
+
+            if (alreadyImported || transferConfirmed) continue;
 
             Transaction tx = new Transaction();
             tx.setPlayer(player);
