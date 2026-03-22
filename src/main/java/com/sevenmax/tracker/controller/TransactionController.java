@@ -2,12 +2,20 @@ package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.service.PlayerService;
 import com.sevenmax.tracker.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -17,6 +25,7 @@ public class TransactionController {
 
     private final TransactionService transactionService;
     private final PlayerService playerService;
+    private final TransactionRepository transactionRepository;
 
     @PostMapping
     public Transaction addTransaction(@RequestBody TransactionRequest req, org.springframework.security.core.Authentication auth) {
@@ -32,10 +41,46 @@ public class TransactionController {
         return transactionService.addTransaction(tx);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateTransaction(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        try {
+            BigDecimal newAmount = new BigDecimal(body.get("amount").toString());
+            String newNotes = body.get("notes") != null ? body.get("notes").toString() : null;
+            Transaction updated = transactionService.updateTransaction(id, newAmount, newNotes);
+            return ResponseEntity.ok(toDto(updated));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/recent")
+    public List<Map<String, Object>> getRecent(@RequestParam(defaultValue = "30") int days) {
+        LocalDateTime since = LocalDateTime.now().minusDays(days);
+        List<Transaction.Type> types = List.of(Transaction.Type.CREDIT, Transaction.Type.DEPOSIT);
+        return transactionRepository.findRecentByTypes(types, since).stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private Map<String, Object> toDto(Transaction tx) {
+        Map<String, Object> m = new HashMap<>();
+        m.put("id", tx.getId());
+        m.put("playerId", tx.getPlayer().getId());
+        m.put("playerUsername", tx.getPlayer().getUsername());
+        m.put("playerFullName", tx.getPlayer().getFullName());
+        m.put("type", tx.getType());
+        m.put("amount", tx.getAmount());
+        m.put("method", tx.getMethod());
+        m.put("notes", tx.getNotes());
+        m.put("transactionDate", tx.getTransactionDate() != null ? tx.getTransactionDate().toString() : null);
+        m.put("sourceRef", tx.getSourceRef());
+        return m;
+    }
+
     record TransactionRequest(
             Long playerId,
             Transaction.Type type,
-            java.math.BigDecimal amount,
+            BigDecimal amount,
             Transaction.Method method,
             String notes,
             LocalDate date

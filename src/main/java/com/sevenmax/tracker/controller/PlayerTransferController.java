@@ -44,6 +44,19 @@ public class PlayerTransferController {
                 .collect(Collectors.toList());
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        try {
+            BigDecimal amount = new BigDecimal(body.get("amount").toString());
+            String notes = (String) body.get("notes");
+            Transaction.Method method = body.get("method") != null ? Transaction.Method.valueOf(body.get("method").toString()) : null;
+            var transfer = transferService.updateTransfer(id, amount, notes, method);
+            return ResponseEntity.ok(transferService.toDto(transfer));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/{id}/confirm")
     public ResponseEntity<?> confirm(@PathVariable Long id, Authentication auth) {
         try {

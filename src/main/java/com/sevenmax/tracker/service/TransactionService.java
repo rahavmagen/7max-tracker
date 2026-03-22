@@ -31,4 +31,18 @@ public class TransactionService {
 
         return transactionRepository.save(transaction);
     }
+
+    @Transactional
+    public Transaction updateTransaction(Long id, BigDecimal newAmount, String newNotes) {
+        Transaction tx = transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transaction not found"));
+        BigDecimal diff = newAmount.subtract(tx.getAmount());
+        boolean adds = tx.getType() == Transaction.Type.DEPOSIT || tx.getType() == Transaction.Type.REPAYMENT;
+        Player player = tx.getPlayer();
+        player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
+        playerRepository.save(player);
+        tx.setAmount(newAmount);
+        if (newNotes != null) tx.setNotes(newNotes);
+        return transactionRepository.save(tx);
+    }
 }

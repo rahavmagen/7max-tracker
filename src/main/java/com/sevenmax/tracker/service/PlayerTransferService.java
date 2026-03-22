@@ -49,6 +49,7 @@ public class PlayerTransferService {
         transfer.setCreatedByUsername(createdBy);
 
         transfer = transferRepository.save(transfer);
+        String sourceRef = "TRANSFER:" + transfer.getId();
 
         // Sender pays → CREDIT (shown as "Payment")
         if (fromPlayer != null) {
@@ -60,6 +61,7 @@ public class PlayerTransferService {
             tx.setNotes("Payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
+            tx.setSourceRef(sourceRef);
             transactionService.addTransaction(tx);
         }
 
@@ -73,10 +75,48 @@ public class PlayerTransferService {
             tx.setNotes("Cashout from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
+            tx.setSourceRef(sourceRef);
             transactionService.addTransaction(tx);
         }
 
         return transfer;
+    }
+
+    @Transactional
+    public PlayerTransfer updateTransfer(Long id, BigDecimal newAmount, String newNotes, Transaction.Method newMethod) {
+        PlayerTransfer transfer = transferRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Transfer not found"));
+
+        BigDecimal diff = newAmount.subtract(transfer.getAmount());
+        String sourceRef = "TRANSFER:" + id;
+        List<Transaction> linked = transactionRepository.findBySourceRef(sourceRef);
+
+        if (!linked.isEmpty()) {
+            for (Transaction tx : linked) {
+                transactionService.updateTransaction(tx.getId(), newAmount, tx.getNotes());
+                if (newMethod != null) {
+                    tx.setMethod(newMethod);
+                    transactionRepository.save(tx);
+                }
+            }
+        } else {
+            // Legacy transfer without sourceRef: adjust balances directly
+            Player fromPlayer = transfer.getFromPlayer();
+            Player toPlayer = transfer.getToPlayer();
+            if (fromPlayer != null) {
+                fromPlayer.setBalance(fromPlayer.getBalance().subtract(diff));
+                playerRepository.save(fromPlayer);
+            }
+            if (toPlayer != null) {
+                toPlayer.setBalance(toPlayer.getBalance().add(diff));
+                playerRepository.save(toPlayer);
+            }
+        }
+
+        transfer.setAmount(newAmount);
+        if (newNotes != null) transfer.setNotes(newNotes);
+        if (newMethod != null) transfer.setMethod(newMethod);
+        return transferRepository.save(transfer);
     }
 
     public List<PlayerTransfer> getPendingTransfers() {
