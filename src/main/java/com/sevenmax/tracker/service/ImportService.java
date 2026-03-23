@@ -155,8 +155,9 @@ public class ImportService {
                 for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
                     Row row = expSheet.getRow(r);
                     if (row == null) continue;
-                    generalExpenses = generalExpenses.add(parseBD(getText(row, 2)));
-                    willExpense = willExpense.add(parseBD(getText(row, 7)));
+                    generalExpenses = generalExpenses.add(parseLeadingNumber(getText(row, 0))); // col A
+                    generalExpenses = generalExpenses.add(parseBD(getText(row, 2)));             // col C
+                    willExpense = willExpense.add(parseBD(getText(row, 7)));                     // col H
                 }
                 log.info("Expenses: generalExpenses={} willExpense={}", generalExpenses, willExpense);
             }
