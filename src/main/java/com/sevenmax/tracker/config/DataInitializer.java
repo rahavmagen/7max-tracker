@@ -31,6 +31,7 @@ public class DataInitializer implements ApplicationRunner {
             admin.setPasswordHash(passwordEncoder.encode("admin123"));
             admin.setRole(User.Role.ADMIN);
             admin.setMustChangePassword(false);
+            admin.setActive(true);
             userRepository.save(admin);
             System.out.println("[Auth] Created admin user (password: admin123)");
         }
@@ -55,6 +56,7 @@ public class DataInitializer implements ApplicationRunner {
             u.setRole(User.Role.PLAYER);
             u.setPlayer(player);
             u.setMustChangePassword(true);
+            u.setActive(true);
             userRepository.save(u);
             created++;
         }
