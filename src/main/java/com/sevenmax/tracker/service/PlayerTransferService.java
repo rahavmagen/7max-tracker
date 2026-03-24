@@ -101,7 +101,7 @@ public class PlayerTransferService {
         transfer = transferRepository.save(transfer);
         String sourceRef = "SETTLEMENT:" + transfer.getId();
 
-        log.info("SETTLEMENT: from={} (balance={}) to={} (balance={}) amount={}",
+        log.info("SETTLEMENT v3: from={} (balance={}) to={} (balance={}) amount={}",
             fromPlayer != null ? fromPlayer.getUsername() : "null",
             fromPlayer != null ? fromPlayer.getBalance() : "null",
             toPlayer != null ? toPlayer.getUsername() : "null",
