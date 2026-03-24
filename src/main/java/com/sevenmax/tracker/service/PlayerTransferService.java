@@ -108,11 +108,11 @@ public class PlayerTransferService {
             toPlayer != null ? toPlayer.getBalance() : "null",
             amount);
 
-        // Payer → CREDIT → balance decreases
+        // Loser (payer) → REPAYMENT → balance increases toward 0 (debt cleared)
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(fromPlayer);
-            tx.setType(Transaction.Type.CREDIT);
+            tx.setType(Transaction.Type.REPAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
             tx.setNotes("Settlement payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
@@ -124,11 +124,11 @@ public class PlayerTransferService {
 
         log.info("SETTLEMENT: after payer tx, {}.balance={}", fromPlayer != null ? fromPlayer.getUsername() : "null", fromPlayer != null ? fromPlayer.getBalance() : "null");
 
-        // Receiver → REPAYMENT → balance increases
+        // Winner (receiver) → CREDIT → balance decreases toward 0 (claim reduced)
         if (toPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(toPlayer);
-            tx.setType(Transaction.Type.REPAYMENT);
+            tx.setType(Transaction.Type.CREDIT);
             tx.setAmount(amount);
             tx.setMethod(method);
             tx.setNotes("Settlement received from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
