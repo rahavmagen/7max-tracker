@@ -20,7 +20,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public Map<String, Object> login(String username, String password) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 
         if (!Boolean.TRUE.equals(user.getActive())) {
