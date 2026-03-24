@@ -53,28 +53,28 @@ public class PlayerTransferService {
         transfer = transferRepository.save(transfer);
         String sourceRef = "TRANSFER:" + transfer.getId();
 
-        // Sender pays → CREDIT (shown as "Payment")
+        // FROM player transfers → REPAYMENT → balance increases (debt reduces toward 0)
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(fromPlayer);
-            tx.setType(Transaction.Type.CREDIT);
+            tx.setType(Transaction.Type.REPAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Transfer to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             tx.setSourceRef(sourceRef);
             transactionService.addTransaction(tx);
         }
 
-        // Receiver gets money → REPAYMENT (shown as "Cashout")
+        // TO player receives → CREDIT → balance decreases (credit reduces toward 0)
         if (toPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(toPlayer);
-            tx.setType(Transaction.Type.REPAYMENT);
+            tx.setType(Transaction.Type.CREDIT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Cashout from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Transfer from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             tx.setSourceRef(sourceRef);
