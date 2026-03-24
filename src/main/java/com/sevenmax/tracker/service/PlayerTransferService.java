@@ -83,6 +83,54 @@ public class PlayerTransferService {
     }
 
     @Transactional
+    public PlayerTransfer createSettlement(Long fromPlayerId, Long toPlayerId, BigDecimal amount,
+                                           Transaction.Method method, String notes, String createdBy) {
+        Player fromPlayer = fromPlayerId != null ? playerRepository.findById(fromPlayerId).orElse(null) : null;
+        Player toPlayer = toPlayerId != null ? playerRepository.findById(toPlayerId).orElse(null) : null;
+
+        PlayerTransfer transfer = new PlayerTransfer();
+        transfer.setFromPlayer(fromPlayer);
+        transfer.setToPlayer(toPlayer);
+        transfer.setAmount(amount);
+        transfer.setMethod(method);
+        transfer.setNotes(notes);
+        transfer.setTransferDate(LocalDate.now());
+        transfer.setCreatedByUsername(createdBy);
+        transfer = transferRepository.save(transfer);
+        String sourceRef = "SETTLEMENT:" + transfer.getId();
+
+        // Loser pays → REPAYMENT → balance increases (debt cleared)
+        if (fromPlayer != null) {
+            Transaction tx = new Transaction();
+            tx.setPlayer(fromPlayer);
+            tx.setType(Transaction.Type.REPAYMENT);
+            tx.setAmount(amount);
+            tx.setMethod(method);
+            tx.setNotes("Settlement payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setTransactionDate(LocalDate.now());
+            tx.setCreatedByUsername(createdBy);
+            tx.setSourceRef(sourceRef);
+            transactionService.addTransaction(tx);
+        }
+
+        // Winner receives → CREDIT → balance decreases (winnings realized/paid out)
+        if (toPlayer != null) {
+            Transaction tx = new Transaction();
+            tx.setPlayer(toPlayer);
+            tx.setType(Transaction.Type.CREDIT);
+            tx.setAmount(amount);
+            tx.setMethod(method);
+            tx.setNotes("Settlement received from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setTransactionDate(LocalDate.now());
+            tx.setCreatedByUsername(createdBy);
+            tx.setSourceRef(sourceRef);
+            transactionService.addTransaction(tx);
+        }
+
+        return transfer;
+    }
+
+    @Transactional
     public PlayerTransfer updateTransfer(Long id, BigDecimal newAmount, String newNotes, Transaction.Method newMethod) {
         PlayerTransfer transfer = transferRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transfer not found"));
