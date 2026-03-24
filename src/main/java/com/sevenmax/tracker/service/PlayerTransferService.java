@@ -11,6 +11,7 @@ import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlayerTransferService {
@@ -99,6 +101,13 @@ public class PlayerTransferService {
         transfer = transferRepository.save(transfer);
         String sourceRef = "SETTLEMENT:" + transfer.getId();
 
+        log.info("SETTLEMENT: from={} (balance={}) to={} (balance={}) amount={}",
+            fromPlayer != null ? fromPlayer.getUsername() : "null",
+            fromPlayer != null ? fromPlayer.getBalance() : "null",
+            toPlayer != null ? toPlayer.getUsername() : "null",
+            toPlayer != null ? toPlayer.getBalance() : "null",
+            amount);
+
         // Payer → CREDIT → balance decreases
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
@@ -113,6 +122,8 @@ public class PlayerTransferService {
             transactionService.addTransaction(tx);
         }
 
+        log.info("SETTLEMENT: after payer tx, {}.balance={}", fromPlayer != null ? fromPlayer.getUsername() : "null", fromPlayer != null ? fromPlayer.getBalance() : "null");
+
         // Receiver → REPAYMENT → balance increases
         if (toPlayer != null) {
             Transaction tx = new Transaction();
@@ -126,6 +137,8 @@ public class PlayerTransferService {
             tx.setSourceRef(sourceRef);
             transactionService.addTransaction(tx);
         }
+
+        log.info("SETTLEMENT: after receiver tx, {}.balance={}", toPlayer != null ? toPlayer.getUsername() : "null", toPlayer != null ? toPlayer.getBalance() : "null");
 
         return transfer;
     }
