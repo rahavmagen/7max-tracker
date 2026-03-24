@@ -99,11 +99,11 @@ public class PlayerTransferService {
         transfer = transferRepository.save(transfer);
         String sourceRef = "SETTLEMENT:" + transfer.getId();
 
-        // Loser pays → REPAYMENT → balance increases (debt cleared)
+        // Payer → CREDIT → balance decreases
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(fromPlayer);
-            tx.setType(Transaction.Type.REPAYMENT);
+            tx.setType(Transaction.Type.CREDIT);
             tx.setAmount(amount);
             tx.setMethod(method);
             tx.setNotes("Settlement payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
@@ -113,11 +113,11 @@ public class PlayerTransferService {
             transactionService.addTransaction(tx);
         }
 
-        // Winner receives → CREDIT → balance decreases (winnings realized/paid out)
+        // Receiver → REPAYMENT → balance increases
         if (toPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(toPlayer);
-            tx.setType(Transaction.Type.CREDIT);
+            tx.setType(Transaction.Type.REPAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
             tx.setNotes("Settlement received from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
