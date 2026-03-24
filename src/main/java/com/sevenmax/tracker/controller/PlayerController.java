@@ -82,6 +82,17 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.updatePlayer(id, player));
     }
 
+    @PatchMapping("/{id}/balance")
+    public ResponseEntity<?> setBalance(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        Object balVal = body.get("balance");
+        if (balVal == null) return ResponseEntity.badRequest().body(Map.of("error", "balance is required"));
+        BigDecimal newBalance = new BigDecimal(balVal.toString());
+        String notes = body.get("notes") != null ? body.get("notes").toString() : null;
+        String username = auth != null ? auth.getName() : null;
+        return ResponseEntity.ok(playerService.setBalance(id, newBalance, notes, username));
+    }
+
     @PatchMapping("/{id}/credit")
     public ResponseEntity<?> updateCredit(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();

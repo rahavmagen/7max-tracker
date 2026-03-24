@@ -57,6 +57,28 @@ public class PlayerService {
     }
 
     @Transactional
+    public Player setBalance(Long id, BigDecimal newBalance, String notes, String createdByUsername) {
+        Player player = getPlayer(id);
+        BigDecimal oldBalance = player.getBalance() != null ? player.getBalance() : BigDecimal.ZERO;
+        BigDecimal diff = newBalance.subtract(oldBalance);
+        player.setBalance(newBalance);
+        Player saved = playerRepository.save(player);
+
+        Transaction tx = new Transaction();
+        tx.setPlayer(player);
+        tx.setType(Transaction.Type.DEPOSIT); // neutral audit record
+        tx.setAmount(diff.abs());
+        tx.setNotes("Manual Balance Adjustment" + (notes != null && !notes.isBlank() ? " - " + notes : "")
+                + " (old: " + oldBalance + ", new: " + newBalance + ")");
+        tx.setTransactionDate(LocalDate.now());
+        tx.setCreatedByUsername(createdByUsername);
+        tx.setSourceRef("SCREEN:MANUAL_BALANCE");
+        transactionRepository.save(tx);
+
+        return saved;
+    }
+
+    @Transactional
     public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername) {
         Player player = getPlayer(id);
         BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
