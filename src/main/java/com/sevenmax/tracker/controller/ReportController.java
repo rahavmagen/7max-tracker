@@ -162,6 +162,25 @@ public class ReportController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/admin/friday-rake")
+    public ResponseEntity<List<Map<String, Object>>> fridayRakeReport(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        List<Object[]> rows = gameResultRepository.getFridayRakeReport();
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] r : rows) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("sessionId", r[0]);
+            m.put("startTime", r[1] != null ? r[1].toString() : null);
+            m.put("endTime", r[2] != null ? r[2].toString() : null);
+            m.put("tableName", r[3]);
+            m.put("gameType", r[4]);
+            m.put("playerCount", r[5]);
+            m.put("totalRake", r[6]);
+            result.add(m);
+        }
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/admin/hands-report")
     public ResponseEntity<List<Map<String, Object>>> handsReport(
             @RequestParam String dateFrom,
