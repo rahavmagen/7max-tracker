@@ -2,8 +2,10 @@ package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
+import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
 
     public List<Player> getAllPlayers() {
         return playerRepository.findAll();
@@ -48,6 +51,22 @@ public class PlayerService {
         player.setCreditTotal(updated.getCreditTotal());
         player.setActive(updated.getActive());
         return playerRepository.save(player);
+    }
+
+    @Transactional
+    public Player renameUsername(Long id, String newUsername) {
+        if (newUsername == null || newUsername.isBlank()) throw new RuntimeException("Username cannot be empty");
+        if (playerRepository.findByUsernameCaseInsensitive(newUsername).stream().anyMatch(p -> !p.getId().equals(id))) {
+            throw new RuntimeException("Username already taken");
+        }
+        Player player = getPlayer(id);
+        player.setUsername(newUsername);
+        playerRepository.save(player);
+        userRepository.findByPlayerId(id).ifPresent(u -> {
+            u.setUsername(newUsername);
+            userRepository.save(u);
+        });
+        return player;
     }
 
     @Transactional

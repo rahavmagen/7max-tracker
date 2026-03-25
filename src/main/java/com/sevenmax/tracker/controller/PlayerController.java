@@ -82,6 +82,18 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.updatePlayer(id, player));
     }
 
+    @PatchMapping("/{id}/username")
+    public ResponseEntity<?> renameUsername(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        Object val = body.get("username");
+        if (val == null || val.toString().isBlank()) return ResponseEntity.badRequest().body(Map.of("error", "username is required"));
+        try {
+            return ResponseEntity.ok(playerService.renameUsername(id, val.toString().trim()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}/balance")
     public ResponseEntity<?> setBalance(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
