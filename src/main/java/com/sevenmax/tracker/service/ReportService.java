@@ -2,6 +2,7 @@ package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.*;
 import com.sevenmax.tracker.repository.*;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
@@ -31,6 +32,7 @@ public class ReportService {
     private final TransactionRepository transactionRepository;
     private final PlayerTransferRepository playerTransferRepository;
     private final PlayerService playerService;
+    private final ImportSummaryRepository importSummaryRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
@@ -186,6 +188,43 @@ public class ReportService {
                 log.info("Historical report — skipping chip update, stale marking (periodEnd={} < latest={})", report.getPeriodEnd(), latestExistingPeriodEnd);
             }
             report.setLeftClub(leftClub);
+
+            // Compute chip mismatch warning (latest report only)
+            if (isLatestReport) {
+                BigDecimal newXlsTotal = newChipsMap.values().stream()
+                    .map(v -> (BigDecimal) v[0])
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+                java.time.LocalDate prevReportDate = summary.getLastReportDate();
+                BigDecimal prevChipsTotal = summary.getLastReportChipsTotal() != null ? summary.getLastReportChipsTotal() : BigDecimal.ZERO;
+
+                if (prevReportDate != null) {
+                    java.time.LocalDateTime cutoff = prevReportDate.atStartOfDay();
+                    BigDecimal deposits = transactionRepository.sumDepositsSince(cutoff);
+                    BigDecimal credits = transactionRepository.sumCreditsSince(cutoff);
+                    BigDecimal wheel = transactionRepository.sumWheelExpensesSince(cutoff);
+                    BigDecimal rake = gameResultRepository.sumRakeSince(cutoff);
+                    BigDecimal expectedTotal = prevChipsTotal
+                        .add(deposits != null ? deposits : BigDecimal.ZERO)
+                        .add(credits != null ? credits : BigDecimal.ZERO)
+                        .subtract(wheel != null ? wheel : BigDecimal.ZERO)
+                        .add(rake != null ? rake : BigDecimal.ZERO);
+                    BigDecimal mismatch = newXlsTotal.subtract(expectedTotal).abs();
+                    if (mismatch.compareTo(new BigDecimal("1")) > 0) {
+                        report.setChipMismatch(mismatch);
+                        report.setChipMismatchExpected(expectedTotal);
+                        report.setChipMismatchActual(newXlsTotal);
+                        log.warn("Chip mismatch on upload: expected={} actual={} diff={}", expectedTotal, newXlsTotal, mismatch);
+                    }
+                }
+
+                // Save new chip snapshot for next check
+                summary.setId(1L);
+                summary.setLastReportChipsTotal(newXlsTotal);
+                summary.setLastReportDate(report.getPeriodEnd());
+                importSummaryRepository.save(summary);
+            }
 
             // Parse מעקב קרדיטים → update player creditTotal if sheet exists
             parseCreditSheet(workbook);

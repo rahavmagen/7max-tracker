@@ -53,6 +53,12 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
         @Param("minHands") int minHands
     );
 
+    @Query(value = "SELECT COALESCE(SUM(gr.rake_paid), 0) FROM game_results gr JOIN game_sessions gs ON gr.session_id = gs.id WHERE gs.start_time > :since", nativeQuery = true)
+    java.math.BigDecimal sumRakeSince(@Param("since") java.time.LocalDateTime since);
+
+    @Query(value = "SELECT gr.player_id, COALESCE(SUM(gr.rake_paid), 0) FROM game_results gr JOIN game_sessions gs ON gr.session_id = gs.id WHERE gs.start_time > :since GROUP BY gr.player_id", nativeQuery = true)
+    List<Object[]> getRakePerPlayerSince(@Param("since") java.time.LocalDateTime since);
+
     @Query(value =
         "SELECT gs.id AS sessionId, gs.start_time AS startTime, gs.end_time AS endTime, " +
         "gs.table_name AS tableName, gs.game_type AS gameType, " +

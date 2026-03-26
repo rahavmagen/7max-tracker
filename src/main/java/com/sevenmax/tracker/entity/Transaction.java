@@ -47,7 +47,7 @@ public class Transaction {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Type {
-        DEPOSIT, WITHDRAWAL, CREDIT, REPAYMENT
+        DEPOSIT, WITHDRAWAL, CREDIT, REPAYMENT, WHEEL_EXPENSE
     }
 
     public enum Method {

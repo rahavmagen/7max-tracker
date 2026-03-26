@@ -40,4 +40,14 @@ public class Report {
     /** Transient: players who were stale but found in this upload's balance (recovered) */
     @Transient
     private List<Map<String, String>> recovered;
+
+    /** Transient: chip balance mismatch (null if ok) */
+    @Transient
+    private java.math.BigDecimal chipMismatch;
+
+    @Transient
+    private java.math.BigDecimal chipMismatchExpected;
+
+    @Transient
+    private java.math.BigDecimal chipMismatchActual;
 }

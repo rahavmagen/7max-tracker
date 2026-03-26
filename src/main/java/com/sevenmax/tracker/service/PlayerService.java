@@ -138,6 +138,28 @@ public class PlayerService {
         return playerRepository.save(player);
     }
 
+    @Transactional
+    public Player addWheelExpense(Long id, BigDecimal amount, String notes, String createdByUsername) {
+        Player player = getPlayer(id);
+        BigDecimal newChips = (player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO).add(amount);
+        player.setCurrentChips(newChips);
+        BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
+        player.setBalance(newChips.subtract(credit));
+        Player saved = playerRepository.save(player);
+
+        Transaction tx = new Transaction();
+        tx.setPlayer(player);
+        tx.setType(Transaction.Type.WHEEL_EXPENSE);
+        tx.setAmount(amount);
+        tx.setNotes("Wheel" + (notes != null && !notes.isBlank() ? " - " + notes : ""));
+        tx.setTransactionDate(LocalDate.now());
+        tx.setCreatedByUsername(createdByUsername);
+        tx.setSourceRef("SCREEN:WHEEL");
+        transactionRepository.save(tx);
+
+        return saved;
+    }
+
     public List<Transaction> getPlayerTransactions(Long playerId) {
         return transactionRepository.findByPlayerIdOrderByTransactionDateDesc(playerId);
     }

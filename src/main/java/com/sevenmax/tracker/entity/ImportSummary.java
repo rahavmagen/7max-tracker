@@ -26,4 +26,10 @@ public class ImportSummary {
     private BigDecimal bankDeposits = BigDecimal.ZERO;
 
     private LocalDateTime lastUpdated = LocalDateTime.now();
+
+    // Chip snapshot from the most recently uploaded XLS (latest report only)
+    @Column(precision = 12, scale = 2)
+    private BigDecimal lastReportChipsTotal = BigDecimal.ZERO;
+
+    private java.time.LocalDate lastReportDate; // periodEnd of latest uploaded report
 }

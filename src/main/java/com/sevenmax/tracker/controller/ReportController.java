@@ -1,11 +1,15 @@
 package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.GameResult;
+import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Report;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.GameSessionRepository;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.repository.PlayerHandsProjection;
+import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.ReportRepository;
+import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
@@ -37,6 +41,9 @@ public class ReportController {
     private final GameResultRepository gameResultRepository;
     private final GameSessionRepository gameSessionRepository;
     private final ReportRepository reportRepository;
+    private final ImportSummaryRepository importSummaryRepository;
+    private final TransactionRepository transactionRepository;
+    private final PlayerRepository playerRepository;
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadReport(
@@ -201,6 +208,107 @@ public class ReportController {
             m.put("sessionCount", r.getSessionCount());
             result.add(m);
         }
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/admin/chip-balance")
+    public ResponseEntity<Map<String, Object>> chipBalance(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        Map<String, Object> result = new LinkedHashMap<>();
+        var summary = importSummaryRepository.findById(1L).orElse(null);
+        java.time.LocalDate lastReportDate = summary != null ? summary.getLastReportDate() : null;
+        java.math.BigDecimal baseChips = summary != null && summary.getLastReportChipsTotal() != null
+            ? summary.getLastReportChipsTotal() : java.math.BigDecimal.ZERO;
+
+        result.put("lastReportDate", lastReportDate != null ? lastReportDate.toString() : null);
+        result.put("baseChips", baseChips);
+
+        if (lastReportDate != null) {
+            java.time.LocalDateTime cutoff = lastReportDate.atStartOfDay();
+            java.math.BigDecimal deposits = transactionRepository.sumDepositsSince(cutoff);
+            java.math.BigDecimal credits = transactionRepository.sumCreditsSince(cutoff);
+            java.math.BigDecimal wheel = transactionRepository.sumWheelExpensesSince(cutoff);
+            java.math.BigDecimal rake = gameResultRepository.sumRakeSince(cutoff);
+            deposits = deposits != null ? deposits : java.math.BigDecimal.ZERO;
+            credits = credits != null ? credits : java.math.BigDecimal.ZERO;
+            wheel = wheel != null ? wheel : java.math.BigDecimal.ZERO;
+            rake = rake != null ? rake : java.math.BigDecimal.ZERO;
+            java.math.BigDecimal expected = baseChips.add(deposits).add(credits).subtract(wheel).add(rake);
+            java.math.BigDecimal actual = playerRepository.findAll().stream()
+                .map(p -> p.getCurrentChips() != null ? p.getCurrentChips() : java.math.BigDecimal.ZERO)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+            result.put("deposits", deposits);
+            result.put("credits", credits);
+            result.put("wheelExpenses", wheel);
+            result.put("rake", rake);
+            result.put("expectedChips", expected);
+            result.put("actualChips", actual);
+            result.put("mismatch", expected.subtract(actual).abs());
+        } else {
+            java.math.BigDecimal actual = playerRepository.findAll().stream()
+                .map(p -> p.getCurrentChips() != null ? p.getCurrentChips() : java.math.BigDecimal.ZERO)
+                .reduce(java.math.BigDecimal.ZERO, java.math.BigDecimal::add);
+            result.put("deposits", java.math.BigDecimal.ZERO);
+            result.put("credits", java.math.BigDecimal.ZERO);
+            result.put("wheelExpenses", java.math.BigDecimal.ZERO);
+            result.put("rake", java.math.BigDecimal.ZERO);
+            result.put("expectedChips", actual);
+            result.put("actualChips", actual);
+            result.put("mismatch", java.math.BigDecimal.ZERO);
+        }
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/admin/player-validation")
+    public ResponseEntity<List<Map<String, Object>>> playerValidation(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        var summary = importSummaryRepository.findById(1L).orElse(null);
+        java.time.LocalDate lastReportDate = summary != null ? summary.getLastReportDate() : null;
+        java.time.LocalDateTime cutoff = lastReportDate != null
+            ? lastReportDate.atStartOfDay()
+            : java.time.LocalDate.of(2000, 1, 1).atStartOfDay();
+
+        // Build per-player maps
+        Map<Long, java.math.BigDecimal> depositsMap = new HashMap<>();
+        for (Object[] r : transactionRepository.getDepositsPerPlayerSince(cutoff))
+            depositsMap.put(((Number) r[0]).longValue(), new java.math.BigDecimal(r[1].toString()));
+        Map<Long, java.math.BigDecimal> creditsMap = new HashMap<>();
+        for (Object[] r : transactionRepository.getCreditsPerPlayerSince(cutoff))
+            creditsMap.put(((Number) r[0]).longValue(), new java.math.BigDecimal(r[1].toString()));
+        Map<Long, java.math.BigDecimal> wheelMap = new HashMap<>();
+        for (Object[] r : transactionRepository.getWheelExpensesPerPlayerSince(cutoff))
+            wheelMap.put(((Number) r[0]).longValue(), new java.math.BigDecimal(r[1].toString()));
+        Map<Long, java.math.BigDecimal> rakeMap = new HashMap<>();
+        for (Object[] r : gameResultRepository.getRakePerPlayerSince(cutoff))
+            rakeMap.put(((Number) r[0]).longValue(), new java.math.BigDecimal(r[1].toString()));
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Player p : playerRepository.findAll()) {
+            java.math.BigDecimal chips = p.getCurrentChips() != null ? p.getCurrentChips() : java.math.BigDecimal.ZERO;
+            java.math.BigDecimal dep = depositsMap.getOrDefault(p.getId(), java.math.BigDecimal.ZERO);
+            java.math.BigDecimal cred = creditsMap.getOrDefault(p.getId(), java.math.BigDecimal.ZERO);
+            java.math.BigDecimal whl = wheelMap.getOrDefault(p.getId(), java.math.BigDecimal.ZERO);
+            java.math.BigDecimal rake = rakeMap.getOrDefault(p.getId(), java.math.BigDecimal.ZERO);
+            // expected = chips(already includes credits+wheel given since last report) + deposits - rake
+            java.math.BigDecimal expected = chips.add(dep).subtract(rake);
+            java.math.BigDecimal diff = expected.subtract(chips);
+            if (diff.compareTo(java.math.BigDecimal.ZERO) == 0 && dep.compareTo(java.math.BigDecimal.ZERO) == 0
+                    && cred.compareTo(java.math.BigDecimal.ZERO) == 0 && whl.compareTo(java.math.BigDecimal.ZERO) == 0
+                    && rake.compareTo(java.math.BigDecimal.ZERO) == 0) continue; // skip players with no activity
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("playerId", p.getId());
+            m.put("username", p.getUsername());
+            m.put("fullName", p.getFullName());
+            m.put("currentChips", chips);
+            m.put("deposits", dep);
+            m.put("credits", cred);
+            m.put("wheelReceived", whl);
+            m.put("rakePaid", rake);
+            m.put("expectedNextXls", expected);
+            m.put("diff", diff);
+            result.add(m);
+        }
+        result.sort((a, b) -> ((java.math.BigDecimal) b.get("diff")).abs().compareTo(((java.math.BigDecimal) a.get("diff")).abs()));
         return ResponseEntity.ok(result);
     }
 
