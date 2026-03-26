@@ -3,6 +3,7 @@ package com.sevenmax.tracker.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +33,12 @@ public class Report {
 
     private String fileName;
     private String filePath;
+
+    /** Raw XLS bytes — stored in DB so download and backfill work on cloud (no local filesystem) */
+    @Lob
+    @Column(columnDefinition = "bytea")
+    @JsonIgnore
+    private byte[] fileData;
 
     /** Total chips from Club Member Balance tab — persisted for delete rollback */
     @Column(precision = 12, scale = 2)

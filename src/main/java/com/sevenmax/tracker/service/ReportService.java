@@ -61,7 +61,9 @@ public class ReportService {
 
             report = reportRepository.save(report);
 
-            // Save file to disk for later download
+            // Store file bytes in DB (works on cloud with ephemeral filesystem)
+            report.setFileData(fileBytes);
+            // Also save to disk for local dev / backfill legacy
             try {
                 Path uploadDir = Paths.get("C:/claude/uploads");
                 Files.createDirectories(uploadDir);

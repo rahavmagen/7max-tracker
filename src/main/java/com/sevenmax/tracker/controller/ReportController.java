@@ -25,6 +25,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -342,8 +344,14 @@ public class ReportController {
         int updated = 0, skipped = 0, failed = 0;
         for (Report report : reportRepository.findAll()) {
             if (report.getChipsTotal() != null) { skipped++; continue; }
-            if (report.getFilePath() == null || !new File(report.getFilePath()).exists()) { failed++; continue; }
-            try (java.io.FileInputStream fis = new java.io.FileInputStream(report.getFilePath());
+            byte[] bytes = null;
+            if (report.getFileData() != null && report.getFileData().length > 0) {
+                bytes = report.getFileData();
+            } else if (report.getFilePath() != null && new File(report.getFilePath()).exists()) {
+                try { bytes = java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(report.getFilePath())); } catch (Exception ignored) {}
+            }
+            if (bytes == null) { failed++; continue; }
+            try (java.io.InputStream fis = new java.io.ByteArrayInputStream(bytes);
                  org.apache.poi.ss.usermodel.Workbook wb = new XSSFWorkbook(fis)) {
                 org.apache.poi.ss.usermodel.Sheet balanceSheet = null;
                 for (int i = 0; i < wb.getNumberOfSheets(); i++) {
@@ -408,16 +416,21 @@ public class ReportController {
 
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadReport(@PathVariable Long id) {
-        return reportRepository.findById(id)
-            .filter(r -> r.getFilePath() != null && new File(r.getFilePath()).exists())
-            .map(r -> {
-                Resource resource = new FileSystemResource(r.getFilePath());
-                return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + r.getFileName() + "\"")
-                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                    .body(resource);
-            })
-            .orElse(ResponseEntity.notFound().<Resource>build());
+        return reportRepository.findById(id).map(r -> {
+            byte[] data = null;
+            // Prefer in-memory DB bytes (works on cloud)
+            if (r.getFileData() != null && r.getFileData().length > 0) {
+                data = r.getFileData();
+            } else if (r.getFilePath() != null && new File(r.getFilePath()).exists()) {
+                try { data = Files.readAllBytes(Paths.get(r.getFilePath())); } catch (Exception ignored) {}
+            }
+            if (data == null) return ResponseEntity.notFound().<Resource>build();
+            Resource resource = new org.springframework.core.io.ByteArrayResource(data);
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + r.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(resource);
+        }).orElse(ResponseEntity.notFound().<Resource>build());
     }
 
     @DeleteMapping("/{id}")
