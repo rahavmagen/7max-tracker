@@ -33,6 +33,10 @@ public class Report {
     private String fileName;
     private String filePath;
 
+    /** Total chips from Club Member Balance tab — persisted for delete rollback */
+    @Column(precision = 12, scale = 2)
+    private BigDecimal chipsTotal;
+
     /** Transient: populated after upload, not persisted */
     @Transient
     private List<Map<String, String>> leftClub;

@@ -212,13 +212,32 @@ public class ReportController {
     }
 
     @GetMapping("/admin/chip-balance")
-    public ResponseEntity<Map<String, Object>> chipBalance(Authentication auth) {
+    public ResponseEntity<Map<String, Object>> chipBalance(
+            @RequestParam(required = false) String since,
+            Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         Map<String, Object> result = new LinkedHashMap<>();
         var summary = importSummaryRepository.findById(1L).orElse(null);
         java.time.LocalDate lastReportDate = summary != null ? summary.getLastReportDate() : null;
         java.math.BigDecimal baseChips = summary != null && summary.getLastReportChipsTotal() != null
             ? summary.getLastReportChipsTotal() : java.math.BigDecimal.ZERO;
+
+        // If caller overrides the cutoff date, find the chips total from the nearest report at/before that date
+        java.time.LocalDate sinceDate = since != null ? java.time.LocalDate.parse(since) : null;
+        if (sinceDate != null && !sinceDate.equals(lastReportDate)) {
+            final java.time.LocalDate sd = sinceDate;
+            reportRepository.findAll().stream()
+                .filter(r -> r.getPeriodEnd() != null && !r.getPeriodEnd().isAfter(sd) && r.getChipsTotal() != null)
+                .max(java.util.Comparator.comparing(Report::getPeriodEnd))
+                .ifPresent(r -> {});  // just a check — we'll use sinceDate as cutoff below
+            // Find base chips from the report at that date
+            baseChips = reportRepository.findAll().stream()
+                .filter(r -> r.getPeriodEnd() != null && !r.getPeriodEnd().isAfter(sd) && r.getChipsTotal() != null)
+                .max(java.util.Comparator.comparing(Report::getPeriodEnd))
+                .map(Report::getChipsTotal)
+                .orElse(java.math.BigDecimal.ZERO);
+            lastReportDate = sinceDate;
+        }
 
         result.put("lastReportDate", lastReportDate != null ? lastReportDate.toString() : null);
         result.put("baseChips", baseChips);
@@ -260,10 +279,14 @@ public class ReportController {
     }
 
     @GetMapping("/admin/player-validation")
-    public ResponseEntity<List<Map<String, Object>>> playerValidation(Authentication auth) {
+    public ResponseEntity<List<Map<String, Object>>> playerValidation(
+            @RequestParam(required = false) String since,
+            Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         var summary = importSummaryRepository.findById(1L).orElse(null);
-        java.time.LocalDate lastReportDate = summary != null ? summary.getLastReportDate() : null;
+        java.time.LocalDate lastReportDate = since != null
+            ? java.time.LocalDate.parse(since)
+            : (summary != null ? summary.getLastReportDate() : null);
         java.time.LocalDateTime cutoff = lastReportDate != null
             ? lastReportDate.atStartOfDay()
             : java.time.LocalDate.of(2000, 1, 1).atStartOfDay();

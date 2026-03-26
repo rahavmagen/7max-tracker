@@ -189,12 +189,14 @@ public class ReportService {
             }
             report.setLeftClub(leftClub);
 
+            // Always save chip total from this XLS (used to restore ImportSummary on delete)
+            BigDecimal newXlsTotal = newChipsMap.values().stream()
+                .map(v -> (BigDecimal) v[0])
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            report.setChipsTotal(newXlsTotal);
+
             // Compute chip mismatch warning (latest report only)
             if (isLatestReport) {
-                BigDecimal newXlsTotal = newChipsMap.values().stream()
-                    .map(v -> (BigDecimal) v[0])
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-
                 ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
                 java.time.LocalDate prevReportDate = summary.getLastReportDate();
                 BigDecimal prevChipsTotal = summary.getLastReportChipsTotal() != null ? summary.getLastReportChipsTotal() : BigDecimal.ZERO;
@@ -826,6 +828,27 @@ public class ReportService {
         }
         gameSessionRepository.deleteAll(sessions);
         reportRepository.deleteById(reportId);
+
+        // Update ImportSummary to reflect the most recent remaining report
+        reportRepository.findAll().stream()
+            .filter(r -> r.getPeriodEnd() != null && r.getChipsTotal() != null)
+            .max(java.util.Comparator.comparing(Report::getPeriodEnd))
+            .ifPresentOrElse(latest -> {
+                ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+                summary.setId(1L);
+                summary.setLastReportChipsTotal(latest.getChipsTotal());
+                summary.setLastReportDate(latest.getPeriodEnd());
+                importSummaryRepository.save(summary);
+                log.info("ImportSummary rolled back to report periodEnd={} chipsTotal={}", latest.getPeriodEnd(), latest.getChipsTotal());
+            }, () -> {
+                ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+                summary.setId(1L);
+                summary.setLastReportChipsTotal(BigDecimal.ZERO);
+                summary.setLastReportDate(null);
+                importSummaryRepository.save(summary);
+                log.info("All reports deleted — ImportSummary cleared");
+            });
+
         log.info("Deleted report {} along with {} sessions", reportId, sessions.size());
     }
 
