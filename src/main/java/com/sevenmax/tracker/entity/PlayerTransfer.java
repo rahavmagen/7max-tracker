@@ -25,6 +25,14 @@ public class PlayerTransfer {
     @JoinColumn(name = "to_player_id")
     private Player toPlayer;
 
+    @ManyToOne
+    @JoinColumn(name = "from_bank_account_id")
+    private BankAccount fromBankAccount;
+
+    @ManyToOne
+    @JoinColumn(name = "to_bank_account_id")
+    private BankAccount toBankAccount;
+
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 

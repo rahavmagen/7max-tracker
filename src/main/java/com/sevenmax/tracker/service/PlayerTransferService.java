@@ -1,10 +1,12 @@
 package com.sevenmax.tracker.service;
 
+import com.sevenmax.tracker.entity.BankAccount;
 import com.sevenmax.tracker.entity.GameResult;
 import com.sevenmax.tracker.entity.GameSession;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.PlayerTransfer;
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.repository.BankAccountRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.GameSessionRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
@@ -30,20 +32,25 @@ public class PlayerTransferService {
 
     private final PlayerTransferRepository transferRepository;
     private final PlayerRepository playerRepository;
+    private final BankAccountRepository bankAccountRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
     private final GameSessionRepository gameSessionRepository;
     private final GameResultRepository gameResultRepository;
 
     @Transactional
-    public PlayerTransfer createTransfer(Long fromPlayerId, Long toPlayerId, BigDecimal amount,
-                                         Transaction.Method method, String notes, String createdBy) {
+    public PlayerTransfer createTransfer(Long fromPlayerId, Long fromBankAccountId, Long toPlayerId, Long toBankAccountId,
+                                         BigDecimal amount, Transaction.Method method, String notes, String createdBy) {
         Player fromPlayer = fromPlayerId != null ? playerRepository.findById(fromPlayerId).orElse(null) : null;
         Player toPlayer = toPlayerId != null ? playerRepository.findById(toPlayerId).orElse(null) : null;
+        BankAccount fromBankAccount = fromBankAccountId != null ? bankAccountRepository.findById(fromBankAccountId).orElse(null) : null;
+        BankAccount toBankAccount = toBankAccountId != null ? bankAccountRepository.findById(toBankAccountId).orElse(null) : null;
 
         PlayerTransfer transfer = new PlayerTransfer();
         transfer.setFromPlayer(fromPlayer);
         transfer.setToPlayer(toPlayer);
+        transfer.setFromBankAccount(fromBankAccount);
+        transfer.setToBankAccount(toBankAccount);
         transfer.setAmount(amount);
         transfer.setMethod(method);
         transfer.setNotes(notes);
@@ -53,6 +60,9 @@ public class PlayerTransferService {
         transfer = transferRepository.save(transfer);
         String sourceRef = "TRANSFER:" + transfer.getId();
 
+        String toLabel = toPlayer != null ? toPlayer.getUsername() : (toBankAccount != null ? toBankAccount.getName() : "CLUB");
+        String fromLabel = fromPlayer != null ? fromPlayer.getUsername() : (fromBankAccount != null ? fromBankAccount.getName() : "CLUB");
+
         // FROM player transfers → REPAYMENT → balance increases (debt reduces toward 0)
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
@@ -60,7 +70,7 @@ public class PlayerTransferService {
             tx.setType(Transaction.Type.REPAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Transfer to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Transfer to " + toLabel + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             tx.setSourceRef(sourceRef);
@@ -74,7 +84,7 @@ public class PlayerTransferService {
             tx.setType(Transaction.Type.CREDIT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Transfer from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Transfer from " + fromLabel + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             tx.setSourceRef(sourceRef);
@@ -260,12 +270,18 @@ public class PlayerTransferService {
     public Map<String, Object> toDto(PlayerTransfer t) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", t.getId());
-        m.put("fromPlayerName", t.getFromPlayer() != null ? t.getFromPlayer().getUsername() : "CLUB");
+        String fromName = t.getFromPlayer() != null ? t.getFromPlayer().getUsername()
+                : (t.getFromBankAccount() != null ? t.getFromBankAccount().getName() : "CLUB");
+        String toName = t.getToPlayer() != null ? t.getToPlayer().getUsername()
+                : (t.getToBankAccount() != null ? t.getToBankAccount().getName() : "CLUB");
+        m.put("fromPlayerName", fromName);
         m.put("fromPlayerFullName", t.getFromPlayer() != null ? t.getFromPlayer().getFullName() : null);
         m.put("fromPlayerId", t.getFromPlayer() != null ? t.getFromPlayer().getId() : null);
-        m.put("toPlayerName", t.getToPlayer() != null ? t.getToPlayer().getUsername() : "CLUB");
+        m.put("fromBankAccountId", t.getFromBankAccount() != null ? t.getFromBankAccount().getId() : null);
+        m.put("toPlayerName", toName);
         m.put("toPlayerFullName", t.getToPlayer() != null ? t.getToPlayer().getFullName() : null);
         m.put("toPlayerId", t.getToPlayer() != null ? t.getToPlayer().getId() : null);
+        m.put("toBankAccountId", t.getToBankAccount() != null ? t.getToBankAccount().getId() : null);
         m.put("amount", t.getAmount());
         m.put("method", t.getMethod());
         m.put("notes", t.getNotes());

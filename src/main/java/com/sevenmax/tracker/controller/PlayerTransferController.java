@@ -25,12 +25,14 @@ public class PlayerTransferController {
     public ResponseEntity<?> create(@RequestBody Map<String, Object> body, Authentication auth) {
         try {
             Long fromPlayerId = body.get("fromPlayerId") != null ? ((Number) body.get("fromPlayerId")).longValue() : null;
+            Long fromBankAccountId = body.get("fromBankAccountId") != null ? ((Number) body.get("fromBankAccountId")).longValue() : null;
             Long toPlayerId = body.get("toPlayerId") != null ? ((Number) body.get("toPlayerId")).longValue() : null;
+            Long toBankAccountId = body.get("toBankAccountId") != null ? ((Number) body.get("toBankAccountId")).longValue() : null;
             BigDecimal amount = new BigDecimal(body.get("amount").toString());
             Transaction.Method method = Transaction.Method.valueOf(body.get("method").toString());
             String notes = (String) body.get("notes");
             String createdBy = auth != null ? auth.getName() : null;
-            var transfer = transferService.createTransfer(fromPlayerId, toPlayerId, amount, method, notes, createdBy);
+            var transfer = transferService.createTransfer(fromPlayerId, fromBankAccountId, toPlayerId, toBankAccountId, amount, method, notes, createdBy);
             return ResponseEntity.ok(transferService.toDto(transfer));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
