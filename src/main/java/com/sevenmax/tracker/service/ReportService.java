@@ -830,24 +830,33 @@ public class ReportService {
         reportRepository.deleteById(reportId);
 
         // Update ImportSummary to reflect the most recent remaining report
-        reportRepository.findAll().stream()
-            .filter(r -> r.getPeriodEnd() != null && r.getChipsTotal() != null)
-            .max(java.util.Comparator.comparing(Report::getPeriodEnd))
-            .ifPresentOrElse(latest -> {
-                ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
-                summary.setId(1L);
+        List<Report> remaining = reportRepository.findAll().stream()
+            .filter(r -> r.getPeriodEnd() != null)
+            .sorted(java.util.Comparator.comparing(Report::getPeriodEnd).reversed())
+            .toList();
+
+        ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+        summary.setId(1L);
+        if (remaining.isEmpty()) {
+            summary.setLastReportChipsTotal(BigDecimal.ZERO);
+            summary.setLastReportDate(null);
+            log.info("All reports deleted — ImportSummary cleared");
+        } else {
+            Report latest = remaining.get(0);
+            summary.setLastReportDate(latest.getPeriodEnd());
+            // Use stored chipsTotal if available (set on upload after this feature was added),
+            // otherwise fall back to current actual chip sum as best approximation
+            if (latest.getChipsTotal() != null) {
                 summary.setLastReportChipsTotal(latest.getChipsTotal());
-                summary.setLastReportDate(latest.getPeriodEnd());
-                importSummaryRepository.save(summary);
-                log.info("ImportSummary rolled back to report periodEnd={} chipsTotal={}", latest.getPeriodEnd(), latest.getChipsTotal());
-            }, () -> {
-                ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
-                summary.setId(1L);
-                summary.setLastReportChipsTotal(BigDecimal.ZERO);
-                summary.setLastReportDate(null);
-                importSummaryRepository.save(summary);
-                log.info("All reports deleted — ImportSummary cleared");
-            });
+            } else {
+                BigDecimal actualChips = playerRepository.findAll().stream()
+                    .map(p -> p.getCurrentChips() != null ? p.getCurrentChips() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                summary.setLastReportChipsTotal(actualChips);
+            }
+            log.info("ImportSummary rolled back to report periodEnd={} chipsTotal={}", latest.getPeriodEnd(), summary.getLastReportChipsTotal());
+        }
+        importSummaryRepository.save(summary);
 
         log.info("Deleted report {} along with {} sessions", reportId, sessions.size());
     }
