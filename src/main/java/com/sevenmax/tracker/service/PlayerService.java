@@ -102,12 +102,13 @@ public class PlayerService {
     }
 
     @Transactional
-    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername) {
+    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername, boolean updateChips) {
         Player player = getPlayer(id);
         BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
-        BigDecimal newChips = (player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO).add(delta);
+        BigDecimal currentChips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
+        BigDecimal newChips = updateChips ? currentChips.add(delta) : currentChips;
         player.setCreditTotal(newCredit);
-        player.setCurrentChips(newChips);
+        if (updateChips) player.setCurrentChips(newChips);
         player.setBalance(newChips.subtract(newCredit));
         Player saved = playerRepository.save(player);
 
