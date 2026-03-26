@@ -234,7 +234,7 @@ public class ReportService {
             parseCreditSheet(workbook);
 
             // Parse Trade Record → create CREDIT/REPAYMENT transactions (skip already-imported)
-            parseTradeRecord(workbook);
+            parseTradeRecord(workbook, report.getId());
 
             report.setTotalRake(totalRake);
             return reportRepository.save(report);
@@ -275,7 +275,7 @@ public class ReportService {
         }
     }
 
-    private void parseTradeRecord(Workbook workbook) {
+    private void parseTradeRecord(Workbook workbook, Long reportId) {
         Sheet sheet = workbook.getSheet("Trade Record");
         if (sheet == null) return;
 
@@ -362,6 +362,7 @@ public class ReportService {
             tx.setSourceRef(sourceRef);
             tx.setNotes("Trade Record: " + tradeType);
             tx.setCreatedByUsername("Import");
+            tx.setReportId(reportId);
             transactionRepository.save(tx);
         }
     }
@@ -829,6 +830,17 @@ public class ReportService {
             gameResultRepository.deleteAll(results);
         }
         gameSessionRepository.deleteAll(sessions);
+
+        // Delete trade transactions imported from this XLS and reverse their balance effects
+        List<Transaction> tradeTxs = transactionRepository.findByReportId(reportId);
+        for (Transaction tx : tradeTxs) {
+            Player player = tx.getPlayer();
+            boolean added = tx.getType() == Transaction.Type.DEPOSIT || tx.getType() == Transaction.Type.REPAYMENT;
+            player.setBalance(player.getBalance().add(added ? tx.getAmount().negate() : tx.getAmount()));
+            playerRepository.save(player);
+        }
+        transactionRepository.deleteAll(tradeTxs);
+
         reportRepository.deleteById(reportId);
 
         // Update ImportSummary to reflect the most recent remaining report

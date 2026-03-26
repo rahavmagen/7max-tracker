@@ -39,6 +39,8 @@ public class Transaction {
     @Column(unique = false)
     private String sourceRef; // for dedup of imported trade records, e.g. "TRADE:2026-03-08 11:02:59:1326-0732"
 
+    private Long reportId; // set for XLS-imported trade transactions; used to delete on report deletion
+
     private String createdByUsername;
 
     private Boolean pendingConfirmation = false;

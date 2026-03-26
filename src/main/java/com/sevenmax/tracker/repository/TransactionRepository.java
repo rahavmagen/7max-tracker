@@ -13,6 +13,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByPlayerIdOrderByTransactionDateDesc(Long playerId);
     boolean existsBySourceRef(String sourceRef);
     List<Transaction> findBySourceRef(String sourceRef);
+    List<Transaction> findByReportId(Long reportId);
 
     @Query("SELECT t FROM Transaction t WHERE t.type IN :types AND t.createdAt >= :since ORDER BY t.createdAt DESC")
     List<Transaction> findRecentByTypes(@Param("types") List<Transaction.Type> types, @Param("since") LocalDateTime since);
