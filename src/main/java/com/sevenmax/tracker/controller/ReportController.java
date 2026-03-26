@@ -335,6 +335,77 @@ public class ReportController {
         return ResponseEntity.ok(result);
     }
 
+    /** Backfill chipsTotal for all reports that have a saved file but no chipsTotal yet */
+    @PostMapping("/admin/backfill-chips-total")
+    public ResponseEntity<Map<String, Object>> backfillChipsTotal(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        int updated = 0, skipped = 0, failed = 0;
+        for (Report report : reportRepository.findAll()) {
+            if (report.getChipsTotal() != null) { skipped++; continue; }
+            if (report.getFilePath() == null || !new File(report.getFilePath()).exists()) { failed++; continue; }
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(report.getFilePath());
+                 org.apache.poi.ss.usermodel.Workbook wb = new XSSFWorkbook(fis)) {
+                org.apache.poi.ss.usermodel.Sheet balanceSheet = null;
+                for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                    if (wb.getSheetAt(i).getSheetName().toLowerCase().contains("club member balance")) {
+                        balanceSheet = wb.getSheetAt(i);
+                        break;
+                    }
+                }
+                if (balanceSheet == null) { failed++; continue; }
+                // Find nickname/balance columns
+                int nicknameCol = -1, balanceCol = -1, headerRow = -1;
+                for (int r = 0; r <= Math.min(balanceSheet.getLastRowNum(), 10); r++) {
+                    org.apache.poi.ss.usermodel.Row row = balanceSheet.getRow(r);
+                    if (row == null) continue;
+                    for (int c = 0; c < row.getLastCellNum(); c++) {
+                        org.apache.poi.ss.usermodel.Cell cell = row.getCell(c);
+                        if (cell == null) continue;
+                        String val = cell.getCellType() == org.apache.poi.ss.usermodel.CellType.STRING
+                            ? cell.getStringCellValue().toLowerCase().trim() : "";
+                        if (val.contains("nickname") || val.equals("name")) nicknameCol = c;
+                        if (val.contains("balance") || val.contains("chips")) balanceCol = c;
+                    }
+                    if (nicknameCol >= 0 && balanceCol >= 0) { headerRow = r; break; }
+                }
+                if (nicknameCol < 0 || balanceCol < 0) { failed++; continue; }
+                java.math.BigDecimal total = java.math.BigDecimal.ZERO;
+                for (int r = headerRow + 1; r <= balanceSheet.getLastRowNum(); r++) {
+                    org.apache.poi.ss.usermodel.Row row = balanceSheet.getRow(r);
+                    if (row == null) continue;
+                    org.apache.poi.ss.usermodel.Cell nc = row.getCell(nicknameCol);
+                    if (nc == null || nc.getCellType() != org.apache.poi.ss.usermodel.CellType.STRING
+                            || nc.getStringCellValue().isBlank()) continue;
+                    org.apache.poi.ss.usermodel.Cell bc = row.getCell(balanceCol);
+                    if (bc == null) continue;
+                    try {
+                        double v = bc.getCellType() == org.apache.poi.ss.usermodel.CellType.NUMERIC
+                            ? bc.getNumericCellValue()
+                            : Double.parseDouble(bc.getStringCellValue().replace(",", "").trim());
+                        total = total.add(java.math.BigDecimal.valueOf(v));
+                    } catch (Exception ignored) {}
+                }
+                report.setChipsTotal(total);
+                reportRepository.save(report);
+                updated++;
+            } catch (Exception e) {
+                failed++;
+            }
+        }
+        // After backfill, refresh ImportSummary to pick up the new chip totals
+        reportRepository.findAll().stream()
+            .filter(r -> r.getPeriodEnd() != null && r.getChipsTotal() != null)
+            .max(java.util.Comparator.comparing(Report::getPeriodEnd))
+            .ifPresent(latest -> {
+                var summary = importSummaryRepository.findById(1L).orElse(new com.sevenmax.tracker.entity.ImportSummary());
+                summary.setId(1L);
+                summary.setLastReportChipsTotal(latest.getChipsTotal());
+                summary.setLastReportDate(latest.getPeriodEnd());
+                importSummaryRepository.save(summary);
+            });
+        return ResponseEntity.ok(Map.of("updated", updated, "skipped", skipped, "failed", failed));
+    }
+
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadReport(@PathVariable Long id) {
         return reportRepository.findById(id)
