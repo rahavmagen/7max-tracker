@@ -35,7 +35,6 @@ public class Report {
     private String filePath;
 
     /** Raw XLS bytes — stored in DB so download and backfill work on cloud (no local filesystem) */
-    @Lob
     @Column(columnDefinition = "bytea")
     @JsonIgnore
     private byte[] fileData;
