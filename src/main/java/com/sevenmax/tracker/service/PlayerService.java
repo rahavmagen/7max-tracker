@@ -3,7 +3,9 @@ package com.sevenmax.tracker.service;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.entity.User;
+import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
+import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,8 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
+    private final GameResultRepository gameResultRepository;
+    private final PlayerTransferRepository playerTransferRepository;
 
     public List<Player> getAllPlayers() {
         return playerRepository.findAll();
@@ -162,6 +166,17 @@ public class PlayerService {
 
     public List<Transaction> getPlayerTransactions(Long playerId) {
         return transactionRepository.findByPlayerIdOrderByTransactionDateDesc(playerId);
+    }
+
+    @Transactional
+    public void deletePlayer(Long id) {
+        Player player = getPlayer(id);
+        transactionRepository.deleteAll(transactionRepository.findByPlayerIdOrderByTransactionDateDesc(id));
+        gameResultRepository.deleteAll(gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(id));
+        playerTransferRepository.deleteAll(playerTransferRepository.findByFromPlayerIdOrToPlayerId(id, id));
+        userRepository.findByPlayerId(id).ifPresent(userRepository::delete);
+        playerRepository.delete(player);
+        log.info("Deleted player id={} username={}", id, player.getUsername());
     }
 
     /**
