@@ -136,7 +136,7 @@ public class ReportService {
                     }
                 } else {
                     // Set clubPlayerId on existing player if missing
-                    if (player.getClubPlayerId() == null && balanceClubId != null) {
+                    if ((player.getClubPlayerId() == null || player.getClubPlayerId().isBlank()) && balanceClubId != null) {
                         player.setClubPlayerId(balanceClubId);
                     }
                     boolean wasStale = Boolean.TRUE.equals(player.getChipsStale());
