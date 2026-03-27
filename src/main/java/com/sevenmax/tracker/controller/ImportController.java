@@ -5,6 +5,7 @@ import com.sevenmax.tracker.repository.*;
 import com.sevenmax.tracker.service.ImportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,7 @@ public class ImportController {
     private final ReportRepository reportRepository;
     private final PlayerTransferRepository playerTransferRepository;
     private final AdminExpenseRepository adminExpenseRepository;
+    private final UserRepository userRepository;
 
     @PostMapping("/players")
     public ResponseEntity<Map<String, Object>> importPlayers(
@@ -48,6 +50,7 @@ public class ImportController {
     }
 
     @PostMapping("/wipe")
+    @Transactional
     public ResponseEntity<Map<String, Object>> resetAll() {
         long players = playerRepository.count();
         gameResultRepository.deleteAll();
@@ -56,6 +59,8 @@ public class ImportController {
         transactionRepository.deleteAll();
         playerTransferRepository.deleteAll();
         adminExpenseRepository.deleteAll();
+        // Detach users from players before deleting players
+        userRepository.detachAllPlayers();
         playerRepository.deleteAll();
         importSummaryRepository.deleteAll();
         return ResponseEntity.ok(Map.of("deleted", Map.of("players", players)));
