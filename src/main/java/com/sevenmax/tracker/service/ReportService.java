@@ -123,7 +123,6 @@ public class ReportService {
                     if (isLatestReport) {
                         player = new Player();
                         player.setUsername(nickname);
-                        player.setFullName(nickname);
                         player.setCurrentChips(newChips);
                         player.setCreditTotal(BigDecimal.ZERO);
                         player.setBalance(newChips.negate());
@@ -545,7 +544,6 @@ public class ReportService {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
                             p.setUsername(nickname);
-                            p.setFullName(nickname);
                             return playerRepository.save(p);
                         });
                 if (player.getClubPlayerId() == null || player.getClubPlayerId().isBlank()) {
@@ -651,7 +649,6 @@ public class ReportService {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
                             p.setUsername(nickname);
-                            p.setFullName(nickname);
                             return playerRepository.save(p);
                         });
                 if (player.getClubPlayerId() == null || player.getClubPlayerId().isBlank()) {
