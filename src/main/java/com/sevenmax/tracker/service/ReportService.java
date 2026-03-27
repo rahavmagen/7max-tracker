@@ -337,6 +337,8 @@ public class ReportService {
             // cost in the nightly MTT (9 PM main event, starts between 20:20 and 21:40 on txDate
             // or the previous day). If no match found → show warning and treat as CREDIT.
             boolean isWheelExpense = false;
+            boolean pendingWheelWarning = false;
+            BigDecimal pendingWheelMttCost = null;
             if (tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
                 BigDecimal mttCost = getNightlyMttCost(txDate, player.getId());
                 if (mttCost == null) {
@@ -347,10 +349,9 @@ public class ReportService {
                     isWheelExpense = true;
                     log.info("Wheel expense detected: player={} amount={} matches MTT cost on {}", player.getUsername(), amount, txDate);
                 } else {
-                    String warning = player.getUsername() + " (" + amount + " on " + txDate + ")";
-                    wheelWarnings.add(warning);
-                    log.warn("Send Chips negative but no MTT cost match: player={} amount={} mttCost={} date={} — treating as CREDIT",
-                            player.getUsername(), amount, mttCost, txDate);
+                    // Defer warning — only emit if not handled by pending transfer/transaction checks below
+                    pendingWheelWarning = true;
+                    pendingWheelMttCost = mttCost;
                 }
             }
 
@@ -381,12 +382,23 @@ public class ReportService {
 
             // Check for matching pending Transaction (credit/promo) — run even if already imported,
             // so re-uploading an XLS can still confirm a pending promotion/credit
+            boolean[] pendingTxConfirmed = {false};
             if (!transferConfirmed && !isWheelExpense) {
                 transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
                     pendingTx.setPendingConfirmation(false);
                     transactionRepository.save(pendingTx);
                     log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), pendingTx.getPlayer().getUsername(), amount);
+                    pendingTxConfirmed[0] = true;
                 });
+            }
+
+            // Now emit deferred wheel warning — only if this Send Chips negative was not handled
+            // by a pending transfer or pending transaction confirmation
+            if (pendingWheelWarning && !transferConfirmed && !pendingTxConfirmed[0] && !alreadyImported) {
+                String warning = player.getUsername() + " (" + amount + " on " + txDate + ")";
+                wheelWarnings.add(warning);
+                log.warn("Send Chips negative but no MTT cost match: player={} amount={} mttCost={} date={} — treating as CREDIT",
+                        player.getUsername(), amount, pendingWheelMttCost, txDate);
             }
 
             if (alreadyImported || transferConfirmed) continue;
