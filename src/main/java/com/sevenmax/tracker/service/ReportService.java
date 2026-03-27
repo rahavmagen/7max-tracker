@@ -249,6 +249,9 @@ public class ReportService {
             // Parse Trade Record → create CREDIT/REPAYMENT transactions (skip already-imported)
             parseTradeRecord(workbook, report);
 
+            // Backfill AdminExpense for any WHEEL_EXPENSE transaction that doesn't have one yet
+            backfillWheelExpenseAdminRecords();
+
             report.setTotalRake(totalRake);
             return reportRepository.save(report);
         }
@@ -911,6 +914,29 @@ public class ReportService {
             return (int) Double.parseDouble(val);
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    private void backfillWheelExpenseAdminRecords() {
+        List<Transaction> wheelTxs = transactionRepository.findAllWheelExpenses();
+        for (Transaction tx : wheelTxs) {
+            String expRef = tx.getSourceRef() != null ? "WHEEL:" + tx.getSourceRef() : null;
+            // Skip if already has a matching AdminExpense
+            if (expRef != null && adminExpenseRepository.existsBySourceRef(expRef)) continue;
+            // Also skip if a null-sourceRef entry already exists for this player+amount+date
+            // (manual wheel expenses have no sourceRef)
+            if (expRef == null) continue;
+
+            AdminExpense exp = new AdminExpense();
+            exp.setAdminUsername("Wheel");
+            exp.setAmount(tx.getAmount());
+            String playerName = tx.getPlayer() != null ? tx.getPlayer().getUsername() : "?";
+            exp.setNotes("Wheel - " + playerName);
+            exp.setExpenseDate(tx.getTransactionDate());
+            exp.setCreatedBy("Import");
+            exp.setSourceRef(expRef);
+            adminExpenseRepository.save(exp);
+            log.info("Backfilled AdminExpense for wheel tx id={} player={} amount={}", tx.getId(), playerName, tx.getAmount());
         }
     }
 

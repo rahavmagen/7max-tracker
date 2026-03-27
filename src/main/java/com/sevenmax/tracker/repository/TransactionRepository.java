@@ -33,6 +33,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'WHEEL_EXPENSE'", nativeQuery = true)
     BigDecimal sumAllWheelExpenses();
 
+    @Query("SELECT t FROM Transaction t WHERE t.type = com.sevenmax.tracker.entity.Transaction.Type.WHEEL_EXPENSE")
+    List<Transaction> findAllWheelExpenses();
+
     @Query(value = "SELECT t.player_id, COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'DEPOSIT' AND (t.source_ref IS NULL OR t.source_ref NOT LIKE 'SCREEN:%') AND t.created_at > :since GROUP BY t.player_id", nativeQuery = true)
     List<Object[]> getDepositsPerPlayerSince(@Param("since") LocalDateTime since);
 
