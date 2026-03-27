@@ -223,10 +223,22 @@ public class ReportService {
                     }
                 }
 
+                // Read bank deposits from Club Overview P2
+                if (overviewSheet != null) {
+                    Row overviewRow1 = overviewSheet.getRow(1); // row 2 (0-indexed)
+                    if (overviewRow1 != null) {
+                        BigDecimal p2 = parseBigDecimal(getCellValue(overviewRow1, 15)); // col P
+                        if (p2 != null && p2.compareTo(BigDecimal.ZERO) > 0) {
+                            summary.setBankDeposits(p2);
+                        }
+                    }
+                }
+
                 // Save new chip snapshot for next check
                 summary.setId(1L);
                 summary.setLastReportChipsTotal(newXlsTotal);
                 summary.setLastReportDate(report.getPeriodEnd());
+                summary.setLastUpdated(LocalDateTime.now());
                 importSummaryRepository.save(summary);
             }
 
