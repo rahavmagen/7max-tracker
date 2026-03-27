@@ -30,6 +30,22 @@ public class SchemaMigration {
         }
         try {
             jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS admin_expenses (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "admin_username VARCHAR(255), " +
+                "amount NUMERIC(12,2), " +
+                "notes TEXT, " +
+                "expense_date DATE, " +
+                "created_by VARCHAR(255), " +
+                "created_at TIMESTAMP, " +
+                "source_ref VARCHAR(255))"
+            );
+            log.info("SchemaMigration: admin_expenses table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: admin_expenses table: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute(
                 "ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check"
             );
             jdbcTemplate.execute(

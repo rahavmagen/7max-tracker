@@ -2,6 +2,7 @@ package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.ImportSummary;
 import com.sevenmax.tracker.entity.Player;
+import com.sevenmax.tracker.repository.AdminExpenseRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
@@ -27,6 +28,7 @@ public class ImportService {
     private final GameResultRepository gameResultRepository;
     private final PlayerService playerService;
     private final ImportSummaryRepository importSummaryRepository;
+    private final AdminExpenseRepository expenseRepository;
 
     /**
      * Import players from max7.xlsx:
@@ -47,6 +49,7 @@ public class ImportService {
         BigDecimal willExpense = BigDecimal.ZERO;
         BigDecimal generalExpenses = BigDecimal.ZERO;
         BigDecimal bankDeposits = BigDecimal.ZERO;
+        Map<String, java.math.BigDecimal> adminExpenseTotals = new java.util.LinkedHashMap<>();
 
         try (InputStream is = max7File.getInputStream();
              Workbook wb = new XSSFWorkbook(is)) {
@@ -143,7 +146,7 @@ public class ImportService {
                 log.warn("Credit sheet (מעקב קרדיטים) not found in file");
             }
 
-            // הוצאות sheet: col C = general expenses, col H = will/גלגל expenses
+            // הוצאות sheet: col A = admin username, cols C+E+G = per-admin expenses, col H = wheel expenses
             Sheet expSheet = null;
             for (int i = 0; i < wb.getNumberOfSheets(); i++) {
                 if (wb.getSheetAt(i).getSheetName().contains("הוצאות")) {
@@ -155,11 +158,18 @@ public class ImportService {
                 for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
                     Row row = expSheet.getRow(r);
                     if (row == null) continue;
-                    generalExpenses = generalExpenses.add(parseLeadingNumber(getText(row, 0))); // col A
-                    generalExpenses = generalExpenses.add(parseBD(getText(row, 2)));             // col C
-                    willExpense = willExpense.add(parseBD(getText(row, 7)));                     // col H
+                    String adminName = getText(row, 0); // col A = admin username
+                    java.math.BigDecimal colC = parseBD(getText(row, 2)); // col C
+                    java.math.BigDecimal colE = parseBD(getText(row, 4)); // col E
+                    java.math.BigDecimal colG = parseBD(getText(row, 6)); // col G
+                    java.math.BigDecimal rowTotal = colC.add(colE).add(colG);
+                    willExpense = willExpense.add(parseBD(getText(row, 7)));  // col H = wheel
+                    generalExpenses = generalExpenses.add(rowTotal);
+                    if (!adminName.isBlank() && rowTotal.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        adminExpenseTotals.merge(adminName, rowTotal, java.math.BigDecimal::add);
+                    }
                 }
-                log.info("Expenses: generalExpenses={} willExpense={}", generalExpenses, willExpense);
+                log.info("Expenses: generalExpenses={} willExpense={} adminBreakdown={}", generalExpenses, willExpense, adminExpenseTotals);
             }
 
             // מיקום הכסף sheet: B2 + I2 = bank deposits
@@ -193,6 +203,20 @@ public class ImportService {
         summary.setLastUpdated(java.time.LocalDateTime.now());
         importSummaryRepository.save(summary);
         log.info("Saved ImportSummary: will={} expenses={} deposits={}", willExpense, generalExpenses, bankDeposits);
+
+        // Save per-admin expense totals (replace XLS-sourced entries)
+        expenseRepository.deleteBySourceRef("XLS");
+        for (Map.Entry<String, java.math.BigDecimal> entry : adminExpenseTotals.entrySet()) {
+            com.sevenmax.tracker.entity.AdminExpense exp = new com.sevenmax.tracker.entity.AdminExpense();
+            exp.setAdminUsername(entry.getKey());
+            exp.setAmount(entry.getValue());
+            exp.setNotes("Imported from XLS הוצאות");
+            exp.setExpenseDate(java.time.LocalDate.now());
+            exp.setCreatedBy("Import");
+            exp.setSourceRef("XLS");
+            expenseRepository.save(exp);
+        }
+        log.info("Saved {} admin expense entries from XLS", adminExpenseTotals.size());
 
         log.info("max7 import done: {} players in map", playerMap.size());
 
