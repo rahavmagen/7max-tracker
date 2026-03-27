@@ -113,6 +113,7 @@ public class ReportController {
                 m.put("startTime", s.getStartTime() != null ? s.getStartTime().toString() : null);
                 m.put("endTime", s.getEndTime() != null ? s.getEndTime().toString() : null);
                 m.put("rakeTotal", rakeTotal);
+                m.put("entryFee", s.getEntryFee());
                 m.put("playerCount", playerCount);
                 m.put("entryCount", entries);
                 m.put("reEntryCount", entries - (int) playerCount);
