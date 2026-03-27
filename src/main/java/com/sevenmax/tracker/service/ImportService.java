@@ -224,7 +224,7 @@ public class ImportService {
         log.info("Saved ImportSummary: will={} expenses={} deposits={}", willExpense, generalExpenses, bankDeposits);
 
         // Save per-row expense entries — only create new ones, never recreate deleted ones
-        int created = 0;
+        int xlsCreated = 0;
         for (Map.Entry<String, Object[]> entry : adminExpenseRows.entrySet()) {
             String uniqueRef = entry.getKey(); // already "XLS:{adminName}:{r}:{i}"
             if (expenseRepository.existsBySourceRef(uniqueRef)) continue; // already exists, skip
@@ -238,9 +238,9 @@ public class ImportService {
             exp.setCreatedBy("Import");
             exp.setSourceRef(uniqueRef);
             expenseRepository.save(exp);
-            created++;
+            xlsCreated++;
         }
-        log.info("Admin expense entries from XLS: {} new created (out of {} in XLS)", created, adminExpenseRows.size());
+        log.info("Admin expense entries from XLS: {} new created (out of {} in XLS)", xlsCreated, adminExpenseRows.size());
 
         // Save wheel total (col J) as a single AdminExpense record under "Wheel"
         expenseRepository.deleteBySourceRef("XLS:WHEEL");
