@@ -238,6 +238,20 @@ public class ImportService {
         }
         log.info("Saved {} admin expense entries from XLS", adminExpenseRows.size());
 
+        // Save wheel total (col J) as a single AdminExpense record under "Wheel"
+        expenseRepository.deleteBySourceRef("XLS:WHEEL");
+        if (willExpense.compareTo(java.math.BigDecimal.ZERO) > 0) {
+            com.sevenmax.tracker.entity.AdminExpense wheelExp = new com.sevenmax.tracker.entity.AdminExpense();
+            wheelExp.setAdminUsername("Wheel");
+            wheelExp.setAmount(willExpense);
+            wheelExp.setNotes("Wheel expenses from player XLS (הוצאות col J)");
+            wheelExp.setExpenseDate(java.time.LocalDate.now());
+            wheelExp.setCreatedBy("Import");
+            wheelExp.setSourceRef("XLS:WHEEL");
+            expenseRepository.save(wheelExp);
+            log.info("Saved wheel expense record from XLS col J: amount={}", willExpense);
+        }
+
         log.info("max7 import done: {} players in map", playerMap.size());
 
         // Step 2: Calculate balance (P&L) and save
