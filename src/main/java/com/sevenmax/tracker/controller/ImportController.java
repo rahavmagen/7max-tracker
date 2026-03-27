@@ -23,6 +23,8 @@ public class ImportController {
     private final GameResultRepository gameResultRepository;
     private final GameSessionRepository gameSessionRepository;
     private final ReportRepository reportRepository;
+    private final PlayerTransferRepository playerTransferRepository;
+    private final AdminExpenseRepository adminExpenseRepository;
 
     @PostMapping("/players")
     public ResponseEntity<Map<String, Object>> importPlayers(
@@ -52,6 +54,8 @@ public class ImportController {
         gameSessionRepository.deleteAll();
         reportRepository.deleteAll();
         transactionRepository.deleteAll();
+        playerTransferRepository.deleteAll();
+        adminExpenseRepository.deleteAll();
         playerRepository.deleteAll();
         importSummaryRepository.deleteAll();
         return ResponseEntity.ok(Map.of("deleted", Map.of("players", players)));
