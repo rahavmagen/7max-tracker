@@ -30,6 +30,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'WHEEL_EXPENSE' AND t.created_at > :since", nativeQuery = true)
     BigDecimal sumWheelExpensesSince(@Param("since") LocalDateTime since);
 
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'WHEEL_EXPENSE'", nativeQuery = true)
+    BigDecimal sumAllWheelExpenses();
+
     @Query(value = "SELECT t.player_id, COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'DEPOSIT' AND (t.source_ref IS NULL OR t.source_ref NOT LIKE 'SCREEN:%') AND t.created_at > :since GROUP BY t.player_id", nativeQuery = true)
     List<Object[]> getDepositsPerPlayerSince(@Param("since") LocalDateTime since);
 

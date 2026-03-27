@@ -69,7 +69,15 @@ public class ImportController {
     @GetMapping("/profit-summary")
     public ResponseEntity<ImportSummary> getProfitSummary() {
         return importSummaryRepository.findById(1L)
-                .map(ResponseEntity::ok)
+                .map(summary -> {
+                    // Add wheel expenses from Trade Record transactions (not just XLS הוצאות col J)
+                    java.math.BigDecimal tradeWheelExpenses = transactionRepository.sumAllWheelExpenses();
+                    if (tradeWheelExpenses != null && tradeWheelExpenses.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        java.math.BigDecimal current = summary.getWillExpense() != null ? summary.getWillExpense() : java.math.BigDecimal.ZERO;
+                        summary.setWillExpense(current.add(tradeWheelExpenses));
+                    }
+                    return ResponseEntity.ok(summary);
+                })
                 .orElse(ResponseEntity.noContent().build());
     }
 }
