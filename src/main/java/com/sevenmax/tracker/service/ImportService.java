@@ -158,24 +158,33 @@ public class ImportService {
             if (expSheet != null) {
                 org.apache.poi.ss.usermodel.FormulaEvaluator expEval = wb.getCreationHelper().createFormulaEvaluator();
                 log.info("הוצאות sheet '{}': {} rows", expSheet.getSheetName(), expSheet.getLastRowNum());
-                String currentAdmin = "";
-                for (int r = 1; r <= expSheet.getLastRowNum(); r++) {
+
+                // Row 2 (index 1) = admin name headers: A=admin1, C=admin2, E=admin3, G=admin4
+                // Each admin has their own column; data rows start at row 3 (index 2)
+                int[] adminColIndices = {0, 2, 4, 6}; // A, C, E, G
+                String[] adminNames = new String[4];
+                Row headerRow = expSheet.getRow(1);
+                if (headerRow != null) {
+                    for (int i = 0; i < adminColIndices.length; i++) {
+                        adminNames[i] = getTextEvaluated(headerRow, adminColIndices[i], expEval);
+                    }
+                }
+                log.info("הוצאות admins: A='{}' C='{}' E='{}' G='{}'", adminNames[0], adminNames[1], adminNames[2], adminNames[3]);
+
+                for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
                     Row row = expSheet.getRow(r);
                     if (row == null) continue;
-                    String adminName = getTextEvaluated(row, 0, expEval); // col A = admin (merged cell)
-                    if (!adminName.isBlank()) currentAdmin = adminName; // carry forward across merged cells
-                    java.math.BigDecimal colC = parseBD(getTextEvaluated(row, 2, expEval)); // col C
-                    java.math.BigDecimal colE = parseBD(getTextEvaluated(row, 4, expEval)); // col E
-                    java.math.BigDecimal colG = parseBD(getTextEvaluated(row, 6, expEval)); // col G
-                    java.math.BigDecimal rowTotal = colC.add(colE).add(colG);
-                    willExpense = willExpense.add(parseBD(getTextEvaluated(row, 7, expEval)));  // col H = wheel
-                    generalExpenses = generalExpenses.add(rowTotal);
-                    String notes = getTextEvaluated(row, 1, expEval); // col B = description
-                    if (!currentAdmin.isBlank() && rowTotal.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        adminExpenseTotals.merge(currentAdmin, rowTotal, java.math.BigDecimal::add);
-                        // Store per-row entry: key = "admin|rowIndex|notes"
-                        String entryKey = currentAdmin + "\u0000" + r + "\u0000" + notes;
-                        adminExpenseRows.put(entryKey, new Object[]{currentAdmin, rowTotal, notes});
+                    willExpense = willExpense.add(parseBD(getTextEvaluated(row, 7, expEval))); // col H = wheel
+                    for (int i = 0; i < adminColIndices.length; i++) {
+                        String adminName = adminNames[i];
+                        if (adminName == null || adminName.isBlank()) continue;
+                        java.math.BigDecimal amount = parseBD(getTextEvaluated(row, adminColIndices[i], expEval));
+                        if (amount.compareTo(java.math.BigDecimal.ZERO) <= 0) continue;
+                        String notes = getTextEvaluated(row, adminColIndices[i] + 1, expEval); // next col = description
+                        generalExpenses = generalExpenses.add(amount);
+                        adminExpenseTotals.merge(adminName, amount, java.math.BigDecimal::add);
+                        String entryKey = adminName + "\u0000" + r + "\u0000" + i;
+                        adminExpenseRows.put(entryKey, new Object[]{adminName, amount, notes});
                     }
                 }
                 log.info("Expenses: generalExpenses={} willExpense={} adminBreakdown={}", generalExpenses, willExpense, adminExpenseTotals);
