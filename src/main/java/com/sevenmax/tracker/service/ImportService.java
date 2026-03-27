@@ -174,7 +174,7 @@ public class ImportService {
                 for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
                     Row row = expSheet.getRow(r);
                     if (row == null) continue;
-                    willExpense = willExpense.add(parseBD(getTextEvaluated(row, 7, expEval))); // col H = wheel
+                    willExpense = willExpense.add(parseBD(getTextEvaluated(row, 9, expEval))); // col J = initial wheel
                     for (int i = 0; i < adminColIndices.length; i++) {
                         String adminName = adminNames[i];
                         if (adminName == null || adminName.isBlank()) continue;
