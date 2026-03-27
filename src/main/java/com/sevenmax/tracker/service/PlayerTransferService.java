@@ -3,12 +3,14 @@ package com.sevenmax.tracker.service;
 import com.sevenmax.tracker.entity.BankAccount;
 import com.sevenmax.tracker.entity.GameResult;
 import com.sevenmax.tracker.entity.GameSession;
+import com.sevenmax.tracker.entity.ImportSummary;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.PlayerTransfer;
 import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.repository.BankAccountRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.GameSessionRepository;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
@@ -37,6 +39,7 @@ public class PlayerTransferService {
     private final TransactionService transactionService;
     private final GameSessionRepository gameSessionRepository;
     private final GameResultRepository gameResultRepository;
+    private final ImportSummaryRepository importSummaryRepository;
 
     @Transactional
     public PlayerTransfer createTransfer(Long fromPlayerId, Long fromBankAccountId, Long toPlayerId, Long toBankAccountId,
@@ -89,6 +92,19 @@ public class PlayerTransferService {
             tx.setCreatedByUsername(createdBy);
             tx.setSourceRef(sourceRef);
             transactionService.addTransaction(tx);
+        }
+
+        // Update bank balance when club/bank account is involved
+        boolean toBank = toBankAccount != null || (toPlayer == null && fromPlayer != null);
+        boolean fromBank = fromBankAccount != null || (fromPlayer == null && toPlayer != null);
+        if (toBank || fromBank) {
+            ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+            summary.setId(1L);
+            BigDecimal current = summary.getBankDeposits() != null ? summary.getBankDeposits() : BigDecimal.ZERO;
+            // Money going TO bank/club increases balance; FROM bank/club decreases it
+            summary.setBankDeposits(toBank ? current.add(amount) : current.subtract(amount));
+            summary.setLastUpdated(java.time.LocalDateTime.now());
+            importSummaryRepository.save(summary);
         }
 
         return transfer;
