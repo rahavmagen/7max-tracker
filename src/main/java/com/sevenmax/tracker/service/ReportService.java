@@ -345,15 +345,21 @@ public class ReportService {
             boolean pendingWheelWarning = false;
             BigDecimal pendingWheelMttCost = null;
             if (tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
+                log.info("[WHEEL-DEBUG] Send Chips negative: player={} playerId={} amount={} date={} sourceRef={}",
+                        player.getUsername(), player.getId(), amount, txDate, sourceRef);
                 BigDecimal mttCost = getNightlyMttCost(txDate, player.getId());
+                log.info("[WHEEL-DEBUG] getNightlyMttCost(date={}, playerId={}) => {}", txDate, player.getId(), mttCost);
                 if (mttCost == null) {
                     // Also check previous day (wheel expense may be recorded the morning after)
                     mttCost = getNightlyMttCost(txDate.minusDays(1), player.getId());
+                    log.info("[WHEEL-DEBUG] getNightlyMttCost(prevDay={}, playerId={}) => {}", txDate.minusDays(1), player.getId(), mttCost);
                 }
                 if (mttCost != null && amount.compareTo(mttCost) == 0) {
                     isWheelExpense = true;
                     log.info("Wheel expense detected: player={} amount={} matches MTT cost on {}", player.getUsername(), amount, txDate);
                 } else {
+                    log.warn("[WHEEL-DEBUG] No wheel match: player={} amount={} mttCost={} — treating as non-wheel Send Chips",
+                            player.getUsername(), amount, mttCost);
                     // Defer warning — only emit if not handled by pending transfer/transaction checks below
                     pendingWheelWarning = true;
                     pendingWheelMttCost = mttCost;
@@ -456,12 +462,25 @@ public class ReportService {
         LocalDateTime windowEnd = date.atTime(21, 40);
         List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
                 GameSession.GameType.MTT, windowStart, windowEnd);
-        if (sessions.isEmpty()) return null;
+        log.info("[WHEEL-DEBUG] getNightlyMttCost: window={} to {}, sessions found={}", windowStart, windowEnd, sessions.size());
+        if (sessions.isEmpty()) {
+            // Log all MTT sessions near this date for diagnostics
+            LocalDateTime broadStart = date.minusDays(1).atTime(0, 0);
+            LocalDateTime broadEnd = date.plusDays(1).atTime(23, 59);
+            List<GameSession> nearby = gameSessionRepository.findByGameTypeAndStartTimeBetween(GameSession.GameType.MTT, broadStart, broadEnd);
+            log.info("[WHEEL-DEBUG] No MTT in window. Nearby MTT sessions (±1 day): {}", nearby.stream().map(s -> s.getId() + "@" + s.getStartTime()).toList());
+            return null;
+        }
         GameSession session = sessions.get(0);
         List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
+        log.info("[WHEEL-DEBUG] Session id={} startTime={}, results count={}", session.getId(), session.getStartTime(), results.size());
+        log.info("[WHEEL-DEBUG] Result player IDs in session: {}", results.stream().map(r -> r.getPlayer() != null ? r.getPlayer().getId() + "=" + r.getPlayer().getUsername() : "null").toList());
         return results.stream()
                 .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
-                .map(r -> r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
+                .map(r -> {
+                    log.info("[WHEEL-DEBUG] Player {} buyIn={}", r.getPlayer().getUsername(), r.getBuyIn());
+                    return r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO;
+                })
                 .findFirst()
                 .orElse(null);
     }
