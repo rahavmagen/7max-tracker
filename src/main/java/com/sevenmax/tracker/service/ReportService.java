@@ -403,15 +403,8 @@ public class ReportService {
                         player.getUsername(), amount, pendingWheelMttCost, txDate);
             }
 
-            if (alreadyImported || transferConfirmed) continue;
-
-            Transaction tx = new Transaction();
-            tx.setPlayer(player);
+            // AdminExpense for wheel — must run even if transaction was already imported
             if (isWheelExpense) {
-                tx.setType(Transaction.Type.WHEEL_EXPENSE);
-                tx.setNotes("Trade Record: Wheel Expense (Send Chips negative)");
-                log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
-                // Also record in admin expenses tab (deduped by sourceRef)
                 String wheelExpenseRef = "WHEEL:" + sourceRef;
                 if (!adminExpenseRepository.existsBySourceRef(wheelExpenseRef)) {
                     AdminExpense exp = new AdminExpense();
@@ -422,7 +415,18 @@ public class ReportService {
                     exp.setCreatedBy("Import");
                     exp.setSourceRef(wheelExpenseRef);
                     adminExpenseRepository.save(exp);
+                    log.info("Created AdminExpense for wheel: player={} amount={} date={}", player.getUsername(), amount, txDate);
                 }
+            }
+
+            if (alreadyImported || transferConfirmed) continue;
+
+            Transaction tx = new Transaction();
+            tx.setPlayer(player);
+            if (isWheelExpense) {
+                tx.setType(Transaction.Type.WHEEL_EXPENSE);
+                tx.setNotes("Trade Record: Wheel Expense (Send Chips negative)");
+                log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
             } else {
                 tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
                 tx.setNotes("Trade Record: " + tradeType);
