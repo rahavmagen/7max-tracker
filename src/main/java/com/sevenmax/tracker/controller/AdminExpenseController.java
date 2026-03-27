@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/admin-expenses")
+@RequestMapping("/api/admin-expenses")
 @RequiredArgsConstructor
 public class AdminExpenseController {
 
