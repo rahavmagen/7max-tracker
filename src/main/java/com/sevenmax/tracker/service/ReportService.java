@@ -427,8 +427,9 @@ public class ReportService {
         }
     }
 
-    // Returns the player's cost (buyIn + rakePaid) in the nightly MTT on the given date,
+    // Returns the player's buyIn cost in the nightly MTT on the given date,
     // or null if no such session / player not found in it.
+    // buyIn already includes rake, so we don't add rakePaid.
     private BigDecimal getNightlyMttCost(LocalDate date, Long playerId) {
         LocalDateTime windowStart = date.atTime(20, 20);
         LocalDateTime windowEnd = date.atTime(21, 40);
@@ -439,8 +440,7 @@ public class ReportService {
         List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
         return results.stream()
                 .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
-                .map(r -> (r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
-                        .add(r.getRakePaid() != null ? r.getRakePaid() : BigDecimal.ZERO))
+                .map(r -> r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
                 .findFirst()
                 .orElse(null);
     }

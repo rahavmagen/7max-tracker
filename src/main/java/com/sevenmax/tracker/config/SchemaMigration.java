@@ -50,7 +50,7 @@ public class SchemaMigration {
             );
             jdbcTemplate.execute(
                 "ALTER TABLE transactions ADD CONSTRAINT transactions_type_check " +
-                "CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'REPAYMENT'))"
+                "CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'REPAYMENT', 'WHEEL_EXPENSE'))"
             );
             log.info("SchemaMigration: transactions type constraint updated");
         } catch (Exception e) {
