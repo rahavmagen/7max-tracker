@@ -439,7 +439,8 @@ public class ReportService {
         List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
         return results.stream()
                 .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
-                .map(r -> r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
+                .map(r -> (r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
+                        .add(r.getRakePaid() != null ? r.getRakePaid() : BigDecimal.ZERO))
                 .findFirst()
                 .orElse(null);
     }
