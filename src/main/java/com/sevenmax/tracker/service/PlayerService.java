@@ -1,8 +1,10 @@
 package com.sevenmax.tracker.service;
 
+import com.sevenmax.tracker.entity.AdminExpense;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.entity.User;
+import com.sevenmax.tracker.repository.AdminExpenseRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.PlayerTransferRepository;
@@ -29,6 +31,7 @@ public class PlayerService {
     private final UserRepository userRepository;
     private final GameResultRepository gameResultRepository;
     private final PlayerTransferRepository playerTransferRepository;
+    private final AdminExpenseRepository adminExpenseRepository;
 
     public List<Player> getAllPlayers() {
         return playerRepository.findAll();
@@ -155,6 +158,15 @@ public class PlayerService {
         tx.setCreatedByUsername(createdByUsername);
         tx.setSourceRef("SCREEN:WHEEL");
         transactionRepository.save(tx);
+
+        // Also record in admin expenses tab
+        AdminExpense exp = new AdminExpense();
+        exp.setAdminUsername("Wheel");
+        exp.setAmount(amount);
+        exp.setNotes("Wheel - " + player.getUsername() + (notes != null && !notes.isBlank() ? " (" + notes + ")" : ""));
+        exp.setExpenseDate(LocalDate.now());
+        exp.setCreatedBy(createdByUsername);
+        adminExpenseRepository.save(exp);
 
         return saved;
     }

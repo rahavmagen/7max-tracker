@@ -1,6 +1,7 @@
 package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.*;
+import com.sevenmax.tracker.entity.AdminExpense;
 import com.sevenmax.tracker.repository.*;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class ReportService {
     private final PlayerTransferRepository playerTransferRepository;
     private final PlayerService playerService;
     private final ImportSummaryRepository importSummaryRepository;
+    private final AdminExpenseRepository adminExpenseRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
@@ -409,6 +411,18 @@ public class ReportService {
                 tx.setType(Transaction.Type.WHEEL_EXPENSE);
                 tx.setNotes("Trade Record: Wheel Expense (Send Chips negative)");
                 log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
+                // Also record in admin expenses tab (deduped by sourceRef)
+                String wheelExpenseRef = "WHEEL:" + sourceRef;
+                if (!adminExpenseRepository.existsBySourceRef(wheelExpenseRef)) {
+                    AdminExpense exp = new AdminExpense();
+                    exp.setAdminUsername("Wheel");
+                    exp.setAmount(amount);
+                    exp.setNotes("Wheel - " + player.getUsername());
+                    exp.setExpenseDate(txDate);
+                    exp.setCreatedBy("Import");
+                    exp.setSourceRef(wheelExpenseRef);
+                    adminExpenseRepository.save(exp);
+                }
             } else {
                 tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
                 tx.setNotes("Trade Record: " + tradeType);
