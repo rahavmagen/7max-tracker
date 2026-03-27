@@ -156,17 +156,18 @@ public class ImportService {
             }
             if (expSheet != null) {
                 org.apache.poi.ss.usermodel.FormulaEvaluator expEval = wb.getCreationHelper().createFormulaEvaluator();
-                for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
+                log.info("הוצאות sheet '{}': {} rows", expSheet.getSheetName(), expSheet.getLastRowNum());
+                for (int r = 1; r <= expSheet.getLastRowNum(); r++) {
                     Row row = expSheet.getRow(r);
                     if (row == null) continue;
-                    String adminName = getText(row, 0); // col A = admin username
+                    String adminName = getTextEvaluated(row, 0, expEval); // col A = admin username
                     java.math.BigDecimal colC = parseBD(getTextEvaluated(row, 2, expEval)); // col C
                     java.math.BigDecimal colE = parseBD(getTextEvaluated(row, 4, expEval)); // col E
                     java.math.BigDecimal colG = parseBD(getTextEvaluated(row, 6, expEval)); // col G
-                    java.math.BigDecimal colJ = parseBD(getTextEvaluated(row, 9, expEval)); // col J = initial wheel club
-                    java.math.BigDecimal rowTotal = colC.add(colE).add(colG).add(colJ);
+                    java.math.BigDecimal rowTotal = colC.add(colE).add(colG);
                     willExpense = willExpense.add(parseBD(getTextEvaluated(row, 7, expEval)));  // col H = wheel
                     generalExpenses = generalExpenses.add(rowTotal);
+                    log.info("הוצאות row {}: admin='{}' C={} E={} G={} total={}", r, adminName, colC, colE, colG, rowTotal);
                     if (!adminName.isBlank() && rowTotal.compareTo(java.math.BigDecimal.ZERO) > 0) {
                         adminExpenseTotals.merge(adminName, rowTotal, java.math.BigDecimal::add);
                     }
