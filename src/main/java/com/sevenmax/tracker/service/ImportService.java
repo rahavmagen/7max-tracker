@@ -155,15 +155,17 @@ public class ImportService {
                 }
             }
             if (expSheet != null) {
+                org.apache.poi.ss.usermodel.FormulaEvaluator expEval = wb.getCreationHelper().createFormulaEvaluator();
                 for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
                     Row row = expSheet.getRow(r);
                     if (row == null) continue;
                     String adminName = getText(row, 0); // col A = admin username
-                    java.math.BigDecimal colC = parseBD(getText(row, 2)); // col C
-                    java.math.BigDecimal colE = parseBD(getText(row, 4)); // col E
-                    java.math.BigDecimal colG = parseBD(getText(row, 6)); // col G
-                    java.math.BigDecimal rowTotal = colC.add(colE).add(colG);
-                    willExpense = willExpense.add(parseBD(getText(row, 7)));  // col H = wheel
+                    java.math.BigDecimal colC = parseBD(getTextEvaluated(row, 2, expEval)); // col C
+                    java.math.BigDecimal colE = parseBD(getTextEvaluated(row, 4, expEval)); // col E
+                    java.math.BigDecimal colG = parseBD(getTextEvaluated(row, 6, expEval)); // col G
+                    java.math.BigDecimal colJ = parseBD(getTextEvaluated(row, 9, expEval)); // col J = initial wheel club
+                    java.math.BigDecimal rowTotal = colC.add(colE).add(colG).add(colJ);
+                    willExpense = willExpense.add(parseBD(getTextEvaluated(row, 7, expEval)));  // col H = wheel
                     generalExpenses = generalExpenses.add(rowTotal);
                     if (!adminName.isBlank() && rowTotal.compareTo(java.math.BigDecimal.ZERO) > 0) {
                         adminExpenseTotals.merge(adminName, rowTotal, java.math.BigDecimal::add);
@@ -186,8 +188,9 @@ public class ImportService {
                     org.apache.poi.ss.usermodel.FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
                     BigDecimal b2 = parseBD(getTextEvaluated(row2, 1, evaluator)); // B2
                     BigDecimal i2 = parseBD(getTextEvaluated(row2, 8, evaluator)); // I2
-                    bankDeposits = b2.add(i2);
-                    log.info("Bank deposits from מיקום הכסף: B2={} I2={} total={}", b2, i2, bankDeposits);
+                    BigDecimal p2 = parseBD(getTextEvaluated(row2, 15, evaluator)); // P2
+                    bankDeposits = b2.add(i2).add(p2);
+                    log.info("Bank deposits from מיקום הכסף: B2={} I2={} P2={} total={}", b2, i2, p2, bankDeposits);
                 }
             } else {
                 log.warn("Sheet מיקום הכסף not found");
