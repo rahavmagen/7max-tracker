@@ -305,8 +305,13 @@ public class ReportService {
             if (dateStr == null || dateStr.isBlank()) continue;
             if (tradeType == null || (!tradeType.equals("Send Chips") && !tradeType.equals("Claim Chips"))) continue;
 
-            BigDecimal amount = parseBigDecimal(amountStr).abs();
+            BigDecimal rawAmount = parseBigDecimal(amountStr);
+            BigDecimal amount = rawAmount.abs();
             if (amount.compareTo(BigDecimal.ZERO) == 0) continue;
+
+            // Wheel expense: "Send Chips" with a negative amount in column G
+            // (player receives chips back from wheel without paying — club expense)
+            boolean isWheelExpense = tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0;
 
             // Dedup key: prevents re-importing the same trade on re-upload
             String sourceRef = "TRADE:" + dateStr + ":" + (clubPlayerId != null ? clubPlayerId : nickname);
@@ -331,8 +336,9 @@ public class ReportService {
             }
 
             // Check for matching pending PlayerTransfer — only if not already imported to avoid double-confirm
+            // Wheel expenses are not matched to pending transfers
             boolean transferConfirmed = false;
-            if (!alreadyImported) {
+            if (!alreadyImported && !isWheelExpense) {
                 if (tradeType.equals("Send Chips")) {
                     var matchedTransfer = playerTransferRepository.findFirstByFromPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
                     if (matchedTransfer.isPresent()) {
@@ -356,7 +362,7 @@ public class ReportService {
 
             // Check for matching pending Transaction (credit/promo) — run even if already imported,
             // so re-uploading an XLS can still confirm a pending promotion/credit
-            if (!transferConfirmed) {
+            if (!transferConfirmed && !isWheelExpense) {
                 transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
                     pendingTx.setPendingConfirmation(false);
                     transactionRepository.save(pendingTx);
@@ -368,11 +374,17 @@ public class ReportService {
 
             Transaction tx = new Transaction();
             tx.setPlayer(player);
-            tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
+            if (isWheelExpense) {
+                tx.setType(Transaction.Type.WHEEL_EXPENSE);
+                tx.setNotes("Trade Record: Wheel Expense (Send Chips negative)");
+                log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
+            } else {
+                tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
+                tx.setNotes("Trade Record: " + tradeType);
+            }
             tx.setAmount(amount);
             tx.setTransactionDate(txDate);
             tx.setSourceRef(sourceRef);
-            tx.setNotes("Trade Record: " + tradeType);
             tx.setCreatedByUsername("Import");
             tx.setReportId(reportId);
             transactionRepository.save(tx);
