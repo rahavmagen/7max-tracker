@@ -60,4 +60,8 @@ public class Report {
 
     @Transient
     private java.math.BigDecimal chipMismatchActual;
+
+    /** Transient: wheel expense rows that could not be matched to a nightly MTT */
+    @Transient
+    private List<String> wheelExpenseWarnings;
 }

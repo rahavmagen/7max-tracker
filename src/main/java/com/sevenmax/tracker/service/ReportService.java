@@ -246,7 +246,7 @@ public class ReportService {
             parseCreditSheet(workbook);
 
             // Parse Trade Record → create CREDIT/REPAYMENT transactions (skip already-imported)
-            parseTradeRecord(workbook, report.getId());
+            parseTradeRecord(workbook, report);
 
             report.setTotalRake(totalRake);
             return reportRepository.save(report);
@@ -287,9 +287,12 @@ public class ReportService {
         }
     }
 
-    private void parseTradeRecord(Workbook workbook, Long reportId) {
+    private void parseTradeRecord(Workbook workbook, Report report) {
         Sheet sheet = workbook.getSheet("Trade Record");
         if (sheet == null) return;
+
+        Long reportId = report.getId();
+        List<String> wheelWarnings = new java.util.ArrayList<>();
 
         int lastRow = sheet.getLastRowNum();
         for (int r = 5; r <= lastRow; r++) {  // data starts at row 5
@@ -332,16 +335,22 @@ public class ReportService {
             }
 
             // Wheel expense: "Send Chips" negative in column G, AND amount matches the player's
-            // cost in the nightly MTT (9 PM main event, starts between 20:20 and 21:40 on txDate).
-            // If amount doesn't match the MTT cost, treat as normal Send Chips (CREDIT).
+            // cost in the nightly MTT (9 PM main event, starts between 20:20 and 21:40 on txDate
+            // or the previous day). If no match found → show warning and treat as CREDIT.
             boolean isWheelExpense = false;
             if (tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
                 BigDecimal mttCost = getNightlyMttCost(txDate, player.getId());
+                if (mttCost == null) {
+                    // Also check previous day (wheel expense may be recorded the morning after)
+                    mttCost = getNightlyMttCost(txDate.minusDays(1), player.getId());
+                }
                 if (mttCost != null && amount.compareTo(mttCost) == 0) {
                     isWheelExpense = true;
                     log.info("Wheel expense detected: player={} amount={} matches MTT cost on {}", player.getUsername(), amount, txDate);
                 } else {
-                    log.info("Send Chips negative but no MTT cost match: player={} amount={} mttCost={} date={} — treating as CREDIT",
+                    String warning = player.getUsername() + " (" + amount + " on " + txDate + ")";
+                    wheelWarnings.add(warning);
+                    log.warn("Send Chips negative but no MTT cost match: player={} amount={} mttCost={} date={} — treating as CREDIT",
                             player.getUsername(), amount, mttCost, txDate);
                 }
             }
@@ -399,6 +408,11 @@ public class ReportService {
             tx.setCreatedByUsername("Import");
             tx.setReportId(reportId);
             transactionRepository.save(tx);
+        }
+
+        if (!wheelWarnings.isEmpty()) {
+            report.setWheelExpenseWarnings(wheelWarnings);
+            log.warn("Wheel expense warnings (no MTT match): {}", wheelWarnings);
         }
     }
 
