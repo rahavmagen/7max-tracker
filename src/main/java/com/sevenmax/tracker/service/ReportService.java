@@ -309,10 +309,6 @@ public class ReportService {
             BigDecimal amount = rawAmount.abs();
             if (amount.compareTo(BigDecimal.ZERO) == 0) continue;
 
-            // Wheel expense: "Send Chips" with a negative amount in column G
-            // (player receives chips back from wheel without paying — club expense)
-            boolean isWheelExpense = tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0;
-
             // Dedup key: prevents re-importing the same trade on re-upload
             String sourceRef = "TRADE:" + dateStr + ":" + (clubPlayerId != null ? clubPlayerId : nickname);
             boolean alreadyImported = transactionRepository.existsBySourceRef(sourceRef);
@@ -333,6 +329,21 @@ public class ReportService {
                 txDate = LocalDate.parse(dateStr.substring(0, 10));
             } catch (Exception e) {
                 txDate = LocalDate.now();
+            }
+
+            // Wheel expense: "Send Chips" negative in column G, AND amount matches the player's
+            // cost in the nightly MTT (9 PM main event, starts between 20:20 and 21:40 on txDate).
+            // If amount doesn't match the MTT cost, treat as normal Send Chips (CREDIT).
+            boolean isWheelExpense = false;
+            if (tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
+                BigDecimal mttCost = getNightlyMttCost(txDate, player.getId());
+                if (mttCost != null && amount.compareTo(mttCost) == 0) {
+                    isWheelExpense = true;
+                    log.info("Wheel expense detected: player={} amount={} matches MTT cost on {}", player.getUsername(), amount, txDate);
+                } else {
+                    log.info("Send Chips negative but no MTT cost match: player={} amount={} mttCost={} date={} — treating as CREDIT",
+                            player.getUsername(), amount, mttCost, txDate);
+                }
             }
 
             // Check for matching pending PlayerTransfer — only if not already imported to avoid double-confirm
@@ -389,6 +400,23 @@ public class ReportService {
             tx.setReportId(reportId);
             transactionRepository.save(tx);
         }
+    }
+
+    // Returns the player's cost (buyIn + rakePaid) in the nightly MTT on the given date,
+    // or null if no such session / player not found in it.
+    private BigDecimal getNightlyMttCost(LocalDate date, Long playerId) {
+        LocalDateTime windowStart = date.atTime(20, 20);
+        LocalDateTime windowEnd = date.atTime(21, 40);
+        List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
+                GameSession.GameType.MTT, windowStart, windowEnd);
+        if (sessions.isEmpty()) return null;
+        GameSession session = sessions.get(0);
+        return gameResultRepository.findBySessionId(session.getId()).stream()
+                .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
+                .map(r -> (r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
+                        .add(r.getRakePaid() != null ? r.getRakePaid() : BigDecimal.ZERO))
+                .findFirst()
+                .orElse(null);
     }
 
     // Entry: nickname → [chips, clubPlayerId_or_null]
