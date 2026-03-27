@@ -70,12 +70,11 @@ public class ImportController {
     public ResponseEntity<ImportSummary> getProfitSummary() {
         return importSummaryRepository.findById(1L)
                 .map(summary -> {
-                    // Add wheel expenses from Trade Record transactions (not just XLS הוצאות col J)
-                    java.math.BigDecimal tradeWheelExpenses = transactionRepository.sumAllWheelExpenses();
-                    if (tradeWheelExpenses != null && tradeWheelExpenses.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        java.math.BigDecimal current = summary.getWillExpense() != null ? summary.getWillExpense() : java.math.BigDecimal.ZERO;
-                        summary.setWillExpense(current.add(tradeWheelExpenses));
-                    }
+                    // Derive expenses live from AdminExpense table so deletions are reflected immediately
+                    java.math.BigDecimal wheelExpenses = adminExpenseRepository.sumByAdminUsername("Wheel");
+                    java.math.BigDecimal generalExpenses = adminExpenseRepository.sumExcludingAdminUsername("Wheel");
+                    summary.setWillExpense(wheelExpenses != null ? wheelExpenses : java.math.BigDecimal.ZERO);
+                    summary.setGeneralExpenses(generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO);
                     return ResponseEntity.ok(summary);
                 })
                 .orElse(ResponseEntity.noContent().build());
