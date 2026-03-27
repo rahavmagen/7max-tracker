@@ -436,10 +436,10 @@ public class ReportService {
                 GameSession.GameType.MTT, windowStart, windowEnd);
         if (sessions.isEmpty()) return null;
         GameSession session = sessions.get(0);
-        return gameResultRepository.findBySessionId(session.getId()).stream()
+        List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
+        return results.stream()
                 .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
-                .map(r -> (r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
-                        .add(r.getRakePaid() != null ? r.getRakePaid() : BigDecimal.ZERO))
+                .map(r -> r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO)
                 .findFirst()
                 .orElse(null);
     }
