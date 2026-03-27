@@ -102,14 +102,12 @@ public class PlayerService {
     }
 
     @Transactional
-    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername, boolean updateChips) {
+    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername) {
         Player player = getPlayer(id);
         BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
         BigDecimal currentChips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
-        BigDecimal newChips = updateChips ? currentChips.add(delta) : currentChips;
         player.setCreditTotal(newCredit);
-        if (updateChips) player.setCurrentChips(newChips);
-        player.setBalance(newChips.subtract(newCredit));
+        player.setBalance(currentChips.subtract(newCredit));
         Player saved = playerRepository.save(player);
 
         // Save a pending Transaction record for reconciliation against XLS upload
@@ -146,10 +144,6 @@ public class PlayerService {
     @Transactional
     public Player addWheelExpense(Long id, BigDecimal amount, String notes, String createdByUsername) {
         Player player = getPlayer(id);
-        BigDecimal newChips = (player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO).add(amount);
-        player.setCurrentChips(newChips);
-        BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
-        player.setBalance(newChips.subtract(credit));
         Player saved = playerRepository.save(player);
 
         Transaction tx = new Transaction();
