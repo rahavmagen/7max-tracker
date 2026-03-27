@@ -183,7 +183,7 @@ public class ImportService {
                         String notes = getTextEvaluated(row, adminColIndices[i] + 1, expEval); // next col = description
                         generalExpenses = generalExpenses.add(amount);
                         adminExpenseTotals.merge(adminName, amount, java.math.BigDecimal::add);
-                        String entryKey = adminName + "\u0000" + r + "\u0000" + i;
+                        String entryKey = "XLS:" + adminName + ":" + r + ":" + i;
                         adminExpenseRows.put(entryKey, new Object[]{adminName, amount, notes});
                     }
                 }
@@ -223,20 +223,24 @@ public class ImportService {
         importSummaryRepository.save(summary);
         log.info("Saved ImportSummary: will={} expenses={} deposits={}", willExpense, generalExpenses, bankDeposits);
 
-        // Save per-row expense entries (replace XLS-sourced entries)
-        expenseRepository.deleteBySourceRef("XLS");
-        for (Object[] row : adminExpenseRows.values()) {
+        // Save per-row expense entries — only create new ones, never recreate deleted ones
+        int created = 0;
+        for (Map.Entry<String, Object[]> entry : adminExpenseRows.entrySet()) {
+            String uniqueRef = entry.getKey(); // already "XLS:{adminName}:{r}:{i}"
+            if (expenseRepository.existsBySourceRef(uniqueRef)) continue; // already exists, skip
+            Object[] rowData = entry.getValue();
             com.sevenmax.tracker.entity.AdminExpense exp = new com.sevenmax.tracker.entity.AdminExpense();
-            exp.setAdminUsername((String) row[0]);
-            exp.setAmount((java.math.BigDecimal) row[1]);
-            String notes = (String) row[2];
+            exp.setAdminUsername((String) rowData[0]);
+            exp.setAmount((java.math.BigDecimal) rowData[1]);
+            String notes = (String) rowData[2];
             exp.setNotes(notes != null && !notes.isBlank() ? notes : "Imported from XLS הוצאות");
             exp.setExpenseDate(java.time.LocalDate.now());
             exp.setCreatedBy("Import");
-            exp.setSourceRef("XLS");
+            exp.setSourceRef(uniqueRef);
             expenseRepository.save(exp);
+            created++;
         }
-        log.info("Saved {} admin expense entries from XLS", adminExpenseRows.size());
+        log.info("Admin expense entries from XLS: {} new created (out of {} in XLS)", created, adminExpenseRows.size());
 
         // Save wheel total (col J) as a single AdminExpense record under "Wheel"
         expenseRepository.deleteBySourceRef("XLS:WHEEL");
