@@ -25,6 +25,9 @@ public class GameSession {
     @Column(precision = 12, scale = 2)
     private BigDecimal rakeTotal = BigDecimal.ZERO;
 
+    @Column(precision = 12, scale = 2)
+    private BigDecimal entryFee; // buy-in + fee per entry (G+H from MTT Statistics)
+
     private Integer entryCount;
 
     @ManyToOne

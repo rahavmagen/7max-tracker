@@ -730,12 +730,17 @@ public class ReportService {
             if (startTime == null) continue;
             final LocalDateTime st = startTime;
             final LocalDateTime et = endTime;
+            BigDecimal buyIn = parseBigDecimal(getCellValue(row, 6));  // col G = buy-in
+            BigDecimal fee   = parseBigDecimal(getCellValue(row, 7));  // col H = fee
+            final BigDecimal entryFee = buyIn.add(fee);
 
             mttSessions.stream()
                 .filter(s -> s.getStartTime() != null && s.getStartTime().withSecond(0).withNano(0).equals(st.withSecond(0).withNano(0)))
                 .findFirst()
                 .ifPresent(s -> {
-                    if (et != null) { s.setEndTime(et); gameSessionRepository.save(s); }
+                    if (et != null) s.setEndTime(et);
+                    if (entryFee.compareTo(BigDecimal.ZERO) > 0) s.setEntryFee(entryFee);
+                    gameSessionRepository.save(s);
                 });
         }
     }
