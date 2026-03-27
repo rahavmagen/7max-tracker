@@ -50,6 +50,7 @@ public class ImportService {
         BigDecimal generalExpenses = BigDecimal.ZERO;
         BigDecimal bankDeposits = BigDecimal.ZERO;
         Map<String, java.math.BigDecimal> adminExpenseTotals = new java.util.LinkedHashMap<>();
+        Map<String, Object[]> adminExpenseRows = new java.util.LinkedHashMap<>(); // per-row entries
 
         try (InputStream is = max7File.getInputStream();
              Workbook wb = new XSSFWorkbook(is)) {
@@ -157,19 +158,24 @@ public class ImportService {
             if (expSheet != null) {
                 org.apache.poi.ss.usermodel.FormulaEvaluator expEval = wb.getCreationHelper().createFormulaEvaluator();
                 log.info("הוצאות sheet '{}': {} rows", expSheet.getSheetName(), expSheet.getLastRowNum());
+                String currentAdmin = "";
                 for (int r = 1; r <= expSheet.getLastRowNum(); r++) {
                     Row row = expSheet.getRow(r);
                     if (row == null) continue;
-                    String adminName = getTextEvaluated(row, 0, expEval); // col A = admin username
+                    String adminName = getTextEvaluated(row, 0, expEval); // col A = admin (merged cell)
+                    if (!adminName.isBlank()) currentAdmin = adminName; // carry forward across merged cells
                     java.math.BigDecimal colC = parseBD(getTextEvaluated(row, 2, expEval)); // col C
                     java.math.BigDecimal colE = parseBD(getTextEvaluated(row, 4, expEval)); // col E
                     java.math.BigDecimal colG = parseBD(getTextEvaluated(row, 6, expEval)); // col G
                     java.math.BigDecimal rowTotal = colC.add(colE).add(colG);
                     willExpense = willExpense.add(parseBD(getTextEvaluated(row, 7, expEval)));  // col H = wheel
                     generalExpenses = generalExpenses.add(rowTotal);
-                    log.info("הוצאות row {}: admin='{}' C={} E={} G={} total={}", r, adminName, colC, colE, colG, rowTotal);
-                    if (!adminName.isBlank() && rowTotal.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                        adminExpenseTotals.merge(adminName, rowTotal, java.math.BigDecimal::add);
+                    String notes = getTextEvaluated(row, 1, expEval); // col B = description
+                    if (!currentAdmin.isBlank() && rowTotal.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                        adminExpenseTotals.merge(currentAdmin, rowTotal, java.math.BigDecimal::add);
+                        // Store per-row entry: key = "admin|rowIndex|notes"
+                        String entryKey = currentAdmin + "\u0000" + r + "\u0000" + notes;
+                        adminExpenseRows.put(entryKey, new Object[]{currentAdmin, rowTotal, notes});
                     }
                 }
                 log.info("Expenses: generalExpenses={} willExpense={} adminBreakdown={}", generalExpenses, willExpense, adminExpenseTotals);
@@ -208,19 +214,20 @@ public class ImportService {
         importSummaryRepository.save(summary);
         log.info("Saved ImportSummary: will={} expenses={} deposits={}", willExpense, generalExpenses, bankDeposits);
 
-        // Save per-admin expense totals (replace XLS-sourced entries)
+        // Save per-row expense entries (replace XLS-sourced entries)
         expenseRepository.deleteBySourceRef("XLS");
-        for (Map.Entry<String, java.math.BigDecimal> entry : adminExpenseTotals.entrySet()) {
+        for (Object[] row : adminExpenseRows.values()) {
             com.sevenmax.tracker.entity.AdminExpense exp = new com.sevenmax.tracker.entity.AdminExpense();
-            exp.setAdminUsername(entry.getKey());
-            exp.setAmount(entry.getValue());
-            exp.setNotes("Imported from XLS הוצאות");
+            exp.setAdminUsername((String) row[0]);
+            exp.setAmount((java.math.BigDecimal) row[1]);
+            String notes = (String) row[2];
+            exp.setNotes(notes != null && !notes.isBlank() ? notes : "Imported from XLS הוצאות");
             exp.setExpenseDate(java.time.LocalDate.now());
             exp.setCreatedBy("Import");
             exp.setSourceRef("XLS");
             expenseRepository.save(exp);
         }
-        log.info("Saved {} admin expense entries from XLS", adminExpenseTotals.size());
+        log.info("Saved {} admin expense entries from XLS", adminExpenseRows.size());
 
         log.info("max7 import done: {} players in map", playerMap.size());
 
