@@ -436,6 +436,7 @@ public class ImportService {
         return BigDecimal.ZERO;
     }
 
+    @org.springframework.transaction.annotation.Transactional
     public Map<String, Object> importExpensesOnly(org.springframework.web.multipart.MultipartFile file) throws Exception {
         int imported = 0;
         int skipped = 0;
