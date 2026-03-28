@@ -519,7 +519,33 @@ public class ImportService {
                 imported++;
             }
 
-            log.info("importExpensesOnly: imported={} skipped={} wheel={}", imported, skipped, willExpense);
+            // מיקום הכסף sheet — update bank deposits in ImportSummary
+            java.math.BigDecimal bankDeposits = java.math.BigDecimal.ZERO;
+            org.apache.poi.ss.usermodel.FormulaEvaluator moneyEval = wb.getCreationHelper().createFormulaEvaluator();
+            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                if (wb.getSheetAt(i).getSheetName().contains("מיקום הכסף")) {
+                    org.apache.poi.ss.usermodel.Sheet moneySheet = wb.getSheetAt(i);
+                    org.apache.poi.ss.usermodel.Row row2 = moneySheet.getRow(1);
+                    if (row2 != null) {
+                        java.math.BigDecimal b2 = parseBD(getTextEvaluated(row2, 1, moneyEval));
+                        java.math.BigDecimal i2 = parseBD(getTextEvaluated(row2, 8, moneyEval));
+                        java.math.BigDecimal p2 = parseBD(getTextEvaluated(row2, 15, moneyEval));
+                        bankDeposits = b2.add(i2).add(p2);
+                        log.info("importExpensesOnly: bankDeposits B2={} I2={} P2={} total={}", b2, i2, p2, bankDeposits);
+                    }
+                    break;
+                }
+            }
+            if (bankDeposits.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                com.sevenmax.tracker.entity.ImportSummary summary = importSummaryRepository.findById(1L).orElse(new com.sevenmax.tracker.entity.ImportSummary());
+                summary.setId(1L);
+                summary.setBankDeposits(bankDeposits);
+                summary.setLastUpdated(java.time.LocalDateTime.now());
+                importSummaryRepository.save(summary);
+                log.info("importExpensesOnly: updated ImportSummary bankDeposits={}", bankDeposits);
+            }
+
+            log.info("importExpensesOnly: imported={} skipped={} wheel={} bankDeposits={}", imported, skipped, willExpense, bankDeposits);
         }
 
         return Map.of("imported", imported, "skipped", skipped);
