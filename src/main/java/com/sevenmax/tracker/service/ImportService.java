@@ -515,6 +515,7 @@ public class ImportService {
                 wheelExp.setCreatedBy("Import");
                 wheelExp.setSourceRef("XLS:WHEEL");
                 expenseRepository.save(wheelExp);
+                imported++;
             }
 
             log.info("importExpensesOnly: imported={} skipped={} wheel={}", imported, skipped, willExpense);
