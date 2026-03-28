@@ -174,7 +174,6 @@ public class ReportController {
 
     @GetMapping("/admin/friday-rake")
     public ResponseEntity<List<Map<String, Object>>> fridayRakeReport(Authentication auth) {
-        if (isPlayer(auth)) return ResponseEntity.status(403).build();
         List<Object[]> rows = gameResultRepository.getFridayRakeReport();
         List<Map<String, Object>> result = new ArrayList<>();
         for (Object[] r : rows) {
