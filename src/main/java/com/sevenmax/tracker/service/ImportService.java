@@ -435,4 +435,91 @@ public class ImportService {
         }
         return BigDecimal.ZERO;
     }
+
+    public Map<String, Object> importExpensesOnly(org.springframework.web.multipart.MultipartFile file) throws Exception {
+        int imported = 0;
+        int skipped = 0;
+
+        try (org.apache.poi.ss.usermodel.Workbook wb = new org.apache.poi.xssf.usermodel.XSSFWorkbook(file.getInputStream())) {
+            // Find הוצאות sheet
+            org.apache.poi.ss.usermodel.Sheet expSheet = null;
+            for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+                if (wb.getSheetAt(i).getSheetName().contains("הוצאות")) {
+                    expSheet = wb.getSheetAt(i);
+                    break;
+                }
+            }
+            if (expSheet == null) {
+                throw new IllegalArgumentException("הוצאות sheet not found in this file");
+            }
+
+            org.apache.poi.ss.usermodel.FormulaEvaluator expEval = wb.getCreationHelper().createFormulaEvaluator();
+
+            // Row 2 (index 1) = admin name headers: A, C, E, G
+            int[] adminColIndices = {0, 2, 4, 6};
+            String[] adminNames = new String[4];
+            org.apache.poi.ss.usermodel.Row headerRow = expSheet.getRow(1);
+            if (headerRow != null) {
+                for (int i = 0; i < adminColIndices.length; i++) {
+                    adminNames[i] = getTextEvaluated(headerRow, adminColIndices[i], expEval);
+                }
+            }
+
+            // Collect per-row expense entries
+            java.util.Map<String, Object[]> adminExpenseRows = new java.util.LinkedHashMap<>();
+            java.math.BigDecimal willExpense = java.math.BigDecimal.ZERO;
+
+            for (int r = 2; r <= expSheet.getLastRowNum(); r++) {
+                org.apache.poi.ss.usermodel.Row row = expSheet.getRow(r);
+                if (row == null) continue;
+                willExpense = willExpense.add(parseBD(getTextEvaluated(row, 9, expEval))); // col J = wheel
+                for (int i = 0; i < adminColIndices.length; i++) {
+                    String adminName = adminNames[i];
+                    if (adminName == null || adminName.isBlank()) continue;
+                    java.math.BigDecimal amount = parseBD(getTextEvaluated(row, adminColIndices[i], expEval));
+                    if (amount.compareTo(java.math.BigDecimal.ZERO) <= 0) continue;
+                    String notes = getTextEvaluated(row, adminColIndices[i] + 1, expEval);
+                    String entryKey = "XLS:" + adminName + ":" + r + ":" + i;
+                    adminExpenseRows.put(entryKey, new Object[]{adminName, amount, notes});
+                }
+            }
+
+            // Save per-row entries (skip duplicates)
+            for (Map.Entry<String, Object[]> entry : adminExpenseRows.entrySet()) {
+                String uniqueRef = entry.getKey();
+                if (expenseRepository.existsBySourceRef(uniqueRef)) {
+                    skipped++;
+                    continue;
+                }
+                Object[] rowData = entry.getValue();
+                com.sevenmax.tracker.entity.AdminExpense exp = new com.sevenmax.tracker.entity.AdminExpense();
+                exp.setAdminUsername((String) rowData[0]);
+                exp.setAmount((java.math.BigDecimal) rowData[1]);
+                String notes = (String) rowData[2];
+                exp.setNotes(notes != null && !notes.isBlank() ? notes : "Imported from XLS הוצאות");
+                exp.setExpenseDate(java.time.LocalDate.now());
+                exp.setCreatedBy("Import");
+                exp.setSourceRef(uniqueRef);
+                expenseRepository.save(exp);
+                imported++;
+            }
+
+            // Wheel total (col J) — replace existing XLS:WHEEL record
+            expenseRepository.deleteBySourceRef("XLS:WHEEL");
+            if (willExpense.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                com.sevenmax.tracker.entity.AdminExpense wheelExp = new com.sevenmax.tracker.entity.AdminExpense();
+                wheelExp.setAdminUsername("Wheel");
+                wheelExp.setAmount(willExpense);
+                wheelExp.setNotes("Wheel expenses from player XLS (הוצאות col J)");
+                wheelExp.setExpenseDate(java.time.LocalDate.now());
+                wheelExp.setCreatedBy("Import");
+                wheelExp.setSourceRef("XLS:WHEEL");
+                expenseRepository.save(wheelExp);
+            }
+
+            log.info("importExpensesOnly: imported={} skipped={} wheel={}", imported, skipped, willExpense);
+        }
+
+        return Map.of("imported", imported, "skipped", skipped);
+    }
 }
