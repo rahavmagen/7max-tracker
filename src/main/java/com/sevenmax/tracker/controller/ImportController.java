@@ -49,6 +49,19 @@ public class ImportController {
         }
     }
 
+    @PostMapping("/expenses-only")
+    public ResponseEntity<Map<String, Object>> importExpensesOnly(
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Map<String, Object> result = importService.importExpensesOnly(file);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PostMapping("/wipe")
     @Transactional
     public ResponseEntity<Map<String, Object>> resetAll() {
