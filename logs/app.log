@@ -413,3 +413,190 @@ This generated password is for development use only. Your security configuration
 2026-03-29T12:54:29.359+03:00  INFO 83556 --- [7max] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-03-29T12:54:29.368+03:00  INFO 83556 --- [7max] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2026-03-29T12:54:29.372+03:00  INFO 83556 --- [7max] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-03-29T12:54:43.686+03:00  INFO 225672 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 225672 (c:\projects\tracker\target\classes started by Migdal in c:\projects\tracker)
+2026-03-29T12:54:43.686+03:00 DEBUG 225672 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-03-29T12:54:43.690+03:00  INFO 225672 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-03-29T12:54:43.726+03:00  INFO 225672 --- [7max] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-03-29T12:54:43.726+03:00  INFO 225672 --- [7max] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-03-29T12:54:44.279+03:00  INFO 225672 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-29T12:54:44.357+03:00  INFO 225672 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 63 ms. Found 14 JPA repository interfaces.
+2026-03-29T12:54:44.781+03:00  INFO 225672 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-29T12:54:44.787+03:00  INFO 225672 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-29T12:54:44.787+03:00  INFO 225672 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-03-29T12:54:44.826+03:00  INFO 225672 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-29T12:54:44.826+03:00  INFO 225672 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1100 ms
+2026-03-29T12:54:44.866+03:00 DEBUG 225672 --- [7max] [restartedMain] c.sevenmax.tracker.security.JwtFilter    : Filter 'jwtFilter' configured for use
+2026-03-29T12:54:44.956+03:00  INFO 225672 --- [7max] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-29T12:54:44.986+03:00  INFO 225672 --- [7max] [restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.42.Final
+2026-03-29T12:54:45.016+03:00  INFO 225672 --- [7max] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-29T12:54:45.211+03:00  INFO 225672 --- [7max] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-29T12:54:45.231+03:00  INFO 225672 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-29T12:54:45.466+03:00  INFO 225672 --- [7max] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@10fb0c26
+2026-03-29T12:54:45.466+03:00  INFO 225672 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-29T12:54:45.486+03:00  WARN 225672 --- [7max] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-29T12:54:45.506+03:00  INFO 225672 --- [7max] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-03-29T12:54:46.343+03:00  INFO 225672 --- [7max] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-29T12:54:46.497+03:00  INFO 225672 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-29T12:54:46.736+03:00  INFO 225672 --- [7max] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-03-29T12:54:47.077+03:00  INFO 225672 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: import_summary table ensured
+2026-03-29T12:54:47.077+03:00  INFO 225672 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: admin_expenses table ensured
+2026-03-29T12:54:47.077+03:00  INFO 225672 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: transactions type constraint updated
+2026-03-29T12:54:47.397+03:00  WARN 225672 --- [7max] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-29T12:54:47.544+03:00  WARN 225672 --- [7max] [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 23bb6890-228d-46a2-bfe2-fc670d7bb7fd
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-03-29T12:54:47.548+03:00  INFO 225672 --- [7max] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-03-29T12:54:47.766+03:00  INFO 225672 --- [7max] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-03-29T12:54:47.796+03:00  INFO 225672 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-03-29T12:54:47.796+03:00  INFO 225672 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Started Application in 4.465 seconds (process running for 4.888)
+2026-03-29T12:55:31.974+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-29T12:55:31.976+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-29T12:55:31.979+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-03-29T12:55:39.411+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-10] c.s.tracker.service.ReportService        : ImportSummary rolled back to report periodEnd=2026-03-27 chipsTotal=221557.98
+2026-03-29T12:55:39.411+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-10] c.s.tracker.service.ReportService        : Deleted report 144 along with 9 sessions
+2026-03-29T12:55:47.381+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Club Member Balance: nicknameCol=8 balanceCol=9 clubIdCol=7 headerRow=4
+2026-03-29T12:55:47.408+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Report periodEnd=2026-03-28 latestExisting=2026-03-27 isLatest=true
+2026-03-29T12:55:48.255+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : STALE LOOP: updatedPlayerIds count=305 file=28.3.xlsx
+2026-03-29T12:55:48.266+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : STALE LOOP: player=Yossi xXx id=4762 wasStale=true
+2026-03-29T12:55:48.266+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : STALE LOOP: player=Madbik id=4494 wasStale=true
+2026-03-29T12:55:48.266+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : STALE LOOP: player=YBD081980 id=4595 wasStale=true
+2026-03-29T12:55:48.270+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : STALE LOOP: player=daniela garber id=4649 wasStale=true
+2026-03-29T12:55:48.270+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : STALE LOOP: player=Sorry-_- id=4479 wasStale=true
+2026-03-29T12:55:48.270+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : STALE LOOP DONE: leftClub size=0 file=28.3.xlsx
+2026-03-29T12:55:48.371+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Chip mismatch on upload: expected=221102.30 actual=221557.98 diff=455.68
+2026-03-29T12:55:48.376+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=savta hanina playerId=4633 amount=500.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 00:36:06:5946-6048
+2026-03-29T12:55:48.395+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:55:48.406+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1315 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:55:48.406+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4633) => null
+2026-03-29T12:55:48.416+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-27T19:30 to 2026-03-27T23:59, sessions found=2
+2026-03-29T12:55:48.418+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1278 startTime=2026-03-27T19:45, results count=16
+2026-03-29T12:55:48.418+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player savta hanina buyIn=68.00
+2026-03-29T12:55:48.418+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-03-27, playerId=4633) => 68.00
+2026-03-29T12:55:48.426+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=savta hanina amount=500.0 mttCost=68.00 — treating as non-wheel Send Chips
+2026-03-29T12:55:48.446+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=savta hanina amount=500.0 mttCost=68.00 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:55:48.486+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=piu piu 7 playerId=4514 amount=411.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 12:45:29:7272-6933
+2026-03-29T12:55:48.496+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:55:48.506+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1315 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:55:48.506+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player piu piu 7 buyIn=576.0
+2026-03-29T12:55:48.506+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4514) => 576.0
+2026-03-29T12:55:48.512+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=piu piu 7 amount=411.0 mttCost=576.0 — treating as non-wheel Send Chips
+2026-03-29T12:55:48.527+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=piu piu 7 amount=411.0 mttCost=576.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:55:48.536+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=piu piu 7 playerId=4514 amount=411.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 12:46:17:7272-6933
+2026-03-29T12:55:48.545+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:55:48.545+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1315 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:55:48.545+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player piu piu 7 buyIn=576.0
+2026-03-29T12:55:48.556+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4514) => 576.0
+2026-03-29T12:55:48.556+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=piu piu 7 amount=411.0 mttCost=576.0 — treating as non-wheel Send Chips
+2026-03-29T12:55:48.571+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=piu piu 7 amount=411.0 mttCost=576.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:55:48.607+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Lem44 playerId=4704 amount=1000.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 19:42:51:2548-9907
+2026-03-29T12:55:48.607+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:55:48.616+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1315 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:55:48.616+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Lem44 buyIn=288.0
+2026-03-29T12:55:48.616+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4704) => 288.0
+2026-03-29T12:55:48.616+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=Lem44 amount=1000.0 mttCost=288.0 — treating as non-wheel Send Chips
+2026-03-29T12:55:48.635+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=Lem44 amount=1000.0 mttCost=288.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:55:48.645+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=The keyser playerId=4771 amount=500.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 19:46:11:7448-8368
+2026-03-29T12:55:48.645+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:55:48.661+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1315 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:55:48.661+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4771) => null
+2026-03-29T12:55:48.676+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-27T19:30 to 2026-03-27T23:59, sessions found=2
+2026-03-29T12:55:48.689+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1278 startTime=2026-03-27T19:45, results count=16
+2026-03-29T12:55:48.698+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1279 startTime=2026-03-27T20:30, results count=27
+2026-03-29T12:55:48.698+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-03-27, playerId=4771) => null
+2026-03-29T12:55:48.698+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=The keyser amount=500.0 mttCost=null — treating as non-wheel Send Chips
+2026-03-29T12:55:48.716+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=The keyser amount=500.0 mttCost=null date=2026-03-28 — treating as CREDIT
+2026-03-29T12:55:48.735+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Giocatore7 playerId=4546 amount=288.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 19:57:44:3413-8268
+2026-03-29T12:55:48.745+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:55:48.756+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1315 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:55:48.756+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Giocatore7 buyIn=288.0
+2026-03-29T12:55:48.756+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4546) => 288.0
+2026-03-29T12:55:48.756+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Wheel expense detected: player=Giocatore7 amount=288.0 matches MTT cost on 2026-03-28
+2026-03-29T12:55:48.774+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Created AdminExpense for wheel: player=Giocatore7 amount=288.0 date=2026-03-28
+2026-03-29T12:55:48.775+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Trade Record wheel expense: player=Giocatore7 amount=288.0 date=2026-03-28
+2026-03-29T12:55:48.815+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Hashwakal playerId=4711 amount=1000.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 21:34:12:9167-4206
+2026-03-29T12:55:48.826+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:55:48.835+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1315 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:55:48.835+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Hashwakal buyIn=864.0
+2026-03-29T12:55:48.835+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4711) => 864.0
+2026-03-29T12:55:48.835+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=Hashwakal amount=1000.0 mttCost=864.0 — treating as non-wheel Send Chips
+2026-03-29T12:55:48.856+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=Hashwakal amount=1000.0 mttCost=864.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:55:48.856+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-2] c.s.tracker.service.ReportService        : Wheel expense warnings (no MTT match): [savta hanina (500.0 on 2026-03-28), piu piu 7 (411.0 on 2026-03-28), piu piu 7 (411.0 on 2026-03-28), Lem44 (1000.0 on 2026-03-28), The keyser (500.0 on 2026-03-28), Hashwakal (1000.0 on 2026-03-28)]
+2026-03-29T12:57:02.187+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-8] c.s.tracker.service.ReportService        : ImportSummary rolled back to report periodEnd=2026-03-27 chipsTotal=221557.98
+2026-03-29T12:57:02.189+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-8] c.s.tracker.service.ReportService        : Deleted report 145 along with 9 sessions
+2026-03-29T12:57:07.706+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Club Member Balance: nicknameCol=8 balanceCol=9 clubIdCol=7 headerRow=4
+2026-03-29T12:57:07.747+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Report periodEnd=2026-03-28 latestExisting=2026-03-27 isLatest=true
+2026-03-29T12:57:08.399+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : STALE LOOP: updatedPlayerIds count=305 file=28.3.xlsx
+2026-03-29T12:57:08.408+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : STALE LOOP: player=Yossi xXx id=4762 wasStale=true
+2026-03-29T12:57:08.412+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : STALE LOOP: player=Madbik id=4494 wasStale=true
+2026-03-29T12:57:08.412+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : STALE LOOP: player=YBD081980 id=4595 wasStale=true
+2026-03-29T12:57:08.412+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : STALE LOOP: player=daniela garber id=4649 wasStale=true
+2026-03-29T12:57:08.414+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : STALE LOOP: player=Sorry-_- id=4479 wasStale=true
+2026-03-29T12:57:08.414+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : STALE LOOP DONE: leftClub size=0 file=28.3.xlsx
+2026-03-29T12:57:08.443+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Chip mismatch on upload: expected=224216.30 actual=221557.98 diff=2658.32
+2026-03-29T12:57:08.451+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=savta hanina playerId=4633 amount=500.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 00:36:06:5946-6048
+2026-03-29T12:57:08.455+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:57:08.455+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1324 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:57:08.455+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4633) => null
+2026-03-29T12:57:08.465+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-27T19:30 to 2026-03-27T23:59, sessions found=2
+2026-03-29T12:57:08.473+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1278 startTime=2026-03-27T19:45, results count=16
+2026-03-29T12:57:08.473+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player savta hanina buyIn=68.00
+2026-03-29T12:57:08.473+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-03-27, playerId=4633) => 68.00
+2026-03-29T12:57:08.475+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=savta hanina amount=500.0 mttCost=68.00 — treating as non-wheel Send Chips
+2026-03-29T12:57:08.485+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=savta hanina amount=500.0 mttCost=68.00 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:57:08.531+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=piu piu 7 playerId=4514 amount=411.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 12:45:29:7272-6933
+2026-03-29T12:57:08.536+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:57:08.540+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1324 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:57:08.540+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player piu piu 7 buyIn=576.0
+2026-03-29T12:57:08.540+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4514) => 576.0
+2026-03-29T12:57:08.540+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=piu piu 7 amount=411.0 mttCost=576.0 — treating as non-wheel Send Chips
+2026-03-29T12:57:08.552+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=piu piu 7 amount=411.0 mttCost=576.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:57:08.559+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=piu piu 7 playerId=4514 amount=411.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 12:46:17:7272-6933
+2026-03-29T12:57:08.563+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:57:08.568+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1324 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:57:08.569+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player piu piu 7 buyIn=576.0
+2026-03-29T12:57:08.569+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4514) => 576.0
+2026-03-29T12:57:08.569+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=piu piu 7 amount=411.0 mttCost=576.0 — treating as non-wheel Send Chips
+2026-03-29T12:57:08.575+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=piu piu 7 amount=411.0 mttCost=576.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:57:08.599+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Lem44 playerId=4704 amount=1000.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 19:42:51:2548-9907
+2026-03-29T12:57:08.602+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:57:08.605+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1324 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:57:08.608+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Lem44 buyIn=288.0
+2026-03-29T12:57:08.608+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4704) => 288.0
+2026-03-29T12:57:08.608+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=Lem44 amount=1000.0 mttCost=288.0 — treating as non-wheel Send Chips
+2026-03-29T12:57:08.618+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=Lem44 amount=1000.0 mttCost=288.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:57:08.627+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=The keyser playerId=4771 amount=500.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 19:46:11:7448-8368
+2026-03-29T12:57:08.631+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:57:08.635+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1324 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:57:08.637+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4771) => null
+2026-03-29T12:57:08.639+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-27T19:30 to 2026-03-27T23:59, sessions found=2
+2026-03-29T12:57:08.645+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1278 startTime=2026-03-27T19:45, results count=16
+2026-03-29T12:57:08.647+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1279 startTime=2026-03-27T20:30, results count=27
+2026-03-29T12:57:08.647+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-03-27, playerId=4771) => null
+2026-03-29T12:57:08.647+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=The keyser amount=500.0 mttCost=null — treating as non-wheel Send Chips
+2026-03-29T12:57:08.657+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=The keyser amount=500.0 mttCost=null date=2026-03-28 — treating as CREDIT
+2026-03-29T12:57:08.683+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Giocatore7 playerId=4546 amount=288.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 19:57:44:3413-8268
+2026-03-29T12:57:08.685+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:57:08.685+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1324 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:57:08.685+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Giocatore7 buyIn=288.0
+2026-03-29T12:57:08.695+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4546) => 288.0
+2026-03-29T12:57:08.695+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Wheel expense detected: player=Giocatore7 amount=288.0 matches MTT cost on 2026-03-28
+2026-03-29T12:57:08.705+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Created AdminExpense for wheel: player=Giocatore7 amount=288.0 date=2026-03-28
+2026-03-29T12:57:08.708+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Trade Record wheel expense: player=Giocatore7 amount=288.0 date=2026-03-28
+2026-03-29T12:57:08.739+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Hashwakal playerId=4711 amount=1000.0 date=2026-03-28 sourceRef=TRADE:2026-03-28 21:34:12:9167-4206
+2026-03-29T12:57:08.745+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-03-28T19:30 to 2026-03-28T23:59, sessions found=1
+2026-03-29T12:57:08.745+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1324 startTime=2026-03-28T20:00, results count=38
+2026-03-29T12:57:08.755+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Hashwakal buyIn=864.0
+2026-03-29T12:57:08.755+03:00  INFO 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-03-28, playerId=4711) => 864.0
+2026-03-29T12:57:08.755+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=Hashwakal amount=1000.0 mttCost=864.0 — treating as non-wheel Send Chips
+2026-03-29T12:57:08.765+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=Hashwakal amount=1000.0 mttCost=864.0 date=2026-03-28 — treating as CREDIT
+2026-03-29T12:57:08.765+03:00  WARN 225672 --- [7max] [http-nio-8080-exec-1] c.s.tracker.service.ReportService        : Wheel expense warnings (no MTT match): [savta hanina (500.0 on 2026-03-28), piu piu 7 (411.0 on 2026-03-28), piu piu 7 (411.0 on 2026-03-28), Lem44 (1000.0 on 2026-03-28), The keyser (500.0 on 2026-03-28), Hashwakal (1000.0 on 2026-03-28)]

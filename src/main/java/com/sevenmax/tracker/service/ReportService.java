@@ -371,6 +371,7 @@ public class ReportService {
             boolean transferConfirmed = false;
             if (!alreadyImported && !isWheelExpense) {
                 if (tradeType.equals("Send Chips")) {
+                    // Exact match
                     var matchedTransfer = playerTransferRepository.findFirstByFromPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
                     if (matchedTransfer.isPresent()) {
                         PlayerTransfer transfer = matchedTransfer.get();
@@ -378,8 +379,13 @@ public class ReportService {
                         playerTransferRepository.save(transfer);
                         log.info("XLS matched pending transfer id={} (Send Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
                         transferConfirmed = true;
+                    } else {
+                        // Sum match: find multiple pending transfers from this player that sum to amount
+                        List<com.sevenmax.tracker.entity.PlayerTransfer> candidates = playerTransferRepository.findByFromPlayerIdAndConfirmedFalse(player.getId());
+                        transferConfirmed = confirmSumMatch(candidates, amount, player.getUsername(), "Send Chips");
                     }
                 } else {
+                    // Exact match
                     var matchedTransfer = playerTransferRepository.findFirstByToPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
                     if (matchedTransfer.isPresent()) {
                         PlayerTransfer transfer = matchedTransfer.get();
@@ -387,6 +393,10 @@ public class ReportService {
                         playerTransferRepository.save(transfer);
                         log.info("XLS matched pending transfer id={} (Claim Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
                         transferConfirmed = true;
+                    } else {
+                        // Sum match: find multiple pending transfers to this player that sum to amount
+                        List<com.sevenmax.tracker.entity.PlayerTransfer> candidates = playerTransferRepository.findByToPlayerIdAndConfirmedFalse(player.getId());
+                        transferConfirmed = confirmSumMatch(candidates, amount, player.getUsername(), "Claim Chips");
                     }
                 }
             }
@@ -428,7 +438,7 @@ public class ReportService {
                 }
             }
 
-            if (alreadyImported || transferConfirmed) continue;
+            if (alreadyImported || transferConfirmed || pendingTxConfirmed[0]) continue;
 
             Transaction tx = new Transaction();
             tx.setPlayer(player);
@@ -455,6 +465,43 @@ public class ReportService {
     }
 
     // Returns the player's buyIn cost in the nightly MTT on the given date,
+    // Confirm a set of pending transfers whose amounts sum exactly to targetAmount.
+    // Returns true if a matching combination was found and confirmed.
+    private boolean confirmSumMatch(List<com.sevenmax.tracker.entity.PlayerTransfer> candidates, BigDecimal targetAmount, String playerUsername, String tradeType) {
+        // Try all subsets (up to reasonable size) that sum to targetAmount
+        int n = Math.min(candidates.size(), 10); // cap at 10 to avoid combinatorial explosion
+        for (int size = 2; size <= n; size++) {
+            if (findAndConfirmSubset(candidates, size, 0, BigDecimal.ZERO, targetAmount, new java.util.ArrayList<>(), playerUsername, tradeType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean findAndConfirmSubset(List<com.sevenmax.tracker.entity.PlayerTransfer> candidates, int size, int start,
+                                          BigDecimal current, BigDecimal target, java.util.List<com.sevenmax.tracker.entity.PlayerTransfer> chosen,
+                                          String playerUsername, String tradeType) {
+        if (chosen.size() == size) {
+            if (current.compareTo(target) == 0) {
+                chosen.forEach(t -> {
+                    t.setConfirmed(true);
+                    playerTransferRepository.save(t);
+                    log.info("XLS sum-matched pending transfer id={} ({}, player={}, amount={})", t.getId(), tradeType, playerUsername, t.getAmount());
+                });
+                return true;
+            }
+            return false;
+        }
+        for (int i = start; i < candidates.size(); i++) {
+            chosen.add(candidates.get(i));
+            if (findAndConfirmSubset(candidates, size, i + 1, current.add(candidates.get(i).getAmount()), target, chosen, playerUsername, tradeType)) {
+                return true;
+            }
+            chosen.remove(chosen.size() - 1);
+        }
+        return false;
+    }
+
     // or null if no such session / player not found in it.
     // buyIn already includes rake, so we don't add rakePaid.
     private BigDecimal getNightlyMttCost(LocalDate date, Long playerId) {
