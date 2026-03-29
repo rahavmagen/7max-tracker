@@ -366,10 +366,11 @@ public class ReportService {
                 }
             }
 
-            // Check for matching pending PlayerTransfer — only if not already imported to avoid double-confirm
-            // Wheel expenses are not matched to pending transfers
+            // Check for matching pending PlayerTransfer — runs even if already imported,
+            // so re-uploading an XLS after creating the transfer on the website still works.
+            // Wheel expenses are not matched to pending transfers.
             boolean transferConfirmed = false;
-            if (!alreadyImported && !isWheelExpense) {
+            if (!isWheelExpense) {
                 if (tradeType.equals("Send Chips")) {
                     // Exact match
                     var matchedTransfer = playerTransferRepository.findFirstByFromPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
@@ -436,6 +437,14 @@ public class ReportService {
                     adminExpenseRepository.save(exp);
                     log.info("Created AdminExpense for wheel: player={} amount={} date={}", player.getUsername(), amount, txDate);
                 }
+            }
+
+            // If transfer was confirmed on re-upload, delete the orphan "Trade Record" transaction
+            if (alreadyImported && transferConfirmed) {
+                transactionRepository.findBySourceRef(sourceRef).forEach(orphan -> {
+                    transactionRepository.delete(orphan);
+                    log.info("Deleted orphan Trade Record transaction id={} for sourceRef={} (late-matched transfer)", orphan.getId(), sourceRef);
+                });
             }
 
             if (alreadyImported || transferConfirmed || pendingTxConfirmed[0]) continue;
