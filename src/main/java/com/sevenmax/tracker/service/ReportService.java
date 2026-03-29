@@ -458,8 +458,8 @@ public class ReportService {
     // or null if no such session / player not found in it.
     // buyIn already includes rake, so we don't add rakePaid.
     private BigDecimal getNightlyMttCost(LocalDate date, Long playerId) {
-        // Window covers both the regular 9pm MTT (20:20–21:40) and the Shabbat game (~23:15)
-        LocalDateTime windowStart = date.atTime(20, 20);
+        // Window covers nightly MTT and Shabbat games (can start as early as 20:00)
+        LocalDateTime windowStart = date.atTime(19, 30);
         LocalDateTime windowEnd = date.atTime(23, 59);
         List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
                 GameSession.GameType.MTT, windowStart, windowEnd);
