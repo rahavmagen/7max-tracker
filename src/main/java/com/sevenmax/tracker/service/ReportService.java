@@ -467,7 +467,7 @@ public class ReportService {
                 String sideKey = tradeType.equals("Send Chips")
                         ? "from:" + player.getId() + ":" + amount
                         : "to:" + player.getId() + ":" + amount;
-                if (confirmedTransferSides.contains(sideKey)) {
+                if (confirmedTransferSides.remove(sideKey)) { // remove so only ONE extra row is absorbed
                     log.info("Skipping XLS row — other side of transfer confirmed this upload: player={} amount={} tradeType={}", player.getUsername(), amount, tradeType);
                     continue;
                 }
