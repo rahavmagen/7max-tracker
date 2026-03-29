@@ -65,7 +65,7 @@ public class PlayerTransferController {
     }
 
     @PostMapping("/settlement")
-    public ResponseEntity<?> createSettlement(@RequestBody Map<String, Object> body, Authentication auth) {
+    public ResponseEntity<?> createPayment(@RequestBody Map<String, Object> body, Authentication auth) {
         try {
             Long fromPlayerId = body.get("fromPlayerId") != null ? ((Number) body.get("fromPlayerId")).longValue() : null;
             Long toPlayerId = body.get("toPlayerId") != null ? ((Number) body.get("toPlayerId")).longValue() : null;
@@ -73,7 +73,7 @@ public class PlayerTransferController {
             Transaction.Method method = Transaction.Method.valueOf(body.get("method").toString());
             String notes = (String) body.get("notes");
             String createdBy = auth != null ? auth.getName() : null;
-            var transfer = transferService.createSettlement(fromPlayerId, toPlayerId, amount, method, notes, createdBy);
+            var transfer = transferService.createPayment(fromPlayerId, toPlayerId, amount, method, notes, createdBy);
             return ResponseEntity.ok(transferService.toDto(transfer));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

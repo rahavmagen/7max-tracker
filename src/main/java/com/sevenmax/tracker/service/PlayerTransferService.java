@@ -111,8 +111,8 @@ public class PlayerTransferService {
     }
 
     @Transactional
-    public PlayerTransfer createSettlement(Long fromPlayerId, Long toPlayerId, BigDecimal amount,
-                                           Transaction.Method method, String notes, String createdBy) {
+    public PlayerTransfer createPayment(Long fromPlayerId, Long toPlayerId, BigDecimal amount,
+                                        Transaction.Method method, String notes, String createdBy) {
         Player fromPlayer = fromPlayerId != null ? playerRepository.findById(fromPlayerId).orElse(null) : null;
         Player toPlayer = toPlayerId != null ? playerRepository.findById(toPlayerId).orElse(null) : null;
 
@@ -125,46 +125,46 @@ public class PlayerTransferService {
         transfer.setTransferDate(LocalDate.now());
         transfer.setCreatedByUsername(createdBy);
         transfer = transferRepository.save(transfer);
-        String sourceRef = "SETTLEMENT:" + transfer.getId();
+        String sourceRef = "PAYMENT:" + transfer.getId();
 
-        log.info("SETTLEMENT v3: from={} (balance={}) to={} (balance={}) amount={}",
+        log.info("PAYMENT: from={} (balance={}) to={} (balance={}) amount={}",
             fromPlayer != null ? fromPlayer.getUsername() : "null",
             fromPlayer != null ? fromPlayer.getBalance() : "null",
             toPlayer != null ? toPlayer.getUsername() : "null",
             toPlayer != null ? toPlayer.getBalance() : "null",
             amount);
 
-        // Loser (payer) → REPAYMENT → balance increases toward 0 (debt cleared)
+        // Payer → REPAYMENT → balance increases toward 0 (debt cleared)
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(fromPlayer);
             tx.setType(Transaction.Type.REPAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Settlement payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             tx.setSourceRef(sourceRef);
             transactionService.addTransaction(tx);
         }
 
-        log.info("SETTLEMENT: after payer tx, {}.balance={}", fromPlayer != null ? fromPlayer.getUsername() : "null", fromPlayer != null ? fromPlayer.getBalance() : "null");
+        log.info("PAYMENT: after payer tx, {}.balance={}", fromPlayer != null ? fromPlayer.getUsername() : "null", fromPlayer != null ? fromPlayer.getBalance() : "null");
 
-        // Winner (receiver) → CREDIT → balance decreases toward 0 (claim reduced)
+        // Receiver → CREDIT → balance decreases toward 0 (claim reduced)
         if (toPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(toPlayer);
             tx.setType(Transaction.Type.CREDIT);
             tx.setAmount(amount);
             tx.setMethod(method);
-            tx.setNotes("Settlement received from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
+            tx.setNotes("Received from " + (fromPlayer != null ? fromPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdBy);
             tx.setSourceRef(sourceRef);
             transactionService.addTransaction(tx);
         }
 
-        log.info("SETTLEMENT: after receiver tx, {}.balance={}", toPlayer != null ? toPlayer.getUsername() : "null", toPlayer != null ? toPlayer.getBalance() : "null");
+        log.info("PAYMENT: after receiver tx, {}.balance={}", toPlayer != null ? toPlayer.getUsername() : "null", toPlayer != null ? toPlayer.getBalance() : "null");
 
         return transfer;
     }
