@@ -217,7 +217,9 @@ public class PlayerTransferService {
         transactionRepository.findByPendingConfirmationTrueOrderByCreatedAtDesc().forEach(tx -> {
             Map<String, Object> item = new HashMap<>();
             String ref = tx.getSourceRef();
-            item.put("pendingType", ref != null && ref.startsWith("SCREEN:PROMO") ? "PROMOTION" : "CREDIT");
+            item.put("pendingType", ref != null && ref.startsWith("SCREEN:PROMO") ? "PROMOTION"
+                    : ref != null && ref.startsWith("TRADE:") ? "XLS_UNMATCHED"
+                    : "CREDIT");
             item.put("id", tx.getId());
             item.put("transactionDate", tx.getTransactionDate() != null ? tx.getTransactionDate().toString() : null);
             item.put("playerId", tx.getPlayer().getId());

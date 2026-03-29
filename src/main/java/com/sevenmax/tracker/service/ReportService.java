@@ -458,6 +458,7 @@ public class ReportService {
             } else {
                 tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
                 tx.setNotes("Trade Record: " + tradeType);
+                tx.setPendingConfirmation(true); // unmatched — admin must review
             }
             tx.setAmount(amount);
             tx.setTransactionDate(txDate);
