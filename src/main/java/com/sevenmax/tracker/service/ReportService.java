@@ -407,6 +407,8 @@ public class ReportService {
             boolean[] pendingTxConfirmed = {false};
             if (!transferConfirmed && !isWheelExpense) {
                 transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
+                    // Don't let XLS entries confirm other XLS entries (TRADE: sourced)
+                    if (pendingTx.getSourceRef() != null && pendingTx.getSourceRef().startsWith("TRADE:")) return;
                     pendingTx.setPendingConfirmation(false);
                     transactionRepository.save(pendingTx);
                     log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), pendingTx.getPlayer().getUsername(), amount);
@@ -457,7 +459,8 @@ public class ReportService {
                 log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
             } else {
                 tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
-                tx.setNotes("Trade Record: " + tradeType);
+                // "Send Chips" = player got chips; "Claim Chips" = club took chips back
+                tx.setNotes(tradeType.equals("Send Chips") ? "Got Chips" : "Reduce Chips");
                 tx.setPendingConfirmation(true); // unmatched — admin must review
             }
             tx.setAmount(amount);
