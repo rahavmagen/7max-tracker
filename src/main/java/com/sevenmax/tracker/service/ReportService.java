@@ -297,6 +297,9 @@ public class ReportService {
 
         Long reportId = report.getId();
         List<String> wheelWarnings = new java.util.ArrayList<>();
+        // Tracks "from:playerId:amount" and "to:playerId:amount" for transfers confirmed this upload
+        // so the other XLS side of a confirmed transfer is not treated as unmatched.
+        Set<String> confirmedTransferSides = new java.util.HashSet<>();
 
         int lastRow = sheet.getLastRowNum();
         for (int r = 5; r <= lastRow; r++) {  // data starts at row 5
@@ -378,6 +381,10 @@ public class ReportService {
                         PlayerTransfer transfer = matchedTransfer.get();
                         transfer.setConfirmed(true);
                         playerTransferRepository.save(transfer);
+                        // Record both sides so the opposite XLS row is not treated as unmatched
+                        confirmedTransferSides.add("from:" + player.getId() + ":" + amount);
+                        if (transfer.getToPlayer() != null)
+                            confirmedTransferSides.add("to:" + transfer.getToPlayer().getId() + ":" + amount);
                         log.info("XLS matched pending transfer id={} (Send Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
                         transferConfirmed = true;
                     } else {
@@ -392,6 +399,10 @@ public class ReportService {
                         PlayerTransfer transfer = matchedTransfer.get();
                         transfer.setConfirmed(true);
                         playerTransferRepository.save(transfer);
+                        // Record both sides so the opposite XLS row is not treated as unmatched
+                        confirmedTransferSides.add("to:" + player.getId() + ":" + amount);
+                        if (transfer.getFromPlayer() != null)
+                            confirmedTransferSides.add("from:" + transfer.getFromPlayer().getId() + ":" + amount);
                         log.info("XLS matched pending transfer id={} (Claim Chips, player={}, amount={})", transfer.getId(), player.getUsername(), amount);
                         transferConfirmed = true;
                     } else {
@@ -450,6 +461,29 @@ public class ReportService {
             }
 
             if (alreadyImported || transferConfirmed || pendingTxConfirmed[0]) continue;
+
+            // Check if this XLS row is the "other side" of a transfer confirmed in this same upload
+            if (!isWheelExpense) {
+                String sideKey = tradeType.equals("Send Chips")
+                        ? "from:" + player.getId() + ":" + amount
+                        : "to:" + player.getId() + ":" + amount;
+                if (confirmedTransferSides.contains(sideKey)) {
+                    log.info("Skipping XLS row — other side of transfer confirmed this upload: player={} amount={} tradeType={}", player.getUsername(), amount, tradeType);
+                    continue;
+                }
+            }
+
+            // Check for a cancelling XLS_UNMATCHED pair (Got Chips + Reduce Chips, same player, same amount)
+            if (!isWheelExpense) {
+                Transaction.Type newType = tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT;
+                Transaction.Type oppositeType = tradeType.equals("Send Chips") ? Transaction.Type.REPAYMENT : Transaction.Type.CREDIT;
+                var cancelMatch = transactionRepository.findFirstByPlayerIdAndAmountAndTypeAndPendingConfirmationTrue(player.getId(), amount, oppositeType);
+                if (cancelMatch.isPresent() && cancelMatch.get().getSourceRef() != null && cancelMatch.get().getSourceRef().startsWith("TRADE:")) {
+                    transactionRepository.delete(cancelMatch.get());
+                    log.info("Auto-cancelled XLS_UNMATCHED pair for player={} amount={} ({} ↔ {})", player.getUsername(), amount, newType, oppositeType);
+                    continue;
+                }
+            }
 
             Transaction tx = new Transaction();
             tx.setPlayer(player);

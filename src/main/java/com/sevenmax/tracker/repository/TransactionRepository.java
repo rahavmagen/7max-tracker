@@ -20,6 +20,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByPendingConfirmationTrueOrderByCreatedAtDesc();
     Optional<Transaction> findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(Long playerId, BigDecimal amount);
+    Optional<Transaction> findFirstByPlayerIdAndAmountAndTypeAndPendingConfirmationTrue(Long playerId, BigDecimal amount, Transaction.Type type);
 
     @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'DEPOSIT' AND (t.source_ref IS NULL OR t.source_ref NOT LIKE 'SCREEN:%') AND t.created_at > :since", nativeQuery = true)
     BigDecimal sumDepositsSince(@Param("since") LocalDateTime since);
