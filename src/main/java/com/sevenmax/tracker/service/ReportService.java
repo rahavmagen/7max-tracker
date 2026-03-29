@@ -458,8 +458,9 @@ public class ReportService {
     // or null if no such session / player not found in it.
     // buyIn already includes rake, so we don't add rakePaid.
     private BigDecimal getNightlyMttCost(LocalDate date, Long playerId) {
+        // Window covers both the regular 9pm MTT (20:20–21:40) and the Shabbat game (~23:15)
         LocalDateTime windowStart = date.atTime(20, 20);
-        LocalDateTime windowEnd = date.atTime(21, 40);
+        LocalDateTime windowEnd = date.atTime(23, 59);
         List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
                 GameSession.GameType.MTT, windowStart, windowEnd);
         log.info("[WHEEL-DEBUG] getNightlyMttCost: window={} to {}, sessions found={}", windowStart, windowEnd, sessions.size());
@@ -471,18 +472,20 @@ public class ReportService {
             log.info("[WHEEL-DEBUG] No MTT in window. Nearby MTT sessions (±1 day): {}", nearby.stream().map(s -> s.getId() + "@" + s.getStartTime()).toList());
             return null;
         }
-        GameSession session = sessions.get(0);
-        List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
-        log.info("[WHEEL-DEBUG] Session id={} startTime={}, results count={}", session.getId(), session.getStartTime(), results.size());
-        log.info("[WHEEL-DEBUG] Result player IDs in session: {}", results.stream().map(r -> r.getPlayer() != null ? r.getPlayer().getId() + "=" + r.getPlayer().getUsername() : "null").toList());
-        return results.stream()
-                .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
-                .map(r -> {
-                    log.info("[WHEEL-DEBUG] Player {} buyIn={}", r.getPlayer().getUsername(), r.getBuyIn());
-                    return r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO;
-                })
-                .findFirst()
-                .orElse(null);
+        // Check all sessions in the window — return the player's buy-in from whichever they participated in
+        for (GameSession session : sessions) {
+            List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
+            log.info("[WHEEL-DEBUG] Session id={} startTime={}, results count={}", session.getId(), session.getStartTime(), results.size());
+            Optional<BigDecimal> cost = results.stream()
+                    .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
+                    .map(r -> {
+                        log.info("[WHEEL-DEBUG] Player {} buyIn={}", r.getPlayer().getUsername(), r.getBuyIn());
+                        return r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO;
+                    })
+                    .findFirst();
+            if (cost.isPresent()) return cost.get();
+        }
+        return null;
     }
 
     // Entry: nickname → [chips, clubPlayerId_or_null]

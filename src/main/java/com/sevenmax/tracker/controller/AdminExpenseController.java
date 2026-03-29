@@ -3,6 +3,7 @@ package com.sevenmax.tracker.controller;
 import com.sevenmax.tracker.entity.AdminExpense;
 import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.repository.AdminExpenseRepository;
+import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ public class AdminExpenseController {
 
     private final AdminExpenseRepository expenseRepository;
     private final UserRepository userRepository;
+    private final TransactionRepository transactionRepository;
 
     // GET /admin-expenses — all expenses grouped by admin with totals
     @GetMapping
@@ -134,12 +136,19 @@ public class AdminExpenseController {
     }
 
     // DELETE /admin-expenses/{id}
+    // For WHEEL expenses: also deletes the underlying WHEEL_EXPENSE transaction
+    // so that backfillWheelExpenseAdminRecords() cannot recreate it on the next GG upload.
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
-        if (!expenseRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        expenseRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        return expenseRepository.findById(id).map(expense -> {
+            String ref = expense.getSourceRef();
+            if (ref != null && ref.startsWith("WHEEL:")) {
+                // The transaction sourceRef is the part after "WHEEL:"
+                String txRef = ref.substring("WHEEL:".length());
+                transactionRepository.findBySourceRef(txRef).forEach(transactionRepository::delete);
+            }
+            expenseRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
