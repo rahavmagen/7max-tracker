@@ -228,6 +228,7 @@ public class PlayerTransferService {
             item.put("amount", tx.getAmount());
             item.put("notes", tx.getNotes());
             item.put("createdByUsername", tx.getCreatedByUsername());
+            item.put("createdAt", tx.getCreatedAt() != null ? tx.getCreatedAt().toString() : null);
             result.add(item);
         });
 
@@ -236,6 +237,16 @@ public class PlayerTransferService {
             Map<String, Object> item = toDto(t);
             item.put("pendingType", "TRANSFER");
             result.add(item);
+        });
+
+        // Sort combined list by createdAt desc
+        result.sort((a, b) -> {
+            String ca = (String) a.get("createdAt");
+            String cb = (String) b.get("createdAt");
+            if (ca == null && cb == null) return 0;
+            if (ca == null) return 1;
+            if (cb == null) return -1;
+            return cb.compareTo(ca);
         });
 
         return result;
