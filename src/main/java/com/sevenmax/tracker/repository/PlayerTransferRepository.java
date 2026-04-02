@@ -13,5 +13,8 @@ public interface PlayerTransferRepository extends JpaRepository<PlayerTransfer, 
     List<PlayerTransfer> findByFromPlayerIdOrToPlayerId(Long fromPlayerId, Long toPlayerId);
     List<PlayerTransfer> findByFromPlayerIdAndConfirmedFalse(Long fromPlayerId);
     List<PlayerTransfer> findByToPlayerIdAndConfirmedFalse(Long toPlayerId);
+    Optional<PlayerTransfer> findFirstByFromPlayerIdAndAmountAndConfirmedTrue(Long fromPlayerId, BigDecimal amount);
+    Optional<PlayerTransfer> findFirstByToPlayerIdAndAmountAndConfirmedTrue(Long toPlayerId, BigDecimal amount);
+    List<PlayerTransfer> findByFromPlayerIdAndConfirmedTrue(Long fromPlayerId);
 
 }

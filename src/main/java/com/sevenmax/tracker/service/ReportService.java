@@ -352,10 +352,14 @@ public class ReportService {
                         player.getUsername(), player.getId(), amount, txDate, sourceRef);
                 BigDecimal mttCost = getNightlyMttCost(txDate, player.getId());
                 log.info("[WHEEL-DEBUG] getNightlyMttCost(date={}, playerId={}) => {}", txDate, player.getId(), mttCost);
-                if (mttCost == null) {
-                    // Also check previous day (wheel expense may be recorded the morning after)
-                    mttCost = getNightlyMttCost(txDate.minusDays(1), player.getId());
-                    log.info("[WHEEL-DEBUG] getNightlyMttCost(prevDay={}, playerId={}) => {}", txDate.minusDays(1), player.getId(), mttCost);
+                if (mttCost == null || amount.compareTo(mttCost) != 0) {
+                    // Also check previous day (wheel expense may be recorded the morning after,
+                    // or the amount on the current day doesn't match)
+                    BigDecimal prevCost = getNightlyMttCost(txDate.minusDays(1), player.getId());
+                    log.info("[WHEEL-DEBUG] getNightlyMttCost(prevDay={}, playerId={}) => {}", txDate.minusDays(1), player.getId(), prevCost);
+                    if (prevCost != null && amount.compareTo(prevCost) == 0) {
+                        mttCost = prevCost;
+                    }
                 }
                 if (mttCost != null && amount.compareTo(mttCost) == 0) {
                     isWheelExpense = true;
@@ -392,6 +396,33 @@ public class ReportService {
                         List<com.sevenmax.tracker.entity.PlayerTransfer> candidates = playerTransferRepository.findByFromPlayerIdAndConfirmedFalse(player.getId());
                         transferConfirmed = confirmSumMatch(candidates, amount, player.getUsername(), "Send Chips");
                     }
+                    // Bug D: transfer was confirmed on website before this XLS upload — full amount match
+                    if (!transferConfirmed) {
+                        var preConfirmed = playerTransferRepository.findFirstByFromPlayerIdAndAmountAndConfirmedTrue(player.getId(), amount);
+                        if (preConfirmed.isPresent()) {
+                            transferConfirmed = true;
+                            log.info("Send Chips already handled by pre-confirmed transfer id={} (player={}, amount={})", preConfirmed.get().getId(), player.getUsername(), amount);
+                        }
+                    }
+                    // Bug B: XLS amount = confirmed transfer partial amount + pending credit (sum match)
+                    if (!transferConfirmed) {
+                        List<com.sevenmax.tracker.entity.PlayerTransfer> confirmedTransfers = playerTransferRepository.findByFromPlayerIdAndConfirmedTrue(player.getId());
+                        for (com.sevenmax.tracker.entity.PlayerTransfer ct : confirmedTransfers) {
+                            BigDecimal remainder = amount.subtract(ct.getAmount());
+                            if (remainder.compareTo(BigDecimal.ZERO) > 0) {
+                                var pendingPart = transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), remainder);
+                                if (pendingPart.isPresent() && pendingPart.get().getSourceRef() != null
+                                        && !pendingPart.get().getSourceRef().startsWith("TRADE:")) {
+                                    pendingPart.get().setPendingConfirmation(false);
+                                    transactionRepository.save(pendingPart.get());
+                                    transferConfirmed = true;
+                                    log.info("Send Chips sum-match: confirmed transfer id={} amount={} + pending tx id={} amount={} = {} (player={})",
+                                            ct.getId(), ct.getAmount(), pendingPart.get().getId(), remainder, amount, player.getUsername());
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 } else {
                     // Exact match
                     var matchedTransfer = playerTransferRepository.findFirstByToPlayerIdAndAmountAndConfirmedFalse(player.getId(), amount);
@@ -409,6 +440,14 @@ public class ReportService {
                         // Sum match: find multiple pending transfers to this player that sum to amount
                         List<com.sevenmax.tracker.entity.PlayerTransfer> candidates = playerTransferRepository.findByToPlayerIdAndConfirmedFalse(player.getId());
                         transferConfirmed = confirmSumMatch(candidates, amount, player.getUsername(), "Claim Chips");
+                    }
+                    // Bug D: transfer was confirmed on website before this XLS upload — full amount match
+                    if (!transferConfirmed) {
+                        var preConfirmed = playerTransferRepository.findFirstByToPlayerIdAndAmountAndConfirmedTrue(player.getId(), amount);
+                        if (preConfirmed.isPresent()) {
+                            transferConfirmed = true;
+                            log.info("Claim Chips already handled by pre-confirmed transfer id={} (player={}, amount={})", preConfirmed.get().getId(), player.getUsername(), amount);
+                        }
                     }
                 }
             }
