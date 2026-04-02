@@ -113,17 +113,29 @@ public class PlayerService {
         player.setBalance(currentChips.subtract(newCredit));
         Player saved = playerRepository.save(player);
 
-        // Save a pending Transaction record for reconciliation against XLS upload
-        Transaction tx = new Transaction();
-        tx.setPlayer(player);
-        tx.setType(delta.compareTo(BigDecimal.ZERO) >= 0 ? Transaction.Type.DEPOSIT : Transaction.Type.WITHDRAWAL);
-        tx.setAmount(delta.abs());
-        tx.setNotes("Manual Credit" + (notes != null ? " - " + notes : ""));
-        tx.setTransactionDate(LocalDate.now());
-        tx.setCreatedByUsername(createdByUsername);
-        tx.setPendingConfirmation(true);
-        tx.setSourceRef("SCREEN:CREDIT");
-        transactionRepository.save(tx);
+        // If there's already a pending TRADE: transaction for the same player+amount,
+        // confirm it instead of creating a duplicate SCREEN:CREDIT entry.
+        Optional<Transaction> existingTrade = transactionRepository
+                .findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), delta.abs());
+        if (existingTrade.isPresent() && existingTrade.get().getSourceRef() != null
+                && existingTrade.get().getSourceRef().startsWith("TRADE:")) {
+            existingTrade.get().setPendingConfirmation(false);
+            transactionRepository.save(existingTrade.get());
+            log.info("Manual credit confirmed existing TRADE: pending id={} player={} amount={}",
+                    existingTrade.get().getId(), player.getUsername(), delta.abs());
+        } else {
+            // Save a pending Transaction record for reconciliation against XLS upload
+            Transaction tx = new Transaction();
+            tx.setPlayer(player);
+            tx.setType(delta.compareTo(BigDecimal.ZERO) >= 0 ? Transaction.Type.DEPOSIT : Transaction.Type.WITHDRAWAL);
+            tx.setAmount(delta.abs());
+            tx.setNotes("Manual Credit" + (notes != null ? " - " + notes : ""));
+            tx.setTransactionDate(LocalDate.now());
+            tx.setCreatedByUsername(createdByUsername);
+            tx.setPendingConfirmation(true);
+            tx.setSourceRef("SCREEN:CREDIT");
+            transactionRepository.save(tx);
+        }
 
         return saved;
     }
