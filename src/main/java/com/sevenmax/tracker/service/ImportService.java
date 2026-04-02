@@ -261,6 +261,7 @@ public class ImportService {
         // Step 2: Calculate balance (P&L) and save
         // Note: currentChips will be 0 until a ClubGG report with Club Member Balance is uploaded
         int created = 0, updated = 0;
+        List<String> duplicateWarnings = new java.util.ArrayList<>();
         for (Player p : playerMap.values()) {
             if (p.getUsername() == null || p.getUsername().isBlank()) continue;
             if (p.getCurrentChips() == null) p.setCurrentChips(BigDecimal.ZERO);
@@ -277,6 +278,12 @@ public class ImportService {
             }
             if (existing.isEmpty()) {
                 existing = playerService.findPlayerByUsername(p.getUsername());
+                // Warn if username matched but with different casing (potential manual duplicate)
+                if (existing.isPresent() && !existing.get().getUsername().equals(p.getUsername())) {
+                    String msg = "Username case mismatch: XLS='" + p.getUsername() + "' matched DB='" + existing.get().getUsername() + "' — merged automatically";
+                    duplicateWarnings.add(msg);
+                    log.warn("Import duplicate warning: {}", msg);
+                }
             }
             if (existing.isPresent()) {
                 Player ex = existing.get();
@@ -300,6 +307,7 @@ public class ImportService {
         result.put("created", created);
         result.put("updated", updated);
         result.put("total", playerMap.size());
+        if (!duplicateWarnings.isEmpty()) result.put("duplicateWarnings", duplicateWarnings);
         return result;
     }
 

@@ -22,6 +22,6 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     @Query(value = "SELECT * FROM players WHERE LOWER(REGEXP_REPLACE(username, '[^a-zA-Z0-9]', '', 'g')) = LOWER(REGEXP_REPLACE(:username, '[^a-zA-Z0-9]', '', 'g'))", nativeQuery = true)
     List<Player> findByUsernameAlphanumeric(@Param("username") String username);
 
-    @Query("SELECT p FROM Player p WHERE p.clubPlayerId = :clubPlayerId")
+    @Query(value = "SELECT * FROM players WHERE REPLACE(club_player_id, '-', '') = REPLACE(:clubPlayerId, '-', '')", nativeQuery = true)
     List<Player> findByClubPlayerIdSafe(@Param("clubPlayerId") String clubPlayerId);
 }
