@@ -19,6 +19,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findRecentByTypes(@Param("types") List<Transaction.Type> types, @Param("since") LocalDateTime since);
 
     List<Transaction> findByPendingConfirmationTrueOrderByCreatedAtDesc();
+    List<Transaction> findByPlayerIdAndPendingConfirmationTrue(Long playerId);
     Optional<Transaction> findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(Long playerId, BigDecimal amount);
     Optional<Transaction> findFirstByPlayerIdAndAmountAndTypeAndPendingConfirmationTrue(Long playerId, BigDecimal amount, Transaction.Type type);
 
