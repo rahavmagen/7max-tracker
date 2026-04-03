@@ -112,8 +112,9 @@ public class PlayerController {
         if (deltaVal == null) return ResponseEntity.badRequest().body(Map.of("error", "delta is required"));
         BigDecimal amount = new BigDecimal(deltaVal.toString());
         String notes = (body.get("notes") != null) ? body.get("notes").toString() : null;
+        boolean noChipChange = Boolean.TRUE.equals(body.get("noChipChange"));
         String username = auth != null ? auth.getName() : null;
-        return ResponseEntity.ok(playerService.updateCredit(id, amount, notes, username));
+        return ResponseEntity.ok(playerService.updateCredit(id, amount, notes, username, noChipChange));
     }
 
     @PostMapping("/{id}/wheel-expense")

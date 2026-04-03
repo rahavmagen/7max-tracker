@@ -105,7 +105,7 @@ public class PlayerService {
     }
 
     @Transactional
-    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername) {
+    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername, boolean noChipChange) {
         Player player = getPlayer(id);
         BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
         BigDecimal currentChips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
@@ -124,7 +124,6 @@ public class PlayerService {
             log.info("Manual credit confirmed existing TRADE: pending id={} player={} amount={}",
                     existingTrade.get().getId(), player.getUsername(), delta.abs());
         } else {
-            // Save a pending Transaction record for reconciliation against XLS upload
             Transaction tx = new Transaction();
             tx.setPlayer(player);
             tx.setType(delta.compareTo(BigDecimal.ZERO) >= 0 ? Transaction.Type.DEPOSIT : Transaction.Type.WITHDRAWAL);
@@ -132,7 +131,7 @@ public class PlayerService {
             tx.setNotes("Manual Credit" + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdByUsername);
-            tx.setPendingConfirmation(true);
+            tx.setPendingConfirmation(!noChipChange);
             tx.setSourceRef("SCREEN:CREDIT");
             transactionRepository.save(tx);
         }
