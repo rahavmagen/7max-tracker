@@ -220,6 +220,7 @@ public class PlayerTransferService {
             item.put("pendingType", ref != null && ref.startsWith("SCREEN:PROMO") ? "PROMOTION"
                     : ref != null && ref.startsWith("TRADE:") ? "XLS_UNMATCHED"
                     : "CREDIT");
+            item.put("transactionType", tx.getType() != null ? tx.getType().name() : "CREDIT");
             item.put("id", tx.getId());
             item.put("transactionDate", tx.getTransactionDate() != null ? tx.getTransactionDate().toString() : null);
             item.put("playerId", tx.getPlayer().getId());
