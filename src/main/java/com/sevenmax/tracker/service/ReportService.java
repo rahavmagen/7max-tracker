@@ -35,6 +35,7 @@ public class ReportService {
     private final PlayerService playerService;
     private final ImportSummaryRepository importSummaryRepository;
     private final AdminExpenseRepository adminExpenseRepository;
+    private final XlsMatchingService xlsMatchingService;
 
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
@@ -300,6 +301,8 @@ public class ReportService {
         // Tracks "from:playerId:amount" and "to:playerId:amount" for transfers confirmed this upload
         // so the other XLS side of a confirmed transfer is not treated as unmatched.
         Set<String> confirmedTransferSides = new java.util.HashSet<>();
+        // Accumulates net chip delta per player for group-based pending confirmation
+        Map<Long, BigDecimal> xlsNetByPlayer = new java.util.LinkedHashMap<>();
 
         int lastRow = sheet.getLastRowNum();
         for (int r = 5; r <= lastRow; r++) {  // data starts at row 5
@@ -452,23 +455,15 @@ public class ReportService {
                 }
             }
 
-            // Check for matching pending Transaction (credit/promo) — run even if already imported,
-            // so re-uploading an XLS can still confirm a pending promotion/credit
-            boolean[] pendingTxConfirmed = {false};
-            if (!transferConfirmed && !isWheelExpense) {
-                transactionRepository.findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(player.getId(), amount).ifPresent(pendingTx -> {
-                    // Don't let XLS entries confirm other XLS entries (TRADE: sourced)
-                    if (pendingTx.getSourceRef() != null && pendingTx.getSourceRef().startsWith("TRADE:")) return;
-                    pendingTx.setPendingConfirmation(false);
-                    transactionRepository.save(pendingTx);
-                    log.info("XLS confirmed pending transaction id={} (player={}, amount={})", pendingTx.getId(), pendingTx.getPlayer().getUsername(), amount);
-                    pendingTxConfirmed[0] = true;
-                });
+            // Accumulate xls_net per player for group-based pending confirmation (runs even on re-upload)
+            if (!isWheelExpense && !transferConfirmed) {
+                BigDecimal contribution = tradeType.equals("Send Chips") ? amount : amount.negate();
+                xlsNetByPlayer.merge(player.getId(), contribution, BigDecimal::add);
             }
 
             // Now emit deferred wheel warning — only if this Send Chips negative was not handled
             // by a pending transfer or pending transaction confirmation
-            if (pendingWheelWarning && !transferConfirmed && !pendingTxConfirmed[0] && !alreadyImported) {
+            if (pendingWheelWarning && !transferConfirmed && !alreadyImported) {
                 String warning = player.getUsername() + " (" + amount + " on " + txDate + ")";
                 wheelWarnings.add(warning);
                 log.warn("Send Chips negative but no MTT cost match: player={} amount={} mttCost={} date={} — treating as CREDIT",
@@ -499,7 +494,7 @@ public class ReportService {
                 });
             }
 
-            if (alreadyImported || transferConfirmed || pendingTxConfirmed[0]) continue;
+            if (alreadyImported || transferConfirmed) continue;
 
             // Check if this XLS row is the "other side" of a transfer confirmed in this same upload
             if (!isWheelExpense) {
@@ -542,6 +537,32 @@ public class ReportService {
             tx.setCreatedByUsername("Import");
             tx.setReportId(reportId);
             transactionRepository.save(tx);
+        }
+
+        // Group-based pending confirmation: per player, compare xls_net to expected pending chip delta.
+        // Confirms all pending screen-entered transactions if the net matches the XLS Trade Record.
+        for (Map.Entry<Long, BigDecimal> entry : xlsNetByPlayer.entrySet()) {
+            Long playerId = entry.getKey();
+            BigDecimal xlsNet = entry.getValue();
+            List<Transaction> pending = transactionRepository.findByPlayerIdAndPendingConfirmationTrue(playerId)
+                    .stream()
+                    .filter(tx -> tx.getSourceRef() == null || !tx.getSourceRef().startsWith("TRADE:"))
+                    .collect(java.util.stream.Collectors.toList());
+            if (xlsMatchingService.isGroupMatch(pending, xlsNet)) {
+                pending.forEach(tx -> {
+                    tx.setPendingConfirmation(false);
+                    transactionRepository.save(tx);
+                    log.info("Group match: confirmed pending tx id={} type={} amount={} player={}",
+                            tx.getId(), tx.getType(), tx.getAmount(), tx.getPlayer().getUsername());
+                });
+                // Delete any XLS_UNMATCHED entries created for this player in this upload
+                if (reportId != null) {
+                    transactionRepository.findByReportId(reportId).stream()
+                            .filter(tx -> tx.getPlayer().getId().equals(playerId)
+                                    && Boolean.TRUE.equals(tx.getPendingConfirmation()))
+                            .forEach(transactionRepository::delete);
+                }
+            }
         }
 
         if (!wheelWarnings.isEmpty()) {
