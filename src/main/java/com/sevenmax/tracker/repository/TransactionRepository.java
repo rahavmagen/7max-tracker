@@ -46,4 +46,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query(value = "SELECT t.player_id, COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'WHEEL_EXPENSE' AND t.created_at > :since GROUP BY t.player_id", nativeQuery = true)
     List<Object[]> getWheelExpensesPerPlayerSince(@Param("since") LocalDateTime since);
+
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'DEPOSIT' AND (t.source_ref IS NULL OR t.source_ref NOT LIKE 'SCREEN:%')", nativeQuery = true)
+    BigDecimal sumAllBankDeposits();
+
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'DEPOSIT' AND t.source_ref = 'SCREEN:CREDIT'", nativeQuery = true)
+    BigDecimal sumAllCreditsGiven();
+
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'WITHDRAWAL' AND t.source_ref = 'SCREEN:CREDIT'", nativeQuery = true)
+    BigDecimal sumAllCreditWithdrawals();
+
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'DEPOSIT' AND (t.source_ref IS NULL OR t.source_ref NOT LIKE 'SCREEN:%') AND t.created_at >= :from AND t.created_at < :to", nativeQuery = true)
+    BigDecimal sumBankDepositsBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'DEPOSIT' AND t.source_ref = 'SCREEN:CREDIT' AND t.created_at >= :from AND t.created_at < :to", nativeQuery = true)
+    BigDecimal sumCreditsGivenBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = 'WITHDRAWAL' AND t.source_ref = 'SCREEN:CREDIT' AND t.created_at >= :from AND t.created_at < :to", nativeQuery = true)
+    BigDecimal sumCreditWithdrawalsBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 }

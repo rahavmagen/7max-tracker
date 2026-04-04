@@ -3,6 +3,7 @@ package com.sevenmax.tracker.controller;
 import com.sevenmax.tracker.entity.GameResult;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Report;
+import com.sevenmax.tracker.repository.AdminExpenseRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.GameSessionRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
@@ -46,6 +47,7 @@ public class ReportController {
     private final ImportSummaryRepository importSummaryRepository;
     private final TransactionRepository transactionRepository;
     private final PlayerRepository playerRepository;
+    private final AdminExpenseRepository adminExpenseRepository;
 
     @PostMapping("/upload")
     public ResponseEntity<?> uploadReport(
@@ -412,6 +414,93 @@ public class ReportController {
                 importSummaryRepository.save(summary);
             });
         return ResponseEntity.ok(Map.of("updated", updated, "skipped", skipped, "failed", failed));
+    }
+
+    @GetMapping("/balance-sheet")
+    public ResponseEntity<Map<String, Object>> balanceSheet(
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to,
+            Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+
+        Map<String, Object> result = new LinkedHashMap<>();
+
+        // --- SNAPSHOT ---
+        java.math.BigDecimal bankDeposits = transactionRepository.sumAllBankDeposits();
+        java.math.BigDecimal creditsGiven = transactionRepository.sumAllCreditsGiven();
+        java.math.BigDecimal creditWithdrawals = transactionRepository.sumAllCreditWithdrawals();
+        java.math.BigDecimal openCredits = creditsGiven.subtract(creditWithdrawals);
+
+        List<Report> allReports = reportRepository.findAll();
+        java.util.Optional<Report> latestReport = allReports.stream()
+            .filter(r -> r.getPeriodEnd() != null && r.getChipsTotal() != null)
+            .max(java.util.Comparator.comparing(Report::getPeriodEnd));
+
+        java.math.BigDecimal activeChips = latestReport.map(Report::getChipsTotal).orElse(java.math.BigDecimal.ZERO);
+        String chipsAsOf = latestReport.map(r -> r.getPeriodEnd().toString()).orElse(null);
+
+        java.math.BigDecimal grossRake = bankDeposits.add(openCredits).subtract(activeChips);
+        java.math.BigDecimal totalExpenses = adminExpenseRepository.sumAllExpenses();
+        java.math.BigDecimal snapshotNetProfit = grossRake.subtract(totalExpenses);
+
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("bankDeposits", bankDeposits);
+        snapshot.put("openCredits", openCredits);
+        snapshot.put("activeChips", activeChips);
+        snapshot.put("chipsAsOf", chipsAsOf);
+        snapshot.put("grossRake", grossRake);
+        snapshot.put("totalExpenses", totalExpenses);
+        snapshot.put("netProfit", snapshotNetProfit);
+        result.put("snapshot", snapshot);
+
+        // --- PERIOD ---
+        if (from != null && to != null) {
+            java.time.LocalDate fromDate = java.time.LocalDate.parse(from);
+            java.time.LocalDate toDate = java.time.LocalDate.parse(to);
+            java.time.LocalDateTime fromDt = fromDate.atStartOfDay();
+            java.time.LocalDateTime toDt = toDate.plusDays(1).atStartOfDay();
+
+            java.math.BigDecimal deposits = transactionRepository.sumBankDepositsBetween(fromDt, toDt);
+            java.math.BigDecimal creditsGivenPeriod = transactionRepository.sumCreditsGivenBetween(fromDt, toDt);
+            java.math.BigDecimal creditWithdrawalsPeriod = transactionRepository.sumCreditWithdrawalsBetween(fromDt, toDt);
+            java.math.BigDecimal netCreditChange = creditsGivenPeriod.subtract(creditWithdrawalsPeriod);
+
+            java.util.Optional<Report> startReport = allReports.stream()
+                .filter(r -> r.getPeriodEnd() != null && r.getChipsTotal() != null && !r.getPeriodEnd().isAfter(fromDate))
+                .max(java.util.Comparator.comparing(Report::getPeriodEnd));
+            java.util.Optional<Report> endReport = allReports.stream()
+                .filter(r -> r.getPeriodEnd() != null && r.getChipsTotal() != null && !r.getPeriodEnd().isAfter(toDate))
+                .max(java.util.Comparator.comparing(Report::getPeriodEnd));
+
+            java.math.BigDecimal chipsStart = startReport.map(Report::getChipsTotal).orElse(java.math.BigDecimal.ZERO);
+            String chipsStartDate = startReport.map(r -> r.getPeriodEnd().toString()).orElse(null);
+            java.math.BigDecimal chipsEnd = endReport.map(Report::getChipsTotal).orElse(java.math.BigDecimal.ZERO);
+            String chipsEndDate = endReport.map(r -> r.getPeriodEnd().toString()).orElse(null);
+
+            java.math.BigDecimal chipDelta = chipsEnd.subtract(chipsStart);
+            java.math.BigDecimal periodRake = deposits.add(netCreditChange).subtract(chipDelta);
+            java.math.BigDecimal periodExpenses = adminExpenseRepository.sumExpensesBetween(fromDate, toDate);
+            java.math.BigDecimal periodNetProfit = periodRake.subtract(periodExpenses);
+
+            Map<String, Object> period = new LinkedHashMap<>();
+            period.put("from", from);
+            period.put("to", to);
+            period.put("deposits", deposits);
+            period.put("netCreditChange", netCreditChange);
+            period.put("chipsStart", chipsStart);
+            period.put("chipsStartDate", chipsStartDate);
+            period.put("chipsEnd", chipsEnd);
+            period.put("chipsEndDate", chipsEndDate);
+            period.put("chipDelta", chipDelta);
+            period.put("periodRake", periodRake);
+            period.put("expenses", periodExpenses);
+            period.put("netProfit", periodNetProfit);
+            result.put("period", period);
+        } else {
+            result.put("period", null);
+        }
+
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}/download")
