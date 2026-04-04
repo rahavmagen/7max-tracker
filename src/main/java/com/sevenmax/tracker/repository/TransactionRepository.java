@@ -18,6 +18,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("SELECT t FROM Transaction t WHERE t.type IN :types AND t.createdAt >= :since ORDER BY t.createdAt DESC")
     List<Transaction> findRecentByTypes(@Param("types") List<Transaction.Type> types, @Param("since") LocalDateTime since);
 
+    @Query("SELECT t FROM Transaction t WHERE t.createdAt >= :from AND t.createdAt < :to ORDER BY t.createdAt DESC")
+    List<Transaction> findAllBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
     List<Transaction> findByPendingConfirmationTrueOrderByCreatedAtDesc();
     List<Transaction> findByPlayerIdAndPendingConfirmationTrue(Long playerId);
     Optional<Transaction> findFirstByPlayerIdAndAmountAndPendingConfirmationTrue(Long playerId, BigDecimal amount);

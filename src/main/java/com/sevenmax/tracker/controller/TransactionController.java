@@ -75,6 +75,18 @@ public class TransactionController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/range")
+    public List<Map<String, Object>> getRange(
+            @RequestParam String from,
+            @RequestParam String to) {
+        LocalDateTime fromDt = LocalDate.parse(from).atStartOfDay();
+        LocalDateTime toDt = LocalDate.parse(to).plusDays(1).atStartOfDay();
+        return transactionRepository.findAllBetween(fromDt, toDt).stream()
+                .filter(tx -> tx.getSourceRef() == null || !tx.getSourceRef().startsWith("TRANSFER:"))
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
     private Map<String, Object> toDto(Transaction tx) {
         Map<String, Object> m = new HashMap<>();
         m.put("id", tx.getId());
