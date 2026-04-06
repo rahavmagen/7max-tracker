@@ -108,6 +108,11 @@ public class PlayerService {
     public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername, boolean noChipChange) {
         Player player = getPlayer(id);
         BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
+        if (newCredit.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                "Credit cannot go negative. Current: " + player.getCreditTotal() + ", delta: " + delta + ", result would be: " + newCredit
+            );
+        }
         BigDecimal currentChips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
         player.setCreditTotal(newCredit);
         player.setBalance(currentChips.subtract(newCredit));

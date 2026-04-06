@@ -114,7 +114,11 @@ public class PlayerController {
         String notes = (body.get("notes") != null) ? body.get("notes").toString() : null;
         boolean noChipChange = Boolean.TRUE.equals(body.get("noChipChange"));
         String username = auth != null ? auth.getName() : null;
-        return ResponseEntity.ok(playerService.updateCredit(id, amount, notes, username, noChipChange));
+        try {
+            return ResponseEntity.ok(playerService.updateCredit(id, amount, notes, username, noChipChange));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/{id}/wheel-expense")
