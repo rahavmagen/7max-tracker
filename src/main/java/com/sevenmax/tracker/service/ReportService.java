@@ -351,7 +351,16 @@ public class ReportService {
             boolean isWheelExpense = false;
             boolean pendingWheelWarning = false;
             BigDecimal pendingWheelMttCost = null;
-            if (tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
+            // Prize payout: positive "Send Chips" where amount matches the player's MTT result for that day
+            if (tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) > 0) {
+                BigDecimal prize = getMttPrize(txDate, player.getId());
+                if (prize != null && amount.compareTo(prize) == 0) {
+                    isWheelExpense = true;
+                    log.info("Wheel expense (prize payout) detected: player={} amount={} matches MTT prize on {}", player.getUsername(), amount, txDate);
+                }
+            }
+
+            if (!isWheelExpense && tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
                 log.info("[WHEEL-DEBUG] Send Chips negative: player={} playerId={} amount={} date={} sourceRef={}",
                         player.getUsername(), player.getId(), amount, txDate, sourceRef);
                 BigDecimal mttCost = getNightlyMttCost(txDate, player.getId());
@@ -698,6 +707,33 @@ public class ReportService {
                     })
                     .findFirst();
             if (cost.isPresent()) return cost.get();
+        }
+        return null;
+    }
+
+    // Returns the player's MTT prize (result_amount) from any MTT session on that date (full day).
+    // Used to detect prize payouts that should be classified as WHEEL_EXPENSE.
+    private BigDecimal getMttPrize(LocalDate date, Long playerId) {
+        LocalDateTime dayStart = date.atStartOfDay();
+        LocalDateTime dayEnd = date.atTime(23, 59, 59);
+        List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
+                GameSession.GameType.MTT, dayStart, dayEnd);
+        // Also check previous day (prize may be paid the day after the tournament)
+        if (sessions.isEmpty()) {
+            sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
+                    GameSession.GameType.MTT, date.minusDays(1).atStartOfDay(), date.minusDays(1).atTime(23, 59, 59));
+        }
+        for (GameSession session : sessions) {
+            List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
+            Optional<BigDecimal> prize = results.stream()
+                    .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId)
+                            && r.getResultAmount() != null && r.getResultAmount().compareTo(BigDecimal.ZERO) > 0)
+                    .map(GameResult::getResultAmount)
+                    .findFirst();
+            if (prize.isPresent()) {
+                log.info("[WHEEL-DEBUG] getMttPrize: player={} date={} session={} prize={}", playerId, date, session.getId(), prize.get());
+                return prize.get();
+            }
         }
         return null;
     }
