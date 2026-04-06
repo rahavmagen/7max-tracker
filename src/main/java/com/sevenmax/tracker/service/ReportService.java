@@ -563,6 +563,28 @@ public class ReportService {
                             .forEach(transactionRepository::delete);
                 }
             }
+
+            // Also try to confirm unconfirmed PlayerTransfers by group match.
+            // Payers appear as "Claim Chips" in the XLS → xlsNet is negative for net payers.
+            // If abs(xlsNet) equals the sum of all pending FROM-transfers for this player, confirm them all.
+            List<com.sevenmax.tracker.entity.PlayerTransfer> pendingFromTransfers =
+                    playerTransferRepository.findByFromPlayerIdAndConfirmedFalse(playerId);
+            if (!pendingFromTransfers.isEmpty()) {
+                BigDecimal fromSum = pendingFromTransfers.stream()
+                        .map(com.sevenmax.tracker.entity.PlayerTransfer::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (fromSum.compareTo(xlsNet.abs()) == 0) {
+                    pendingFromTransfers.forEach(pt -> {
+                        pt.setConfirmed(true);
+                        playerTransferRepository.save(pt);
+                        log.info("Group match: confirmed pending PlayerTransfer id={} from={} to={} amount={}",
+                                pt.getId(),
+                                pt.getFromPlayer() != null ? pt.getFromPlayer().getUsername() : "?",
+                                pt.getToPlayer() != null ? pt.getToPlayer().getUsername() : "?",
+                                pt.getAmount());
+                    });
+                }
+            }
         }
 
         if (!wheelWarnings.isEmpty()) {
