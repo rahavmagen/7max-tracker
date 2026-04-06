@@ -589,6 +589,20 @@ public class ReportService {
                                 pt.getFromPlayer() != null ? pt.getFromPlayer().getUsername() : "?",
                                 pt.getToPlayer() != null ? pt.getToPlayer().getUsername() : "?",
                                 pt.getAmount());
+                        // Delete XLS Unmatched entry for the TO player (receiving side of transfer)
+                        if (pt.getToPlayer() != null && reportId != null) {
+                            Long toPlayerId = pt.getToPlayer().getId();
+                            BigDecimal transferAmt = pt.getAmount();
+                            transactionRepository.findByReportId(reportId).stream()
+                                    .filter(tx -> tx.getPlayer().getId().equals(toPlayerId)
+                                            && tx.getAmount().compareTo(transferAmt) == 0
+                                            && Boolean.TRUE.equals(tx.getPendingConfirmation()))
+                                    .forEach(tx -> {
+                                        transactionRepository.delete(tx);
+                                        log.info("Group match: deleted TO-side XLS Unmatched tx id={} for player={} amount={}",
+                                                tx.getId(), pt.getToPlayer().getUsername(), transferAmt);
+                                    });
+                        }
                     });
                     // Also clear any pending TRADE-sourced transactions for this player
                     // (the XLS Unmatched entry created by a previous or current upload)
