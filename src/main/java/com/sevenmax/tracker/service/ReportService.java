@@ -351,12 +351,14 @@ public class ReportService {
             boolean isWheelExpense = false;
             boolean pendingWheelWarning = false;
             BigDecimal pendingWheelMttCost = null;
-            // Prize payout: positive "Send Chips" where amount matches the player's MTT result for that day
+            // Wheel promotion: club sends chips = cost of nightly main entry back to one lucky player.
+            // Detect by comparing positive "Send Chips" against the minimum buy-in of the nightly main.
             if (tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) > 0) {
-                BigDecimal prize = getMttPrize(txDate, player.getId());
-                if (prize != null && amount.compareTo(prize) == 0) {
+                BigDecimal mainCost = getNightlyMainEntryCost(txDate);
+                log.info("[WHEEL-DEBUG] Positive Send Chips: player={} amount={} nightlyMainCost={}", player.getUsername(), amount, mainCost);
+                if (mainCost != null && amount.compareTo(mainCost) == 0) {
                     isWheelExpense = true;
-                    log.info("Wheel expense (prize payout) detected: player={} amount={} matches MTT prize on {}", player.getUsername(), amount, txDate);
+                    log.info("Wheel expense (promotion refund) detected: player={} amount={} matches nightly main entry cost on {}", player.getUsername(), amount, txDate);
                 }
             }
 
@@ -712,29 +714,28 @@ public class ReportService {
     }
 
     // Returns the player's MTT prize (result_amount) from any MTT session on that date (full day).
-    // Used to detect prize payouts that should be classified as WHEEL_EXPENSE.
-    private BigDecimal getMttPrize(LocalDate date, Long playerId) {
-        LocalDateTime dayStart = date.atStartOfDay();
-        LocalDateTime dayEnd = date.atTime(23, 59, 59);
-        List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
-                GameSession.GameType.MTT, dayStart, dayEnd);
-        // Also check previous day (prize may be paid the day after the tournament)
-        if (sessions.isEmpty()) {
-            sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
-                    GameSession.GameType.MTT, date.minusDays(1).atStartOfDay(), date.minusDays(1).atTime(23, 59, 59));
-        }
-        for (GameSession session : sessions) {
-            List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
-            Optional<BigDecimal> prize = results.stream()
-                    .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId)
-                            && r.getResultAmount() != null && r.getResultAmount().compareTo(BigDecimal.ZERO) > 0)
-                    .map(GameResult::getResultAmount)
-                    .findFirst();
-            if (prize.isPresent()) {
-                log.info("[WHEEL-DEBUG] getMttPrize: player={} date={} session={} prize={}", playerId, date, session.getId(), prize.get());
-                return prize.get();
+    // Returns the standard entry cost of the nightly main MTT (minimum buy-in = one ticket price).
+    // Used to detect wheel promotion: one player per night gets their entry fee refunded as chips.
+    // Checks the evening window (19:30-23:59) on txDate, then the previous day if not found.
+    private BigDecimal getNightlyMainEntryCost(LocalDate date) {
+        for (LocalDate d : new LocalDate[]{date, date.minusDays(1)}) {
+            LocalDateTime windowStart = d.atTime(19, 30);
+            LocalDateTime windowEnd = d.atTime(23, 59);
+            List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
+                    GameSession.GameType.MTT, windowStart, windowEnd);
+            for (GameSession session : sessions) {
+                List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
+                Optional<BigDecimal> minBuyIn = results.stream()
+                        .map(GameResult::getBuyIn)
+                        .filter(b -> b != null && b.compareTo(BigDecimal.ZERO) > 0)
+                        .min(BigDecimal::compareTo);
+                if (minBuyIn.isPresent()) {
+                    log.info("[WHEEL-DEBUG] getNightlyMainEntryCost: date={} session={} minBuyIn={}", d, session.getId(), minBuyIn.get());
+                    return minBuyIn.get();
+                }
             }
         }
+        log.info("[WHEEL-DEBUG] getNightlyMainEntryCost: date={} — no nightly main found", date);
         return null;
     }
 
