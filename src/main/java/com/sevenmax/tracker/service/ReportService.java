@@ -584,6 +584,23 @@ public class ReportService {
                                 pt.getToPlayer() != null ? pt.getToPlayer().getUsername() : "?",
                                 pt.getAmount());
                     });
+                    // Also clear any pending TRADE-sourced transactions for this player
+                    // (the XLS Unmatched entry created by a previous or current upload)
+                    transactionRepository.findByPlayerIdAndPendingConfirmationTrue(playerId).stream()
+                            .filter(tx -> tx.getSourceRef() != null && tx.getSourceRef().startsWith("TRADE:"))
+                            .forEach(tx -> {
+                                tx.setPendingConfirmation(false);
+                                transactionRepository.save(tx);
+                                log.info("Group match (transfer): cleared pending XLS tx id={} amount={} for player={}",
+                                        tx.getId(), tx.getAmount(), playerId);
+                            });
+                    // Also delete any NEW XLS_UNMATCHED entries for this player from this upload
+                    if (reportId != null) {
+                        transactionRepository.findByReportId(reportId).stream()
+                                .filter(tx -> tx.getPlayer().getId().equals(playerId)
+                                        && Boolean.TRUE.equals(tx.getPendingConfirmation()))
+                                .forEach(transactionRepository::delete);
+                    }
                 }
             }
         }
