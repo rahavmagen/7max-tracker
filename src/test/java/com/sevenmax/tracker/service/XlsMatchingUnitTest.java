@@ -43,9 +43,9 @@ class XlsMatchingUnitTest {
 
     @Test
     void scenario4_transfer_payerSide() {
-        // Transfer A→B: payer A gets REPAYMENT, XLS Send Chips +1000 to A, xls_net = +1000
+        // Transfer A→B: payer A gets PAYMENT, XLS Send Chips +1000 to A, xls_net = +1000
         assertThat(service.isGroupMatch(
-                List.of(tx(Transaction.Type.REPAYMENT, 1000)),
+                List.of(tx(Transaction.Type.PAYMENT, 1000)),
                 BigDecimal.valueOf(1000)
         )).isTrue();
     }

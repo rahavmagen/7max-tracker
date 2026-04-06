@@ -50,11 +50,17 @@ public class SchemaMigration {
             );
             jdbcTemplate.execute(
                 "ALTER TABLE transactions ADD CONSTRAINT transactions_type_check " +
-                "CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'REPAYMENT', 'WHEEL_EXPENSE'))"
+                "CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'PAYMENT', 'WHEEL_EXPENSE'))"
             );
             log.info("SchemaMigration: transactions type constraint updated");
         } catch (Exception e) {
             log.warn("SchemaMigration: could not update transactions constraint: {}", e.getMessage());
+        }
+        try {
+            int updated = jdbcTemplate.update("UPDATE transactions SET type = 'PAYMENT' WHERE type = 'REPAYMENT'");
+            if (updated > 0) log.info("SchemaMigration: renamed {} REPAYMENT → PAYMENT rows", updated);
+        } catch (Exception e) {
+            log.warn("SchemaMigration: could not rename REPAYMENT rows: {}", e.getMessage());
         }
     }
 }

@@ -21,9 +21,9 @@ public class TransactionService {
     public Transaction addTransaction(Transaction transaction) {
         Player player = transaction.getPlayer();
 
-        // DEPOSIT and REPAYMENT (cashout) add to balance; everything else subtracts
+        // DEPOSIT and PAYMENT (cashout) add to balance; everything else subtracts
         boolean isCredit = transaction.getType() == Transaction.Type.DEPOSIT
-                || transaction.getType() == Transaction.Type.REPAYMENT;
+                || transaction.getType() == Transaction.Type.PAYMENT;
         BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
 
         player.setBalance(player.getBalance().add(delta));
@@ -37,7 +37,7 @@ public class TransactionService {
         Transaction tx = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
         BigDecimal diff = newAmount.subtract(tx.getAmount());
-        boolean adds = tx.getType() == Transaction.Type.DEPOSIT || tx.getType() == Transaction.Type.REPAYMENT;
+        boolean adds = tx.getType() == Transaction.Type.DEPOSIT || tx.getType() == Transaction.Type.PAYMENT;
         Player player = tx.getPlayer();
         player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
         playerRepository.save(player);

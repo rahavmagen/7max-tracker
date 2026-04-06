@@ -66,11 +66,11 @@ public class PlayerTransferService {
         String toLabel = toPlayer != null ? toPlayer.getUsername() : (toBankAccount != null ? toBankAccount.getName() : "CLUB");
         String fromLabel = fromPlayer != null ? fromPlayer.getUsername() : (fromBankAccount != null ? fromBankAccount.getName() : "CLUB");
 
-        // FROM player transfers → REPAYMENT → balance increases (debt reduces toward 0)
+        // FROM player transfers → PAYMENT → balance increases (debt reduces toward 0)
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(fromPlayer);
-            tx.setType(Transaction.Type.REPAYMENT);
+            tx.setType(Transaction.Type.PAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
             tx.setNotes("Transfer to " + toLabel + (notes != null ? " - " + notes : ""));
@@ -134,11 +134,11 @@ public class PlayerTransferService {
             toPlayer != null ? toPlayer.getBalance() : "null",
             amount);
 
-        // Payer → REPAYMENT → balance increases toward 0 (debt cleared)
+        // Payer → PAYMENT → balance increases toward 0 (debt cleared)
         if (fromPlayer != null) {
             Transaction tx = new Transaction();
             tx.setPlayer(fromPlayer);
-            tx.setType(Transaction.Type.REPAYMENT);
+            tx.setType(Transaction.Type.PAYMENT);
             tx.setAmount(amount);
             tx.setMethod(method);
             tx.setNotes("Payment to " + (toPlayer != null ? toPlayer.getUsername() : "CLUB") + (notes != null ? " - " + notes : ""));

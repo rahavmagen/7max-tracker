@@ -23,7 +23,7 @@ public class XlsMatchingService {
      * Computes expected net chip change from a list of pending transactions.
      * Each type has a known chip impact on the XLS Trade Record:
      *   DEPOSIT   → club sends chips to player       → +amount
-     *   REPAYMENT → payer got cash, club sends chips → +amount
+     *   PAYMENT → payer got cash, club sends chips → +amount
      *   WITHDRAWAL → club claims chips from player   → -amount
      *   CREDIT    → receiver got cash, chips claimed → -amount
      *   WHEEL_EXPENSE → nightly cost, chips claimed  → -amount
@@ -37,7 +37,7 @@ public class XlsMatchingService {
     private BigDecimal chipDelta(Transaction tx) {
         return switch (tx.getType()) {
             case DEPOSIT    -> tx.getAmount();
-            case REPAYMENT  -> tx.getAmount();
+            case PAYMENT  -> tx.getAmount();
             case WITHDRAWAL -> tx.getAmount().negate();
             case CREDIT     -> tx.getAmount().negate();
             case WHEEL_EXPENSE -> tx.getAmount().negate();

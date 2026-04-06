@@ -247,7 +247,7 @@ public class ReportService {
             // Parse מעקב קרדיטים → update player creditTotal if sheet exists
             parseCreditSheet(workbook);
 
-            // Parse Trade Record → create CREDIT/REPAYMENT transactions (skip already-imported)
+            // Parse Trade Record → create CREDIT/PAYMENT transactions (skip already-imported)
             parseTradeRecord(workbook, report);
 
             // Backfill AdminExpense for any WHEEL_EXPENSE transaction that doesn't have one yet
@@ -509,8 +509,8 @@ public class ReportService {
 
             // Check for a cancelling XLS_UNMATCHED pair (Got Chips + Reduce Chips, same player, same amount)
             if (!isWheelExpense) {
-                Transaction.Type newType = tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT;
-                Transaction.Type oppositeType = tradeType.equals("Send Chips") ? Transaction.Type.REPAYMENT : Transaction.Type.CREDIT;
+                Transaction.Type newType = tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.PAYMENT;
+                Transaction.Type oppositeType = tradeType.equals("Send Chips") ? Transaction.Type.PAYMENT : Transaction.Type.CREDIT;
                 var cancelMatch = transactionRepository.findFirstByPlayerIdAndAmountAndTypeAndPendingConfirmationTrue(player.getId(), amount, oppositeType);
                 if (cancelMatch.isPresent() && cancelMatch.get().getSourceRef() != null && cancelMatch.get().getSourceRef().startsWith("TRADE:")) {
                     transactionRepository.delete(cancelMatch.get());
@@ -526,7 +526,7 @@ public class ReportService {
                 tx.setNotes("Trade Record: Wheel Expense (Send Chips negative)");
                 log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
             } else {
-                tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.REPAYMENT);
+                tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.PAYMENT);
                 // "Send Chips" = player got chips; "Claim Chips" = club took chips back
                 tx.setNotes(tradeType.equals("Send Chips") ? "Got Chips" : "Reduce Chips");
                 tx.setPendingConfirmation(true); // unmatched — admin must review
@@ -1158,7 +1158,7 @@ public class ReportService {
         List<Transaction> tradeTxs = transactionRepository.findByReportId(reportId);
         for (Transaction tx : tradeTxs) {
             Player player = tx.getPlayer();
-            boolean added = tx.getType() == Transaction.Type.DEPOSIT || tx.getType() == Transaction.Type.REPAYMENT;
+            boolean added = tx.getType() == Transaction.Type.DEPOSIT || tx.getType() == Transaction.Type.PAYMENT;
             player.setBalance(player.getBalance().add(added ? tx.getAmount().negate() : tx.getAmount()));
             playerRepository.save(player);
         }
