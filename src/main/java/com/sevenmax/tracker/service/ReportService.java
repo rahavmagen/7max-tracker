@@ -549,6 +549,9 @@ public class ReportService {
                     .stream()
                     .filter(tx -> tx.getSourceRef() == null || !tx.getSourceRef().startsWith("TRADE:"))
                     .collect(java.util.stream.Collectors.toList());
+            BigDecimal expectedDelta = xlsMatchingService.expectedChipDelta(pending);
+            log.info("Group match attempt: playerId={} xlsNet={} pendingTxCount={} expectedDelta={}",
+                    playerId, xlsNet, pending.size(), expectedDelta);
             if (xlsMatchingService.isGroupMatch(pending, xlsNet)) {
                 pending.forEach(tx -> {
                     tx.setPendingConfirmation(false);
@@ -574,6 +577,9 @@ public class ReportService {
                 BigDecimal fromSum = pendingFromTransfers.stream()
                         .map(com.sevenmax.tracker.entity.PlayerTransfer::getAmount)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
+                log.info("Transfer group match attempt: playerId={} xlsNet={} fromTransferSum={} transferIds={}",
+                        playerId, xlsNet, fromSum,
+                        pendingFromTransfers.stream().map(pt -> pt.getId().toString()).collect(java.util.stream.Collectors.joining(",")));
                 if (fromSum.compareTo(xlsNet.abs()) == 0) {
                     pendingFromTransfers.forEach(pt -> {
                         pt.setConfirmed(true);
