@@ -104,9 +104,10 @@ public class ReportService {
             // Process balance entries: update chips (latest only), recover stale players (always)
             List<Map<String, String>> recovered = new java.util.ArrayList<>();
             for (Map.Entry<String, Object[]> entry : newChipsMap.entrySet()) {
-                String nickname = entry.getKey();
                 BigDecimal newChips = (BigDecimal) entry.getValue()[0];
                 String balanceClubId = (String) entry.getValue()[1];
+                String nickname = entry.getValue().length > 2 && entry.getValue()[2] != null
+                        ? (String) entry.getValue()[2] : entry.getKey();
 
                 Player player = null;
                 if (balanceClubId != null) {
@@ -713,7 +714,12 @@ public class ReportService {
                     clubId = digits.substring(0, 4) + "-" + digits.substring(4);
                 }
             }
-            map.put(nickname, new Object[]{chips, clubId});
+            String key = (clubId != null) ? clubId : nickname;
+            if (map.containsKey(key)) {
+                log.warn("parseClubMemberBalance: duplicate key '{}' for nickname='{}' — skipping second entry", key, nickname);
+                continue;
+            }
+            map.put(key, new Object[]{chips, clubId, nickname});
         }
         return map;
     }
