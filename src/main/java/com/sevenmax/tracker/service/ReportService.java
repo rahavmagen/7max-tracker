@@ -486,6 +486,7 @@ public class ReportService {
             }
 
             // AdminExpense for wheel — must run even if transaction was already imported
+            AdminExpense savedAdminExpense = null;
             if (isWheelExpense) {
                 String wheelExpenseRef = "WHEEL:" + sourceRef;
                 if (!adminExpenseRepository.existsBySourceRef(wheelExpenseRef)) {
@@ -496,7 +497,7 @@ public class ReportService {
                     exp.setExpenseDate(txDate);
                     exp.setCreatedBy("Import");
                     exp.setSourceRef(wheelExpenseRef);
-                    adminExpenseRepository.save(exp);
+                    savedAdminExpense = adminExpenseRepository.save(exp);
                     log.info("Created AdminExpense for wheel: player={} amount={} date={}", player.getUsername(), amount, txDate);
                 }
             }
@@ -568,6 +569,27 @@ public class ReportService {
 
             // Track wheel expenses saved so corrections can cancel them
             if (isWheelExpense) {
+                // Reverse Fix 1: if a Claim Chips "Reduce Chips" was already created this upload
+                // for the same player+amount before this wheel Send Chips, they cancel each other.
+                if (reportId != null) {
+                    Transaction priorClaimChips = null;
+                    for (Transaction t : transactionRepository.findByReportId(reportId)) {
+                        if (t.getPlayer().getId().equals(player.getId())
+                                && t.getAmount().compareTo(amount) == 0
+                                && t.getType() == Transaction.Type.PAYMENT
+                                && Boolean.TRUE.equals(t.getPendingConfirmation())) {
+                            priorClaimChips = t;
+                            break;
+                        }
+                    }
+                    if (priorClaimChips != null) {
+                        transactionRepository.delete(priorClaimChips);
+                        transactionRepository.delete(tx);
+                        if (savedAdminExpense != null) adminExpenseRepository.delete(savedAdminExpense);
+                        log.info("Reverse Fix 1: cancelled wheel Send Chips + prior Claim Chips for player={} amount={}", player.getUsername(), amount);
+                        continue;
+                    }
+                }
                 wheelExpensesSavedThisUpload.put(player.getId() + ":" + amount, tx);
             }
         }
@@ -584,8 +606,23 @@ public class ReportService {
             BigDecimal expectedDelta = xlsMatchingService.expectedChipDelta(pending);
             log.info("Group match attempt: playerId={} xlsNet={} pendingTxCount={} expectedDelta={}",
                     playerId, xlsNet, pending.size(), expectedDelta);
-            if (xlsMatchingService.isGroupMatch(pending, xlsNet)) {
-                pending.forEach(tx -> {
+
+            // First try single-transaction match: confirm just the one tx whose chip delta == xlsNet.
+            // This avoids incorrectly grouping transactions meant for different XLS uploads.
+            List<Transaction> toConfirm = pending;
+            if (pending.size() > 1) {
+                java.util.Optional<Transaction> singleMatch = pending.stream()
+                        .filter(tx -> xlsMatchingService.expectedChipDelta(java.util.List.of(tx)).compareTo(xlsNet) == 0)
+                        .findFirst();
+                if (singleMatch.isPresent()) {
+                    toConfirm = java.util.List.of(singleMatch.get());
+                    log.info("Single-tx match: playerId={} xlsNet={} matched tx id={} type={} amount={}",
+                            playerId, xlsNet, singleMatch.get().getId(), singleMatch.get().getType(), singleMatch.get().getAmount());
+                }
+            }
+
+            if (xlsMatchingService.isGroupMatch(toConfirm, xlsNet)) {
+                toConfirm.forEach(tx -> {
                     tx.setPendingConfirmation(false);
                     transactionRepository.save(tx);
                     log.info("Group match: confirmed pending tx id={} type={} amount={} player={}",
@@ -657,8 +694,9 @@ public class ReportService {
             }
         }
 
-        // Fix 2: Mixed group match — combine pending Transactions + pending FROM-transfers.
-        // Handles cases like: XLS shows +1000, player has Credit 500 pending + Transfer 500 pending = 1000.
+        // Fix 2: Mixed group match — combine pending Transactions + transfers (confirmed this upload OR still pending).
+        // Handles: XLS shows +1000, player has Credit 500 pending + Transfer 500.
+        // The transfer may already be confirmed if the TO player's XLS row was processed first.
         for (Map.Entry<Long, BigDecimal> entry : xlsNetByPlayer.entrySet()) {
             Long playerId = entry.getKey();
             BigDecimal xlsNet = entry.getValue();
@@ -667,21 +705,33 @@ public class ReportService {
                     .stream()
                     .filter(tx -> tx.getSourceRef() == null || !tx.getSourceRef().startsWith("TRADE:"))
                     .collect(java.util.stream.Collectors.toList());
+
+            if (pendingTx.isEmpty()) continue;
+
+            // Sum of transfers confirmed during this upload for this FROM player
+            String fromPrefix = "from:" + playerId + ":";
+            BigDecimal thisUploadTransferSum = confirmedTransferSides.stream()
+                    .filter(k -> k.startsWith(fromPrefix))
+                    .map(k -> { try { return new BigDecimal(k.substring(fromPrefix.length())); } catch (Exception e) { return BigDecimal.ZERO; } })
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            // Still-pending transfers from this player
             List<com.sevenmax.tracker.entity.PlayerTransfer> pendingTransfers =
                     playerTransferRepository.findByFromPlayerIdAndConfirmedFalse(playerId);
-
-            if (pendingTx.isEmpty() || pendingTransfers.isEmpty()) continue; // need both to be non-empty
-
-            BigDecimal txDelta = xlsMatchingService.expectedChipDelta(pendingTx);
-            BigDecimal transferSum = pendingTransfers.stream()
+            BigDecimal pendingTransferSum = pendingTransfers.stream()
                     .map(com.sevenmax.tracker.entity.PlayerTransfer::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-            log.info("Mixed group match attempt: playerId={} xlsNet={} txDelta={} transferSum={} combined={}",
-                    playerId, xlsNet, txDelta, transferSum, txDelta.add(transferSum.negate()));
+            BigDecimal transferSum = thisUploadTransferSum.add(pendingTransferSum);
+            if (transferSum.compareTo(BigDecimal.ZERO) == 0) continue;
 
-            // transferSum reduces chips (payer), so combined = txDelta - transferSum
-            if (txDelta.subtract(transferSum).compareTo(xlsNet) == 0) {
+            BigDecimal txDelta = xlsMatchingService.expectedChipDelta(pendingTx);
+
+            log.info("Mixed group match attempt: playerId={} xlsNet={} txDelta={} thisUploadTransferSum={} pendingTransferSum={} combined={}",
+                    playerId, xlsNet, txDelta, thisUploadTransferSum, pendingTransferSum, txDelta.add(transferSum));
+
+            // FROM player paid cash out → gets chips; both txDelta and transferSum are positive chip gains
+            if (txDelta.add(transferSum).compareTo(xlsNet) == 0) {
                 pendingTx.forEach(tx -> {
                     tx.setPendingConfirmation(false);
                     transactionRepository.save(tx);
