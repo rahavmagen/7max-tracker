@@ -302,6 +302,9 @@ public class ReportService {
         // Tracks "from:playerId:amount" and "to:playerId:amount" for transfers confirmed this upload
         // so the other XLS side of a confirmed transfer is not treated as unmatched.
         Set<String> confirmedTransferSides = new java.util.HashSet<>();
+        // Tracks wheel expense transactions saved this upload (key = "playerId:amount")
+        // so that a correction Claim Chips for the same player+amount can cancel it out
+        Map<String, Transaction> wheelExpensesSavedThisUpload = new java.util.LinkedHashMap<>();
         // Accumulates net chip delta per player for group-based pending confirmation
         Map<Long, BigDecimal> xlsNetByPlayer = new java.util.LinkedHashMap<>();
 
@@ -531,11 +534,24 @@ public class ReportService {
                 }
             }
 
+            // Fix 1: if this is a Claim Chips and there's a wheel expense saved this upload
+            // for the same player+amount — it's a correction, cancel both out
+            if (!isWheelExpense && tradeType.equals("Claim Chips")) {
+                String cancelKey = player.getId() + ":" + amount;
+                Transaction wheelTx = wheelExpensesSavedThisUpload.get(cancelKey);
+                if (wheelTx != null) {
+                    transactionRepository.delete(wheelTx);
+                    wheelExpensesSavedThisUpload.remove(cancelKey);
+                    log.info("Cancelled wheel expense correction: player={} amount={} — deleted wheel tx id={}", player.getUsername(), amount, wheelTx.getId());
+                    continue;
+                }
+            }
+
             Transaction tx = new Transaction();
             tx.setPlayer(player);
             if (isWheelExpense) {
                 tx.setType(Transaction.Type.WHEEL_EXPENSE);
-                tx.setNotes("Trade Record: Wheel Expense (Send Chips negative)");
+                tx.setNotes("Trade Record: Wheel Expense (promotion refund)");
                 log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
             } else {
                 tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.PAYMENT);
@@ -549,6 +565,11 @@ public class ReportService {
             tx.setCreatedByUsername("Import");
             tx.setReportId(reportId);
             transactionRepository.save(tx);
+
+            // Track wheel expenses saved so corrections can cancel them
+            if (isWheelExpense) {
+                wheelExpensesSavedThisUpload.put(player.getId() + ":" + amount, tx);
+            }
         }
 
         // Group-based pending confirmation: per player, compare xls_net to expected pending chip delta.
@@ -632,6 +653,61 @@ public class ReportService {
                                         && Boolean.TRUE.equals(tx.getPendingConfirmation()))
                                 .forEach(transactionRepository::delete);
                     }
+                }
+            }
+        }
+
+        // Fix 2: Mixed group match — combine pending Transactions + pending FROM-transfers.
+        // Handles cases like: XLS shows +1000, player has Credit 500 pending + Transfer 500 pending = 1000.
+        for (Map.Entry<Long, BigDecimal> entry : xlsNetByPlayer.entrySet()) {
+            Long playerId = entry.getKey();
+            BigDecimal xlsNet = entry.getValue();
+
+            List<Transaction> pendingTx = transactionRepository.findByPlayerIdAndPendingConfirmationTrue(playerId)
+                    .stream()
+                    .filter(tx -> tx.getSourceRef() == null || !tx.getSourceRef().startsWith("TRADE:"))
+                    .collect(java.util.stream.Collectors.toList());
+            List<com.sevenmax.tracker.entity.PlayerTransfer> pendingTransfers =
+                    playerTransferRepository.findByFromPlayerIdAndConfirmedFalse(playerId);
+
+            if (pendingTx.isEmpty() || pendingTransfers.isEmpty()) continue; // need both to be non-empty
+
+            BigDecimal txDelta = xlsMatchingService.expectedChipDelta(pendingTx);
+            BigDecimal transferSum = pendingTransfers.stream()
+                    .map(com.sevenmax.tracker.entity.PlayerTransfer::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            log.info("Mixed group match attempt: playerId={} xlsNet={} txDelta={} transferSum={} combined={}",
+                    playerId, xlsNet, txDelta, transferSum, txDelta.add(transferSum.negate()));
+
+            // transferSum reduces chips (payer), so combined = txDelta - transferSum
+            if (txDelta.subtract(transferSum).compareTo(xlsNet) == 0) {
+                pendingTx.forEach(tx -> {
+                    tx.setPendingConfirmation(false);
+                    transactionRepository.save(tx);
+                    log.info("Mixed group match: confirmed tx id={} type={} amount={} player={}", tx.getId(), tx.getType(), tx.getAmount(), playerId);
+                });
+                pendingTransfers.forEach(pt -> {
+                    pt.setConfirmed(true);
+                    playerTransferRepository.save(pt);
+                    log.info("Mixed group match: confirmed transfer id={} from={} to={} amount={}", pt.getId(),
+                            pt.getFromPlayer() != null ? pt.getFromPlayer().getUsername() : "?",
+                            pt.getToPlayer() != null ? pt.getToPlayer().getUsername() : "?", pt.getAmount());
+                    // Delete TO-side XLS Unmatched if present
+                    if (pt.getToPlayer() != null && reportId != null) {
+                        transactionRepository.findByReportId(reportId).stream()
+                                .filter(tx -> tx.getPlayer().getId().equals(pt.getToPlayer().getId())
+                                        && tx.getAmount().compareTo(pt.getAmount()) == 0
+                                        && Boolean.TRUE.equals(tx.getPendingConfirmation()))
+                                .forEach(transactionRepository::delete);
+                    }
+                });
+                // Delete XLS Unmatched entries for this player from this upload
+                if (reportId != null) {
+                    transactionRepository.findByReportId(reportId).stream()
+                            .filter(tx -> tx.getPlayer().getId().equals(playerId)
+                                    && Boolean.TRUE.equals(tx.getPendingConfirmation()))
+                            .forEach(transactionRepository::delete);
                 }
             }
         }
