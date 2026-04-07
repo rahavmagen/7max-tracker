@@ -20,14 +20,17 @@ public class TransactionService {
     @Transactional
     public Transaction addTransaction(Transaction transaction) {
         Player player = transaction.getPlayer();
+        Transaction.Type type = transaction.getType();
 
-        // DEPOSIT and PAYMENT (cashout) add to balance; everything else subtracts
-        boolean isCredit = transaction.getType() == Transaction.Type.DEPOSIT
-                || transaction.getType() == Transaction.Type.PAYMENT;
-        BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
-
-        player.setBalance(player.getBalance().add(delta));
-        playerRepository.save(player);
+        // CHIP_PROMO: documentation only, no balance change
+        if (type != Transaction.Type.CHIP_PROMO) {
+            boolean isCredit = type == Transaction.Type.DEPOSIT
+                    || type == Transaction.Type.PAYMENT
+                    || type == Transaction.Type.PROMOTION;
+            BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
+            player.setBalance(player.getBalance().add(delta));
+            playerRepository.save(player);
+        }
 
         return transactionRepository.save(transaction);
     }
@@ -36,11 +39,18 @@ public class TransactionService {
     public Transaction updateTransaction(Long id, BigDecimal newAmount, String newNotes) {
         Transaction tx = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
-        BigDecimal diff = newAmount.subtract(tx.getAmount());
-        boolean adds = tx.getType() == Transaction.Type.DEPOSIT || tx.getType() == Transaction.Type.PAYMENT;
-        Player player = tx.getPlayer();
-        player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
-        playerRepository.save(player);
+
+        // CHIP_PROMO: no balance effect, just update amount/notes
+        if (tx.getType() != Transaction.Type.CHIP_PROMO) {
+            BigDecimal diff = newAmount.subtract(tx.getAmount());
+            boolean adds = tx.getType() == Transaction.Type.DEPOSIT
+                    || tx.getType() == Transaction.Type.PAYMENT
+                    || tx.getType() == Transaction.Type.PROMOTION;
+            Player player = tx.getPlayer();
+            player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
+            playerRepository.save(player);
+        }
+
         tx.setAmount(newAmount);
         if (newNotes != null) tx.setNotes(newNotes);
         return transactionRepository.save(tx);
