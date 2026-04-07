@@ -32,4 +32,8 @@ public class ImportSummary {
     private BigDecimal lastReportChipsTotal = BigDecimal.ZERO;
 
     private java.time.LocalDate lastReportDate; // periodEnd of latest uploaded report
+
+    // Computed live from PROMOTION transactions — not stored in DB
+    @Transient
+    private BigDecimal promotionsTotal = BigDecimal.ZERO;
 }
