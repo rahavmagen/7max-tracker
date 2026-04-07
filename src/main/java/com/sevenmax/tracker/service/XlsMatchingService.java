@@ -41,7 +41,8 @@ public class XlsMatchingService {
             case WITHDRAWAL    -> tx.getAmount().negate();
             case CREDIT        -> tx.getAmount().negate();
             case WHEEL_EXPENSE -> tx.getAmount().negate();
-            case CHIP_PROMO, PROMOTION -> BigDecimal.ZERO; // not XLS-matched
+            case CHIP_PROMO    -> tx.getAmount();   // club sends chips to player
+            case PROMOTION     -> BigDecimal.ZERO;  // write-off: not XLS-matched
         };
     }
 }

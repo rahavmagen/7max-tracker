@@ -661,126 +661,64 @@ Unconditional classes:
 
 
 
-:85) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at com.sevenmax.tracker.security.JwtFilter.doFilterInternal(JwtFilter.java:50) ~[classes/:na]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.5.8.jar:6.5.8]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319) ~[spring-security-config-6.5.8.jar:6.5.8]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267) ~[spring-webmvc-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240) ~[spring-security-config-6.5.8.jar:6.5.8]
-	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
-	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:88) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1775) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:973) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:491) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
-	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+2026-04-07T22:19:21.931+03:00  INFO 1984 --- [7max] [nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-07T22:19:21.931+03:00  INFO 1984 --- [7max] [nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-07T22:19:21.933+03:00  INFO 1984 --- [7max] [nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-04-07T22:26:50.366+03:00  INFO 1984 --- [7max] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (0 additions, 63 deletions, 0 modifications)
+2026-04-07T22:26:50.370+03:00  INFO 1984 --- [7max] [      Thread-11] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:26:50.376+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:26:50.376+03:00  INFO 1984 --- [7max] [      Thread-11] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:26:50.376+03:00  INFO 1984 --- [7max] [      Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-04-07T22:26:50.386+03:00  INFO 1984 --- [7max] [      Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
 
-2026-04-07T22:15:36.734+03:00  INFO 1984 --- [7max] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (0 additions, 63 deletions, 0 modifications)
-2026-04-07T22:15:36.744+03:00  INFO 1984 --- [7max] [Thread-5] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2026-04-07T22:15:36.760+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2026-04-07T22:15:36.772+03:00  INFO 1984 --- [7max] [Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-04-07T22:15:36.772+03:00  INFO 1984 --- [7max] [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-04-07T22:15:36.783+03:00  INFO 1984 --- [7max] [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-04-07T22:15:36.945+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
-2026-04-07T22:15:36.945+03:00 DEBUG 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
-2026-04-07T22:15:36.945+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
-2026-04-07T22:15:37.230+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-07T22:15:37.238+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2 ms. Found 0 JPA repository interfaces.
-2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
-2026-04-07T22:15:37.432+03:00  INFO 1984 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-04-07T22:15:37.432+03:00  INFO 1984 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 480 ms
-2026-04-07T22:15:37.488+03:00  INFO 1984 --- [7max] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-07T22:15:37.488+03:00  INFO 1984 --- [7max] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-04-07T22:15:37.504+03:00  INFO 1984 --- [7max] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-07T22:15:37.504+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
-2026-04-07T22:15:37.696+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@1d6aa9b2
-2026-04-07T22:15:37.697+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
-2026-04-07T22:15:37.727+03:00  WARN 1984 --- [7max] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-07T22:15:37.743+03:00  INFO 1984 --- [7max] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.11)
+
+2026-04-07T22:26:50.518+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T22:26:50.518+03:00 DEBUG 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T22:26:50.518+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T22:26:50.743+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T22:26:50.747+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2 ms. Found 0 JPA repository interfaces.
+2026-04-07T22:26:50.868+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T22:26:50.868+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T22:26:50.868+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T22:26:50.910+03:00  INFO 1984 --- [7max] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T22:26:50.910+03:00  INFO 1984 --- [7max] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 388 ms
+2026-04-07T22:26:50.960+03:00  INFO 1984 --- [7max] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T22:26:50.967+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T22:26:50.978+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T22:26:50.978+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-04-07T22:26:51.177+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection org.postgresql.jdbc.PgConnection@30bca085
+2026-04-07T22:26:51.177+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-04-07T22:26:51.188+03:00  WARN 1984 --- [7max] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T22:26:51.190+03:00  INFO 1984 --- [7max] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-4)']
 	Database driver: undefined/unknown
 	Database version: 16.13
 	Autocommit mode: undefined/unknown
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-04-07T22:15:37.777+03:00  INFO 1984 --- [7max] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-07T22:15:37.777+03:00  INFO 1984 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-07T22:15:37.806+03:00  WARN 1984 --- [7max] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-07T22:15:37.983+03:00  WARN 1984 --- [7max] [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+2026-04-07T22:26:51.220+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T22:26:51.221+03:00  INFO 1984 --- [7max] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:26:51.246+03:00  WARN 1984 --- [7max] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T22:26:51.460+03:00  WARN 1984 --- [7max] [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
 
-Using generated security password: f167dab6-39b0-4dce-911b-63d5bc6775c9
+Using generated security password: 1e1b7150-bef6-49fa-82ea-4853e30b9c9c
 
 This generated password is for development use only. Your security configuration must be updated before running your application in production.
 
-2026-04-07T22:15:37.986+03:00  INFO 1984 --- [7max] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-04-07T22:15:38.041+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2026-04-07T22:15:38.072+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
-2026-04-07T22:15:38.080+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Started Application in 1.198 seconds (process running for 3046.241)
-2026-04-07T22:15:38.087+03:00  INFO 1984 --- [7max] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+2026-04-07T22:26:51.460+03:00  INFO 1984 --- [7max] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T22:26:51.499+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T22:26:51.516+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T22:26:51.522+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Started Application in 1.043 seconds (process running for 3719.683)
+2026-04-07T22:26:51.522+03:00  INFO 1984 --- [7max] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
 
 
 ==========================
@@ -818,9 +756,305 @@ Unconditional classes:
 
 
 
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (63 additions, 0 deletions, 0 modifications)
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [      Thread-15] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [      Thread-15] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [      Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-04-07T22:26:57.089+03:00  INFO 1984 --- [7max] [      Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.11)
+
+2026-04-07T22:26:57.200+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T22:26:57.200+03:00 DEBUG 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T22:26:57.200+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T22:26:57.484+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T22:26:57.571+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 82 ms. Found 14 JPA repository interfaces.
+2026-04-07T22:26:57.776+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T22:26:57.776+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T22:26:57.776+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T22:26:57.819+03:00  INFO 1984 --- [7max] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T22:26:57.819+03:00  INFO 1984 --- [7max] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 610 ms
+2026-04-07T22:26:57.839+03:00 DEBUG 1984 --- [7max] [  restartedMain] c.sevenmax.tracker.security.JwtFilter    : Filter 'jwtFilter' configured for use
+2026-04-07T22:26:57.883+03:00  INFO 1984 --- [7max] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T22:26:57.883+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T22:26:57.900+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T22:26:57.900+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Starting...
+2026-04-07T22:26:58.097+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-5 - Added connection org.postgresql.jdbc.PgConnection@68e9fcac
+2026-04-07T22:26:58.097+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-5 - Start completed.
+2026-04-07T22:26:58.115+03:00  WARN 1984 --- [7max] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T22:26:58.118+03:00  INFO 1984 --- [7max] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-5)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-07T22:26:58.408+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T22:26:58.626+03:00  INFO 1984 --- [7max] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:26:58.740+03:00  INFO 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: import_summary table ensured
+2026-04-07T22:26:58.742+03:00  INFO 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: admin_expenses table ensured
+2026-04-07T22:26:58.776+03:00  WARN 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: could not update transactions constraint: StatementCallback; SQL [ALTER TABLE transactions ADD CONSTRAINT transactions_type_check CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'PAYMENT', 'WHEEL_EXPENSE'))]; ERROR: check constraint "transactions_type_check" of relation "transactions" is violated by some row
+2026-04-07T22:26:59.150+03:00  WARN 1984 --- [7max] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T22:26:59.249+03:00  WARN 1984 --- [7max] [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 4ad8cfc6-ac80-49df-a2f5-c72471bf66d6
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-07T22:26:59.258+03:00  INFO 1984 --- [7max] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T22:26:59.365+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T22:26:59.385+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T22:26:59.392+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Started Application in 2.213 seconds (process running for 3727.553)
+2026-04-07T22:27:00.052+03:00  INFO 1984 --- [7max] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+    None
+
+
+Negative matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration:
+      Did not match:
+         - AllNestedConditions 1 matched 1 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) found beans of type 'org.springframework.security.web.SecurityFilterChain' filterChain; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) found beans named springSecurityFilterChain (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+ionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+      - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+    None
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
 2026-04-07T22:15:43.653+03:00  INFO 1984 --- [7max] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (63 additions, 0 deletions, 0 modifications)
 2026-04-07T22:15:43.655+03:00  INFO 1984 --- [7max] [Thread-7] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
 2026-04-07T22:15:43.663+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
 2026-04-07T22:15:43.667+03:00  INFO 1984 --- [7max] [Thread-7] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2026-04-07T22:15:43.667+03:00  INFO 1984 --- [7max] [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
 2026-04-07T22:15:43.674+03:00  INFO 1984 --- [7max] [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+2026-04-07T22:15:43.783+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T22:15:43.783+03:00 DEBUG 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T22:15:43.783+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T22:15:44.044+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T22:15:44.097+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 51 ms. Found 14 JPA repository interfaces.
+2026-04-07T22:15:44.226+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T22:15:44.226+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T22:15:44.229+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T22:15:44.257+03:00  INFO 1984 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T22:15:44.257+03:00  INFO 1984 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 471 ms
+2026-04-07T22:15:44.275+03:00 DEBUG 1984 --- [7max] [restartedMain] c.sevenmax.tracker.security.JwtFilter    : Filter 'jwtFilter' configured for use
+2026-04-07T22:15:44.314+03:00  INFO 1984 --- [7max] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T22:15:44.319+03:00  INFO 1984 --- [7max] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T22:15:44.336+03:00  INFO 1984 --- [7max] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T22:15:44.336+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-04-07T22:15:44.511+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@7c17d464
+2026-04-07T22:15:44.511+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-04-07T22:15:44.519+03:00  WARN 1984 --- [7max] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T22:15:44.519+03:00  INFO 1984 --- [7max] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-3)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-07T22:15:45.016+03:00  INFO 1984 --- [7max] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T22:15:45.301+03:00  INFO 1984 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:45.467+03:00  INFO 1984 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: import_summary table ensured
+2026-04-07T22:15:45.467+03:00  INFO 1984 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: admin_expenses table ensured
+2026-04-07T22:15:45.484+03:00  WARN 1984 --- [7max] [restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: could not update transactions constraint: StatementCallback; SQL [ALTER TABLE transactions ADD CONSTRAINT transactions_type_check CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'PAYMENT', 'WHEEL_EXPENSE'))]; ERROR: check constraint "transactions_type_check" of relation "transactions" is violated by some row
+2026-04-07T22:15:45.909+03:00  WARN 1984 --- [7max] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T22:15:46.008+03:00  WARN 1984 --- [7max] [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 6da4135c-c71f-49e1-bb24-d787cb957dc2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-07T22:15:46.008+03:00  INFO 1984 --- [7max] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T22:15:46.097+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T22:15:46.113+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T22:15:46.120+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Started Application in 2.367 seconds (process running for 3054.282)
+2026-04-07T22:15:46.804+03:00  INFO 1984 --- [7max] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+    None
+
+
+Negative matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration:
+      Did not match:
+         - AllNestedConditions 1 matched 1 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) found beans of type 'org.springframework.security.web.SecurityFilterChain' filterChain; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) found beans named springSecurityFilterChain (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2026-04-07T22:19:21.931+03:00  INFO 1984 --- [7max] [http-nio-8080-exec-3] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-07T22:19:21.931+03:00  INFO 1984 --- [7max] [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-07T22:19:21.933+03:00  INFO 1984 --- [7max] [http-nio-8080-exec-3] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-04-07T22:26:50.366+03:00  INFO 1984 --- [7max] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (0 additions, 63 deletions, 0 modifications)
+2026-04-07T22:26:50.370+03:00  INFO 1984 --- [7max] [Thread-11] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:26:50.376+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:26:50.376+03:00  INFO 1984 --- [7max] [Thread-11] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:26:50.376+03:00  INFO 1984 --- [7max] [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown initiated...
+2026-04-07T22:26:50.386+03:00  INFO 1984 --- [7max] [Thread-11] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Shutdown completed.
+2026-04-07T22:26:50.518+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T22:26:50.518+03:00 DEBUG 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T22:26:50.518+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T22:26:50.743+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T22:26:50.747+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2 ms. Found 0 JPA repository interfaces.
+2026-04-07T22:26:50.868+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T22:26:50.868+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T22:26:50.868+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T22:26:50.910+03:00  INFO 1984 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T22:26:50.910+03:00  INFO 1984 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 388 ms
+2026-04-07T22:26:50.960+03:00  INFO 1984 --- [7max] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T22:26:50.967+03:00  INFO 1984 --- [7max] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T22:26:50.978+03:00  INFO 1984 --- [7max] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T22:26:50.978+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Starting...
+2026-04-07T22:26:51.177+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-4 - Added connection org.postgresql.jdbc.PgConnection@30bca085
+2026-04-07T22:26:51.177+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Start completed.
+2026-04-07T22:26:51.188+03:00  WARN 1984 --- [7max] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T22:26:51.190+03:00  INFO 1984 --- [7max] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-4)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-07T22:26:51.220+03:00  INFO 1984 --- [7max] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T22:26:51.221+03:00  INFO 1984 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:26:51.246+03:00  WARN 1984 --- [7max] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T22:26:51.460+03:00  WARN 1984 --- [7max] [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 1e1b7150-bef6-49fa-82ea-4853e30b9c9c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-07T22:26:51.460+03:00  INFO 1984 --- [7max] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T22:26:51.499+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T22:26:51.516+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T22:26:51.522+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Started Application in 1.043 seconds (process running for 3719.683)
+2026-04-07T22:26:51.522+03:00  INFO 1984 --- [7max] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration matched:
+      - AllNestedConditions 2 matched 0 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) did not find any beans; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+      - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+    None
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (63 additions, 0 deletions, 0 modifications)
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [Thread-15] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [Thread-15] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:26:57.073+03:00  INFO 1984 --- [7max] [Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown initiated...
+2026-04-07T22:26:57.089+03:00  INFO 1984 --- [7max] [Thread-15] com.zaxxer.hikari.HikariDataSource       : HikariPool-4 - Shutdown completed.

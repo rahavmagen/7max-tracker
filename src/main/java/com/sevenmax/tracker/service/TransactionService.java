@@ -22,11 +22,10 @@ public class TransactionService {
         Player player = transaction.getPlayer();
         Transaction.Type type = transaction.getType();
 
-        // CHIP_PROMO: documentation only, no balance change
-        if (type != Transaction.Type.CHIP_PROMO) {
+        // CHIP_PROMO and PROMOTION: no balance change
+        if (type != Transaction.Type.CHIP_PROMO && type != Transaction.Type.PROMOTION) {
             boolean isCredit = type == Transaction.Type.DEPOSIT
-                    || type == Transaction.Type.PAYMENT
-                    || type == Transaction.Type.PROMOTION;
+                    || type == Transaction.Type.PAYMENT;
             BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
             player.setBalance(player.getBalance().add(delta));
             playerRepository.save(player);
@@ -40,12 +39,11 @@ public class TransactionService {
         Transaction tx = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
 
-        // CHIP_PROMO: no balance effect, just update amount/notes
-        if (tx.getType() != Transaction.Type.CHIP_PROMO) {
+        // CHIP_PROMO and PROMOTION: no balance effect, just update amount/notes
+        if (tx.getType() != Transaction.Type.CHIP_PROMO && tx.getType() != Transaction.Type.PROMOTION) {
             BigDecimal diff = newAmount.subtract(tx.getAmount());
             boolean adds = tx.getType() == Transaction.Type.DEPOSIT
-                    || tx.getType() == Transaction.Type.PAYMENT
-                    || tx.getType() == Transaction.Type.PROMOTION;
+                    || tx.getType() == Transaction.Type.PAYMENT;
             Player player = tx.getPlayer();
             player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
             playerRepository.save(player);
