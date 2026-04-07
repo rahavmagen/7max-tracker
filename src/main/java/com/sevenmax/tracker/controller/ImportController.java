@@ -88,6 +88,8 @@ public class ImportController {
                     java.math.BigDecimal generalExpenses = adminExpenseRepository.sumExcludingAdminUsername("Wheel");
                     summary.setWillExpense(wheelExpenses != null ? wheelExpenses : java.math.BigDecimal.ZERO);
                     summary.setGeneralExpenses(generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO);
+                    java.math.BigDecimal promotionsTotal = transactionRepository.sumByTypeName("PROMOTION");
+                    summary.setPromotionsTotal(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO);
                     return ResponseEntity.ok(summary);
                 })
                 .orElse(ResponseEntity.noContent().build());
