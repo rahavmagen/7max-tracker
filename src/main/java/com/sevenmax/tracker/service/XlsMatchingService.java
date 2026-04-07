@@ -36,11 +36,12 @@ public class XlsMatchingService {
 
     private BigDecimal chipDelta(Transaction tx) {
         return switch (tx.getType()) {
-            case DEPOSIT    -> tx.getAmount();
-            case PAYMENT  -> tx.getAmount();
-            case WITHDRAWAL -> tx.getAmount().negate();
-            case CREDIT     -> tx.getAmount().negate();
+            case DEPOSIT       -> tx.getAmount();
+            case PAYMENT       -> tx.getAmount();
+            case WITHDRAWAL    -> tx.getAmount().negate();
+            case CREDIT        -> tx.getAmount().negate();
             case WHEEL_EXPENSE -> tx.getAmount().negate();
+            case CHIP_PROMO, PROMOTION -> BigDecimal.ZERO; // not XLS-matched
         };
     }
 }
