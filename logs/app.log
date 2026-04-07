@@ -1,146 +1,826 @@
-2026-04-06T09:55:48.151+03:00  WARN 27356 --- [7max] [HikariPool-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=14h31m52s621ms458µs300ns).
-2026-04-06T12:32:25.382+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Club Member Balance: nicknameCol=8 balanceCol=9 clubIdCol=7 headerRow=4
-2026-04-06T12:32:25.422+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Report periodEnd=2026-04-05 latestExisting=2026-04-04 isLatest=true
-2026-04-06T12:32:27.452+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: updatedPlayerIds count=313 file=5.4.xlsx
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=Cavalleros id=291 wasStale=true
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=Gendalfart id=11 wasStale=true
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=HB101 id=183 wasStale=true
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=YLV1 id=285 wasStale=false
-2026-04-06T12:32:27.458+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : LEFT CLUB: YLV1 (3578-5557) id=285
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=Ronitj id=293 wasStale=true
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=ShlomoEI id=316 wasStale=true
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=ItzSpex id=232 wasStale=true
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=daniela garber id=181 wasStale=true
-2026-04-06T12:32:27.458+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=Sorry-_- id=16 wasStale=true
-2026-04-06T12:32:27.462+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=YBD081980 id=129 wasStale=true
-2026-04-06T12:32:27.462+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP: player=Yossi xXx id=287 wasStale=true
-2026-04-06T12:32:27.462+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : STALE LOOP DONE: leftClub size=1 file=5.4.xlsx
-2026-04-06T12:32:27.519+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Chip mismatch on upload: expected=221383.01 actual=213403.11 diff=7979.90
-2026-04-06T12:32:27.542+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=AB73759 playerId=89 amount=1850.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 11:08:57:4908-4933
-2026-04-06T12:32:27.552+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:27.563+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:27.563+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=89) => null
-2026-04-06T12:32:27.572+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:27.582+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:27.582+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=89) => null
-2026-04-06T12:32:27.582+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=AB73759 amount=1850.0 mttCost=null — treating as non-wheel Send Chips
-2026-04-06T12:32:27.595+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=59 (Send Chips, player=AB73759, amount=1850.0)
-2026-04-06T12:32:27.645+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Claim Chips already handled by pre-confirmed transfer id=59 (player=tolsky!, amount=1850.0)
-2026-04-06T12:32:27.662+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=rudikit playerId=332 amount=500.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 11:18:37:2925-9542
-2026-04-06T12:32:27.675+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:27.682+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:27.682+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player rudikit buyIn=321.0
-2026-04-06T12:32:27.682+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=332) => 321.0
-2026-04-06T12:32:27.682+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:27.695+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:27.695+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=332) => null
-2026-04-06T12:32:27.695+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=rudikit amount=500.0 mttCost=321.0 — treating as non-wheel Send Chips
-2026-04-06T12:32:27.702+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=60 (Send Chips, player=rudikit, amount=500.0)
-2026-04-06T12:32:27.712+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=62 (Claim Chips, player=Einpoker, amount=500.0)
-2026-04-06T12:32:27.732+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=61 (Claim Chips, player=tov tfild, amount=350.0)
-2026-04-06T12:32:27.742+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=ronron2001 playerId=23 amount=350.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 13:55:23:9018-3853
-2026-04-06T12:32:27.742+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:27.754+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:27.754+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player ronron2001 buyIn=321.0
-2026-04-06T12:32:27.754+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=23) => 321.0
-2026-04-06T12:32:27.754+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:27.762+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:27.762+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=23) => null
-2026-04-06T12:32:27.762+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=ronron2001 amount=350.0 mttCost=321.0 — treating as non-wheel Send Chips
-2026-04-06T12:32:27.786+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Send Chips already handled by pre-confirmed transfer id=61 (player=ronron2001, amount=350.0)
-2026-04-06T12:32:27.802+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=arspoeti1 playerId=31 amount=260.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 14:08:09:4897-9695
-2026-04-06T12:32:27.813+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:27.819+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:27.819+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=31) => null
-2026-04-06T12:32:27.822+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:27.834+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:27.834+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=31) => null
-2026-04-06T12:32:27.834+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=arspoeti1 amount=260.0 mttCost=null — treating as non-wheel Send Chips
-2026-04-06T12:32:27.862+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=arspoeti1 amount=260.0 mttCost=null date=2026-04-05 — treating as CREDIT
-2026-04-06T12:32:27.897+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Giocatore7 playerId=80 amount=500.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 14:53:14:3413-8268
-2026-04-06T12:32:27.902+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:27.912+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:27.912+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Giocatore7 buyIn=642.0
-2026-04-06T12:32:27.913+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=80) => 642.0
-2026-04-06T12:32:27.922+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:27.922+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:27.922+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Giocatore7 buyIn=540.00
-2026-04-06T12:32:27.930+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=80) => 540.00
-2026-04-06T12:32:27.930+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=Giocatore7 amount=500.0 mttCost=642.0 — treating as non-wheel Send Chips
-2026-04-06T12:32:27.946+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Send Chips already handled by pre-confirmed transfer id=54 (player=Giocatore7, amount=500.0)
-2026-04-06T12:32:27.983+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Claim Chips already handled by pre-confirmed transfer id=60 (player=Einpoker, amount=500.0)
-2026-04-06T12:32:27.997+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Eldar8108 playerId=82 amount=1000.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 16:19:36:8722-1255
-2026-04-06T12:32:28.002+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:28.012+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:28.012+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Eldar8108 buyIn=321.0
-2026-04-06T12:32:28.012+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=82) => 321.0
-2026-04-06T12:32:28.017+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:28.027+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:28.027+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Eldar8108 buyIn=540.00
-2026-04-06T12:32:28.027+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=82) => 540.00
-2026-04-06T12:32:28.027+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=Eldar8108 amount=1000.0 mttCost=321.0 — treating as non-wheel Send Chips
-2026-04-06T12:32:28.032+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=63 (Send Chips, player=Eldar8108, amount=1000.0)
-2026-04-06T12:32:28.063+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Claim Chips already handled by pre-confirmed transfer id=63 (player=tov tfild, amount=1000.0)
-2026-04-06T12:32:28.082+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=Idoos playerId=64 amount=700.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 16:47:44:3745-8008
-2026-04-06T12:32:28.088+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:28.095+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:28.095+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Idoos buyIn=321.0
-2026-04-06T12:32:28.095+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=64) => 321.0
-2026-04-06T12:32:28.102+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:28.104+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:28.104+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player Idoos buyIn=540.00
-2026-04-06T12:32:28.104+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=64) => 540.00
-2026-04-06T12:32:28.104+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=Idoos amount=700.0 mttCost=321.0 — treating as non-wheel Send Chips
-2026-04-06T12:32:28.113+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=64 (Send Chips, player=Idoos, amount=700.0)
-2026-04-06T12:32:28.142+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Claim Chips already handled by pre-confirmed transfer id=64 (player=tolsky!, amount=700.0)
-2026-04-06T12:32:28.152+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=TK2024 playerId=336 amount=150.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 17:17:27:9407-8553
-2026-04-06T12:32:28.152+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:28.162+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:28.162+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=336) => null
-2026-04-06T12:32:28.168+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:28.172+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:28.172+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=336) => null
-2026-04-06T12:32:28.172+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=TK2024 amount=150.0 mttCost=null — treating as non-wheel Send Chips
-2026-04-06T12:32:28.190+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=TK2024 amount=150.0 mttCost=null date=2026-04-05 — treating as CREDIT
-2026-04-06T12:32:28.264+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=camavingaaa playerId=151 amount=900.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 17:19:20:3692-8434
-2026-04-06T12:32:28.272+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:28.280+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:28.280+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=151) => null
-2026-04-06T12:32:28.282+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:28.292+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:28.292+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=151) => null
-2026-04-06T12:32:28.292+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=camavingaaa amount=900.0 mttCost=null — treating as non-wheel Send Chips
-2026-04-06T12:32:28.312+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=camavingaaa amount=900.0 mttCost=null date=2026-04-05 — treating as CREDIT
-2026-04-06T12:32:28.329+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=NDV_ playerId=128 amount=211.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 18:52:19:1993-9671
-2026-04-06T12:32:28.336+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:28.342+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:28.342+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=128) => null
-2026-04-06T12:32:28.344+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:28.352+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:28.352+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=128) => null
-2026-04-06T12:32:28.352+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=NDV_ amount=211.0 mttCost=null — treating as non-wheel Send Chips
-2026-04-06T12:32:28.352+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=67 (Send Chips, player=NDV_, amount=211.0)
-2026-04-06T12:32:28.382+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Claim Chips already handled by pre-confirmed transfer id=67 (player=lp1976, amount=211.0)
-2026-04-06T12:32:28.427+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=adamush playerId=131 amount=1000.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 19:42:24:6076-9851
-2026-04-06T12:32:28.432+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:28.435+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:28.435+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=131) => null
-2026-04-06T12:32:28.440+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:28.443+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:28.443+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=131) => null
-2026-04-06T12:32:28.443+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=adamush amount=1000.0 mttCost=null — treating as non-wheel Send Chips
-2026-04-06T12:32:28.443+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : XLS matched pending transfer id=68 (Send Chips, player=adamush, amount=1000.0)
-2026-04-06T12:32:28.462+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Send Chips negative: player=tolsky! playerId=8 amount=321.0 date=2026-04-05 sourceRef=TRADE:2026-04-05 20:40:54:2804-4337
-2026-04-06T12:32:28.462+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-05T19:30 to 2026-04-05T23:59, sessions found=1
-2026-04-06T12:32:28.475+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=1433 startTime=2026-04-05T20:00, results count=28
-2026-04-06T12:32:28.475+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player tolsky! buyIn=642.0
-2026-04-06T12:32:28.475+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(date=2026-04-05, playerId=8) => 642.0
-2026-04-06T12:32:28.475+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost: window=2026-04-04T19:30 to 2026-04-04T23:59, sessions found=1
-2026-04-06T12:32:28.482+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Session id=341 startTime=2026-04-04T20:00, results count=44
-2026-04-06T12:32:28.482+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] Player tolsky! buyIn=540.00
-2026-04-06T12:32:28.482+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] getNightlyMttCost(prevDay=2026-04-04, playerId=8) => 540.00
-2026-04-06T12:32:28.482+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : [WHEEL-DEBUG] No wheel match: player=tolsky! amount=321.0 mttCost=642.0 — treating as non-wheel Send Chips
-2026-04-06T12:32:28.492+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Send Chips negative but no MTT cost match: player=tolsky! amount=321.0 mttCost=642.0 date=2026-04-05 — treating as CREDIT
-2026-04-06T12:32:28.513+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Group match: confirmed pending tx id=770 type=DEPOSIT amount=260.00 player=arspoeti1
-2026-04-06T12:32:28.568+03:00  INFO 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Group match: confirmed pending tx id=788 type=WITHDRAWAL amount=1000.00 player=NDV_
-2026-04-06T12:32:28.572+03:00  WARN 27356 --- [7max] [http-nio-8080-exec-7] c.s.tracker.service.ReportService        : Wheel expense warnings (no MTT match): [arspoeti1 (260.0 on 2026-04-05), TK2024 (150.0 on 2026-04-05), camavingaaa (900.0 on 2026-04-05), tolsky! (321.0 on 2026-04-05)]
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.sevenmax:tracker >------------------------
+[INFO] Building 7max 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.5.11:run (default-cli) > test-compile @ tracker >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ tracker ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ tracker ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ tracker ---
+[INFO] Copying 1 resource from src\test\resources to target\test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ tracker ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< spring-boot:3.5.11:run (default-cli) < test-compile @ tracker <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.11:run (default-cli) @ tracker ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.11)
+
+2026-04-07T21:24:52.984+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T21:24:52.986+03:00 DEBUG 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T21:24:52.986+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T21:24:53.033+03:00  INFO 1984 --- [7max] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-04-07T21:24:53.033+03:00  INFO 1984 --- [7max] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-04-07T21:24:53.725+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T21:24:53.830+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 94 ms. Found 14 JPA repository interfaces.
+2026-04-07T21:24:54.358+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T21:24:54.370+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T21:24:54.370+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T21:24:54.398+03:00  INFO 1984 --- [7max] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T21:24:54.398+03:00  INFO 1984 --- [7max] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1360 ms
+2026-04-07T21:24:54.450+03:00 DEBUG 1984 --- [7max] [  restartedMain] c.sevenmax.tracker.security.JwtFilter    : Filter 'jwtFilter' configured for use
+2026-04-07T21:24:54.541+03:00  INFO 1984 --- [7max] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T21:24:54.605+03:00  INFO 1984 --- [7max] [  restartedMain] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.42.Final
+2026-04-07T21:24:54.641+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T21:24:54.877+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T21:24:54.889+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-07T21:24:55.127+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6d898f68
+2026-04-07T21:24:55.127+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-07T21:24:55.159+03:00  WARN 1984 --- [7max] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T21:24:55.174+03:00  INFO 1984 --- [7max] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-07T21:24:56.372+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T21:24:56.562+03:00  INFO 1984 --- [7max] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T21:24:56.834+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-07T21:24:57.248+03:00  INFO 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: import_summary table ensured
+2026-04-07T21:24:57.264+03:00  INFO 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: admin_expenses table ensured
+2026-04-07T21:24:57.296+03:00  INFO 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: transactions type constraint updated
+2026-04-07T21:24:57.740+03:00  WARN 1984 --- [7max] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T21:24:57.981+03:00  WARN 1984 --- [7max] [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 44a5ee64-26a3-42a3-af6c-1a565411b148
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-07T21:24:57.985+03:00  INFO 1984 --- [7max] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T21:24:58.257+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T21:24:58.290+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T21:24:58.290+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Started Application in 5.922 seconds (process running for 6.465)
+2026-04-07T21:25:41.141+03:00  INFO 1984 --- [7max] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-07T21:25:41.142+03:00  INFO 1984 --- [7max] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-07T21:25:41.144+03:00  INFO 1984 --- [7max] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+2026-04-07T21:48:19.491+03:00  WARN 1984 --- [7max] [nio-8080-exec-1] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23514
+2026-04-07T21:48:19.491+03:00 ERROR 1984 --- [7max] [nio-8080-exec-1] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: new row for relation "transactions" violates check constraint "transactions_type_check"
+  Detail: Failing row contains (879, 5000.00, 2026-04-07 21:48:19.415592, OTHER, שחקן בית, 2026-04-07, CHIP_PROMO, 7, null, SCREEN:CHIP_PROMO, piu piu 7, f, null).
+2026-04-07T21:48:19.517+03:00 ERROR 1984 --- [7max] [nio-8080-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: new row for relation "transactions" violates check constraint "transactions_type_check"
+  Detail: Failing row contains (879, 5000.00, 2026-04-07 21:48:19.415592, OTHER, שחקן בית, 2026-04-07, CHIP_PROMO, 7, null, SCREEN:CHIP_PROMO, piu piu 7, f, null).] [insert into transactions (amount,created_at,created_by_username,method,notes,pending_confirmation,player_id,processed_by,report_id,source_ref,transaction_date,type) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into transactions (amount,created_at,created_by_username,method,notes,pending_confirmation,player_id,processed_by,report_id,source_ref,transaction_date,type) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [transactions_type_check]] with root cause
+
+org.postgresql.util.PSQLException: ERROR: new row for relation "transactions" violates check constraint "transactions_type_check"
+  Detail: Failing row contains (879, 5000.00, 2026-04-07 21:48:19.415592, OTHER, שחקן בית, 2026-04-07, CHIP_PROMO, 7, null, SCREEN:CHIP_PROMO, piu piu 7, f, null).
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2875) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2560) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:429) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:526) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:436) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgPreparedStatement.executeUpdate(PgPreparedStatement.java:157) ~[postgresql-42.7.10.jar:42.7.10]
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61) ~[HikariCP-6.3.3.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java) ~[HikariCP-6.3.3.jar:na]
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:194) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.id.insert.GetGeneratedKeysDelegate.performMutation(GetGeneratedKeysDelegate.java:116) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:47) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:55) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.doStaticInserts(InsertCoordinatorStandard.java:194) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.coordinateInsert(InsertCoordinatorStandard.java:132) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.insert(InsertCoordinatorStandard.java:95) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:85) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:682) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:293) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:274) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:324) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:394) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:308) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:224) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:136) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:177) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:95) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.orm.jpa.ExtendedEntityManagerCreator$ExtendedEntityManagerInvocationHandler.invoke(ExtendedEntityManagerCreator.java:364) ~[spring-orm-6.2.16.jar:6.2.16]
+	at jdk.proxy4/jdk.proxy4.$Proxy130.persist(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:320) ~[spring-orm-6.2.16.jar:6.2.16]
+	at jdk.proxy4/jdk.proxy4.$Proxy130.persist(Unknown Source) ~[na:na]
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:654) ~[spring-data-jpa-3.5.9.jar:3.5.9]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:360) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:277) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:515) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:284) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:720) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:174) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:149) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:69) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:380) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:138) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:165) ~[spring-data-jpa-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223) ~[spring-aop-6.2.16.jar:6.2.16]
+	at jdk.proxy4/jdk.proxy4.$Proxy145.save(Unknown Source) ~[na:na]
+	at com.sevenmax.tracker.service.TransactionService.addTransaction(TransactionService.java:35) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:360) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:380) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:728) ~[spring-aop-6.2.16.jar:6.2.16]
+	at com.sevenmax.tracker.service.TransactionService$$SpringCGLIB$$0.addTransaction(<generated>) ~[classes/:na]
+	at com.sevenmax.tracker.controller.TransactionController.addTransaction(TransactionController.java:43) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:191) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.52.jar:6.0]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.52.jar:6.0]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:125) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:119) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at com.sevenmax.tracker.security.JwtFilter.doFilterInternal(JwtFilter.java:50) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319) ~[spring-security-config-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240) ~[spring-security-config-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:88) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1775) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:973) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:491) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2026-04-07T21:51:55.232+03:00  WARN 1984 --- [7max] [nio-8080-exec-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 0, SQLState: 23514
+2026-04-07T21:51:55.234+03:00 ERROR 1984 --- [7max] [nio-8080-exec-9] o.h.engine.jdbc.spi.SqlExceptionHelper   : ERROR: new row for relation "transactions" violates check constraint "transactions_type_check"
+  Detail: Failing row contains (880, 5000.00, 2026-04-07 21:51:55.228013, OTHER, שחקן בית, 2026-04-07, CHIP_PROMO, 7, null, SCREEN:CHIP_PROMO, piu piu 7, f, null).
+2026-04-07T21:51:55.237+03:00 ERROR 1984 --- [7max] [nio-8080-exec-9] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.dao.DataIntegrityViolationException: could not execute statement [ERROR: new row for relation "transactions" violates check constraint "transactions_type_check"
+  Detail: Failing row contains (880, 5000.00, 2026-04-07 21:51:55.228013, OTHER, שחקן בית, 2026-04-07, CHIP_PROMO, 7, null, SCREEN:CHIP_PROMO, piu piu 7, f, null).] [insert into transactions (amount,created_at,created_by_username,method,notes,pending_confirmation,player_id,processed_by,report_id,source_ref,transaction_date,type) values (?,?,?,?,?,?,?,?,?,?,?,?)]; SQL [insert into transactions (amount,created_at,created_by_username,method,notes,pending_confirmation,player_id,processed_by,report_id,source_ref,transaction_date,type) values (?,?,?,?,?,?,?,?,?,?,?,?)]; constraint [transactions_type_check]] with root cause
+
+org.postgresql.util.PSQLException: ERROR: new row for relation "transactions" violates check constraint "transactions_type_check"
+  Detail: Failing row contains (880, 5000.00, 2026-04-07 21:51:55.228013, OTHER, שחקן בית, 2026-04-07, CHIP_PROMO, 7, null, SCREEN:CHIP_PROMO, piu piu 7, f, null).
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2875) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2560) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:429) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:526) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:436) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:196) ~[postgresql-42.7.10.jar:42.7.10]
+	at org.postgresql.jdbc.PgPreparedStatement.executeUpdate(PgPreparedStatement.java:157) ~[postgresql-42.7.10.jar:42.7.10]
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61) ~[HikariCP-6.3.3.jar:na]
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java) ~[HikariCP-6.3.3.jar:na]
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:194) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.id.insert.GetGeneratedKeysDelegate.performMutation(GetGeneratedKeysDelegate.java:116) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:47) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:55) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.doStaticInserts(InsertCoordinatorStandard.java:194) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.coordinateInsert(InsertCoordinatorStandard.java:132) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.insert(InsertCoordinatorStandard.java:95) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:85) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:682) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:293) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:274) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:324) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:394) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:308) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:224) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:136) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:177) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:95) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:79) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:55) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:761) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:745) ~[hibernate-core-6.6.42.Final.jar:6.6.42.Final]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.orm.jpa.ExtendedEntityManagerCreator$ExtendedEntityManagerInvocationHandler.invoke(ExtendedEntityManagerCreator.java:364) ~[spring-orm-6.2.16.jar:6.2.16]
+	at jdk.proxy4/jdk.proxy4.$Proxy130.persist(Unknown Source) ~[na:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:320) ~[spring-orm-6.2.16.jar:6.2.16]
+	at jdk.proxy4/jdk.proxy4.$Proxy130.persist(Unknown Source) ~[na:na]
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:654) ~[spring-data-jpa-3.5.9.jar:3.5.9]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:360) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:277) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:515) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:284) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:720) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:174) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:149) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:69) ~[spring-data-commons-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:380) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:138) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:165) ~[spring-data-jpa-3.5.9.jar:3.5.9]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223) ~[spring-aop-6.2.16.jar:6.2.16]
+	at jdk.proxy4/jdk.proxy4.$Proxy145.save(Unknown Source) ~[na:na]
+	at com.sevenmax.tracker.service.TransactionService.addTransaction(TransactionService.java:35) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:360) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:380) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119) ~[spring-tx-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184) ~[spring-aop-6.2.16.jar:6.2.16]
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:728) ~[spring-aop-6.2.16.jar:6.2.16]
+	at com.sevenmax.tracker.service.TransactionService$$SpringCGLIB$$0.addTransaction(<generated>) ~[classes/:na]
+	at com.sevenmax.tracker.controller.TransactionController.addTransaction(TransactionController.java:43) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:191) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:991) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:896) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:914) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:590) ~[tomcat-embed-core-10.1.52.jar:6.0]
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658) ~[tomcat-embed-core-10.1.52.jar:6.0]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51) ~[tomcat-embed-websocket-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:125) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:119) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at com.sevenmax.tracker.security.JwtFilter.doFilterInternal(JwtFilter.java:50) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319) ~[spring-security-config-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240) ~[spring-security-config-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:88) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1775) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:973) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:491) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2026-04-07T22:15:36.734+03:00  INFO 1984 --- [7max] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (0 additions, 63 deletions, 0 modifications)
+2026-04-07T22:15:36.744+03:00  INFO 1984 --- [7max] [       Thread-5] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:15:36.760+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:15:36.772+03:00  INFO 1984 --- [7max] [       Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:36.772+03:00  INFO 1984 --- [7max] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-04-07T22:15:36.783+03:00  INFO 1984 --- [7max] [       Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.11)
+
+2026-04-07T22:15:36.945+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T22:15:36.945+03:00 DEBUG 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T22:15:36.945+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T22:15:37.230+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T22:15:37.238+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2 ms. Found 0 JPA repository interfaces.
+2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T22:15:37.432+03:00  INFO 1984 --- [7max] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T22:15:37.432+03:00  INFO 1984 --- [7max] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 480 ms
+2026-04-07T22:15:37.488+03:00  INFO 1984 --- [7max] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T22:15:37.488+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T22:15:37.504+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T22:15:37.504+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-04-07T22:15:37.696+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@1d6aa9b2
+2026-04-07T22:15:37.697+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-04-07T22:15:37.727+03:00  WARN 1984 --- [7max] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T22:15:37.743+03:00  INFO 1984 --- [7max] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-07T22:15:37.777+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T22:15:37.777+03:00  INFO 1984 --- [7max] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:37.806+03:00  WARN 1984 --- [7max] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T22:15:37.983+03:00  WARN 1984 --- [7max] [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f167dab6-39b0-4dce-911b-63d5bc6775c9
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-07T22:15:37.986+03:00  INFO 1984 --- [7max] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T22:15:38.041+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T22:15:38.072+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T22:15:38.080+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Started Application in 1.198 seconds (process running for 3046.241)
+2026-04-07T22:15:38.087+03:00  INFO 1984 --- [7max] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration matched:
+      - AllNestedConditions 2 matched 0 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) did not find any beans; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+      - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+    None
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2026-04-07T22:15:43.653+03:00  INFO 1984 --- [7max] [   File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (63 additions, 0 deletions, 0 modifications)
+2026-04-07T22:15:43.655+03:00  INFO 1984 --- [7max] [       Thread-7] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:15:43.663+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:15:43.667+03:00  INFO 1984 --- [7max] [       Thread-7] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:43.667+03:00  INFO 1984 --- [7max] [       Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-04-07T22:15:43.674+03:00  INFO 1984 --- [7max] [       Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::               (v3.5.11)
+
+2026-04-07T22:15:43.783+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T22:15:43.783+03:00 DEBUG 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T22:15:43.783+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T22:15:44.044+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T22:15:44.097+03:00  INFO 1984 --- [7max] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 51 ms. Found 14 JPA repository interfaces.
+2026-04-07T22:15:44.226+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T22:15:44.226+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T22:15:44.229+03:00  INFO 1984 --- [7max] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T22:15:44.257+03:00  INFO 1984 --- [7max] [  restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T22:15:44.257+03:00  INFO 1984 --- [7max] [  restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 471 ms
+2026-04-07T22:15:44.275+03:00 DEBUG 1984 --- [7max] [  restartedMain] c.sevenmax.tracker.security.JwtFilter    : Filter 'jwtFilter' configured for use
+2026-04-07T22:15:44.314+03:00  INFO 1984 --- [7max] [  restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T22:15:44.319+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T22:15:44.336+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T22:15:44.336+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Starting...
+2026-04-07T22:15:44.511+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@7c17d464
+2026-04-07T22:15:44.511+03:00  INFO 1984 --- [7max] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-3 - Start completed.
+2026-04-07T22:15:44.519+03:00  WARN 1984 --- [7max] [  restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T22:15:44.519+03:00  INFO 1984 --- [7max] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-3)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-07T22:15:45.016+03:00  INFO 1984 --- [7max] [  restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T22:15:45.301+03:00  INFO 1984 --- [7max] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:45.467+03:00  INFO 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: import_summary table ensured
+2026-04-07T22:15:45.467+03:00  INFO 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: admin_expenses table ensured
+2026-04-07T22:15:45.484+03:00  WARN 1984 --- [7max] [  restartedMain] c.s.tracker.config.SchemaMigration       : SchemaMigration: could not update transactions constraint: StatementCallback; SQL [ALTER TABLE transactions ADD CONSTRAINT transactions_type_check CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'PAYMENT', 'WHEEL_EXPENSE'))]; ERROR: check constraint "transactions_type_check" of relation "transactions" is violated by some row
+2026-04-07T22:15:45.909+03:00  WARN 1984 --- [7max] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T22:15:46.008+03:00  WARN 1984 --- [7max] [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 6da4135c-c71f-49e1-bb24-d787cb957dc2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-07T22:15:46.008+03:00  INFO 1984 --- [7max] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T22:15:46.097+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T22:15:46.113+03:00  INFO 1984 --- [7max] [  restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T22:15:46.120+03:00  INFO 1984 --- [7max] [  restartedMain] com.sevenmax.tracker.Application         : Started Application in 2.367 seconds (process running for 3054.282)
+2026-04-07T22:15:46.804+03:00  INFO 1984 --- [7max] [  restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+    None
+
+
+Negative matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration:
+      Did not match:
+         - AllNestedConditions 1 matched 1 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) found beans of type 'org.springframework.security.web.SecurityFilterChain' filterChain; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) found beans named springSecurityFilterChain (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+:85) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at com.sevenmax.tracker.security.JwtFilter.doFilterInternal(JwtFilter.java:50) ~[classes/:na]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191) ~[spring-security-web-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.ServletRequestPathFilter.doFilter(ServletRequestPathFilter.java:52) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebSecurityConfiguration.java:319) ~[spring-security-config-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$4(HandlerMappingIntrospector.java:267) ~[spring-webmvc-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:240) ~[spring-security-config-6.5.8.jar:6.5.8]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116) ~[spring-web-6.2.16.jar:6.2.16]
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:162) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:138) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:165) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:88) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:492) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:113) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:83) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:72) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:342) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:399) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1775) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:973) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:491) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63) ~[tomcat-embed-core-10.1.52.jar:10.1.52]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2026-04-07T22:15:36.734+03:00  INFO 1984 --- [7max] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (0 additions, 63 deletions, 0 modifications)
+2026-04-07T22:15:36.744+03:00  INFO 1984 --- [7max] [Thread-5] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:15:36.760+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:15:36.772+03:00  INFO 1984 --- [7max] [Thread-5] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:36.772+03:00  INFO 1984 --- [7max] [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-04-07T22:15:36.783+03:00  INFO 1984 --- [7max] [Thread-5] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-04-07T22:15:36.945+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Starting Application using Java 21.0.10 with PID 1984 (C:\projects\tracker\target\classes started by Migdal in C:\projects\tracker)
+2026-04-07T22:15:36.945+03:00 DEBUG 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Running with Spring Boot v3.5.11, Spring v6.2.16
+2026-04-07T22:15:36.945+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : No active profile set, falling back to 1 default profile: "default"
+2026-04-07T22:15:37.230+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-07T22:15:37.238+03:00  INFO 1984 --- [7max] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2 ms. Found 0 JPA repository interfaces.
+2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-07T22:15:37.387+03:00  INFO 1984 --- [7max] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-04-07T22:15:37.432+03:00  INFO 1984 --- [7max] [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-07T22:15:37.432+03:00  INFO 1984 --- [7max] [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 480 ms
+2026-04-07T22:15:37.488+03:00  INFO 1984 --- [7max] [restartedMain] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-07T22:15:37.488+03:00  INFO 1984 --- [7max] [restartedMain] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-04-07T22:15:37.504+03:00  INFO 1984 --- [7max] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-07T22:15:37.504+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Starting...
+2026-04-07T22:15:37.696+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@1d6aa9b2
+2026-04-07T22:15:37.697+03:00  INFO 1984 --- [7max] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Start completed.
+2026-04-07T22:15:37.727+03:00  WARN 1984 --- [7max] [restartedMain] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-07T22:15:37.743+03:00  INFO 1984 --- [7max] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-2)']
+	Database driver: undefined/unknown
+	Database version: 16.13
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-04-07T22:15:37.777+03:00  INFO 1984 --- [7max] [restartedMain] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-07T22:15:37.777+03:00  INFO 1984 --- [7max] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:37.806+03:00  WARN 1984 --- [7max] [restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-07T22:15:37.983+03:00  WARN 1984 --- [7max] [restartedMain] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: f167dab6-39b0-4dce-911b-63d5bc6775c9
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-04-07T22:15:37.986+03:00  INFO 1984 --- [7max] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-04-07T22:15:38.041+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2026-04-07T22:15:38.072+03:00  INFO 1984 --- [7max] [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2026-04-07T22:15:38.080+03:00  INFO 1984 --- [7max] [restartedMain] com.sevenmax.tracker.Application         : Started Application in 1.198 seconds (process running for 3046.241)
+2026-04-07T22:15:38.087+03:00  INFO 1984 --- [7max] [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+   SpringBootWebSecurityConfiguration.SecurityFilterChainConfiguration matched:
+      - AllNestedConditions 2 matched 0 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) did not find any beans; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+      - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+    None
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2026-04-07T22:15:43.653+03:00  INFO 1984 --- [7max] [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 63 class path changes (63 additions, 0 deletions, 0 modifications)
+2026-04-07T22:15:43.655+03:00  INFO 1984 --- [7max] [Thread-7] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-04-07T22:15:43.663+03:00  INFO 1984 --- [7max] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-04-07T22:15:43.667+03:00  INFO 1984 --- [7max] [Thread-7] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-07T22:15:43.667+03:00  INFO 1984 --- [7max] [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown initiated...
+2026-04-07T22:15:43.674+03:00  INFO 1984 --- [7max] [Thread-7] com.zaxxer.hikari.HikariDataSource       : HikariPool-2 - Shutdown completed.
