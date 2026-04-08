@@ -90,6 +90,8 @@ public class ImportController {
                     summary.setGeneralExpenses(generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO);
                     java.math.BigDecimal promotionsTotal = transactionRepository.sumByTypeName("PROMOTION");
                     summary.setPromotionsTotal(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO);
+                    java.math.BigDecimal chipPromoTotal = transactionRepository.sumByTypeName("CHIP_PROMO");
+                    summary.setChipPromoTotal(chipPromoTotal != null ? chipPromoTotal : java.math.BigDecimal.ZERO);
                     return ResponseEntity.ok(summary);
                 })
                 .orElse(ResponseEntity.noContent().build());

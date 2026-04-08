@@ -40,4 +40,8 @@ public class ImportSummary {
     // Computed live from PROMOTION transactions — not stored in DB
     @Transient
     private BigDecimal promotionsTotal = BigDecimal.ZERO;
+
+    // Computed live from CHIP_PROMO transactions — not stored in DB
+    @Transient
+    private BigDecimal chipPromoTotal = BigDecimal.ZERO;
 }

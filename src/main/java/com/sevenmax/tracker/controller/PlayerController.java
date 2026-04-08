@@ -125,7 +125,7 @@ public class PlayerController {
     public ResponseEntity<?> addWheelExpense(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         BigDecimal amount = new BigDecimal(body.get("amount").toString());
-        String notes = body.containsKey("notes") ? body.get("notes").toString() : null;
+        String notes = body.get("notes") != null ? body.get("notes").toString() : null;
         return ResponseEntity.ok(playerService.addWheelExpense(id, amount, notes, auth.getName()));
     }
 
@@ -133,7 +133,7 @@ public class PlayerController {
     public ResponseEntity<Player> addDeposit(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         BigDecimal amount = new BigDecimal(body.get("amount").toString());
-        String notes = body.containsKey("notes") ? body.get("notes").toString() : null;
+        String notes = body.get("notes") != null ? body.get("notes").toString() : null;
         return ResponseEntity.ok(playerService.addDeposit(id, amount, notes, auth.getName()));
     }
 
