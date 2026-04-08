@@ -33,6 +33,10 @@ public class ImportSummary {
 
     private java.time.LocalDate lastReportDate; // periodEnd of latest uploaded report
 
+    // Snapshot of total credit across all players at the moment of last XLS upload
+    @Column(precision = 12, scale = 2)
+    private BigDecimal snapshotCreditTotal = BigDecimal.ZERO;
+
     // Computed live from PROMOTION transactions — not stored in DB
     @Transient
     private BigDecimal promotionsTotal = BigDecimal.ZERO;
