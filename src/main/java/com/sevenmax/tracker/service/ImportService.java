@@ -213,20 +213,13 @@ public class ImportService {
             }
         }
 
-        // Snapshot total credit across all players at this moment
-        BigDecimal snapshotCreditTotal = playerRepository.findAll().stream()
-                .map(p -> p.getCreditTotal() != null ? p.getCreditTotal() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Save profit summary as singleton row
+        // Save profit summary as singleton row (snapshotCreditTotal set after players are saved below)
         ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
         summary.setId(1L);
         summary.setWillExpense(willExpense);
         summary.setGeneralExpenses(generalExpenses);
         summary.setBankDeposits(bankDeposits);
-        summary.setSnapshotCreditTotal(snapshotCreditTotal);
         summary.setLastUpdated(java.time.LocalDateTime.now());
-        importSummaryRepository.save(summary);
         log.info("Saved ImportSummary: will={} expenses={} deposits={} snapshotCredit={}", willExpense, generalExpenses, bankDeposits, snapshotCreditTotal);
 
         // Save per-row expense entries — only create new ones, never recreate deleted ones
@@ -304,6 +297,14 @@ public class ImportService {
                 log.info("New player created from import: '{}'", p.getUsername());
             }
         }
+
+        // Snapshot credit AFTER saving updated player credits
+        BigDecimal snapshotCreditTotal = playerRepository.findAll().stream()
+                .map(p -> p.getCreditTotal() != null ? p.getCreditTotal() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        summary.setSnapshotCreditTotal(snapshotCreditTotal);
+        importSummaryRepository.save(summary);
+        log.info("Saved ImportSummary: will={} expenses={} deposits={} snapshotCredit={}", willExpense, generalExpenses, bankDeposits, snapshotCreditTotal);
 
         Map<String, Object> result = new HashMap<>();
         result.put("created", created);
