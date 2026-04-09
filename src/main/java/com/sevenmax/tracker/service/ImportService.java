@@ -220,7 +220,6 @@ public class ImportService {
         summary.setGeneralExpenses(generalExpenses);
         summary.setBankDeposits(bankDeposits);
         summary.setLastUpdated(java.time.LocalDateTime.now());
-        log.info("Saved ImportSummary: will={} expenses={} deposits={} snapshotCredit={}", willExpense, generalExpenses, bankDeposits, snapshotCreditTotal);
 
         // Save per-row expense entries — only create new ones, never recreate deleted ones
         int xlsCreated = 0;
