@@ -7,4 +7,5 @@ import java.util.List;
 public interface ClubExpenseRepository extends JpaRepository<ClubExpense, Long> {
     List<ClubExpense> findAllByOrderByExpenseDateDescCreatedAtDesc();
     List<ClubExpense> findBySettledFalseOrderByExpenseDateDesc();
+    List<ClubExpense> findBySettledTrueAndPaidByOrderByExpenseDateDesc(ClubExpense.PaidBy paidBy);
 }

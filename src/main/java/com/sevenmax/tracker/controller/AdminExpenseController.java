@@ -1,8 +1,10 @@
 package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.AdminExpense;
+import com.sevenmax.tracker.entity.ClubExpense;
 import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.repository.AdminExpenseRepository;
+import com.sevenmax.tracker.repository.ClubExpenseRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class AdminExpenseController {
 
     private final AdminExpenseRepository expenseRepository;
+    private final ClubExpenseRepository clubExpenseRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
 
@@ -29,38 +32,54 @@ public class AdminExpenseController {
     public ResponseEntity<?> getAll() {
         List<AdminExpense> all = expenseRepository.findAll();
 
-        // Group by adminUsername
-        Map<String, List<AdminExpense>> grouped = all.stream()
-            .collect(Collectors.groupingBy(e -> e.getAdminUsername() != null ? e.getAdminUsername() : "Unknown"));
+        // Group admin_expenses by adminUsername
+        Map<String, List<Map<String, Object>>> grouped = new LinkedHashMap<>();
+        all.stream()
+            .sorted(Comparator.comparing(e -> e.getExpenseDate() != null ? e.getExpenseDate() : LocalDate.EPOCH))
+            .forEach(e -> {
+                String key = e.getAdminUsername() != null ? e.getAdminUsername() : "Unknown";
+                grouped.computeIfAbsent(key, k -> new ArrayList<>());
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", e.getId());
+                m.put("type", "ADMIN_EXPENSE");
+                m.put("amount", e.getAmount());
+                m.put("notes", e.getNotes());
+                m.put("expenseDate", e.getExpenseDate() != null ? e.getExpenseDate().toString() : null);
+                m.put("createdBy", e.getCreatedBy());
+                m.put("sourceRef", e.getSourceRef());
+                grouped.get(key).add(m);
+            });
+
+        // Merge unsettled club expenses (ADMIN case) into their admin's group
+        List<ClubExpense> unsettledClub = clubExpenseRepository.findBySettledFalseOrderByExpenseDateDesc();
+        unsettledClub.stream()
+            .filter(ce -> ce.getPaidBy() == ClubExpense.PaidBy.ADMIN && ce.getAdminUser() != null)
+            .forEach(ce -> {
+                String key = ce.getAdminUser();
+                grouped.computeIfAbsent(key, k -> new ArrayList<>());
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", ce.getId());
+                m.put("type", "CLUB_EXPENSE");
+                m.put("amount", ce.getAmount());
+                m.put("notes", ce.getDescription());
+                m.put("expenseDate", ce.getExpenseDate() != null ? ce.getExpenseDate().toString() : null);
+                m.put("createdBy", ce.getCreatedBy());
+                m.put("sourceRef", "CLUB_EXPENSE");
+                grouped.get(key).add(m);
+            });
 
         List<Map<String, Object>> result = new ArrayList<>();
-        for (Map.Entry<String, List<AdminExpense>> entry : grouped.entrySet()) {
+        for (Map.Entry<String, List<Map<String, Object>>> entry : grouped.entrySet()) {
             Map<String, Object> row = new LinkedHashMap<>();
             row.put("adminUsername", entry.getKey());
             BigDecimal total = entry.getValue().stream()
-                .map(AdminExpense::getAmount)
-                .filter(Objects::nonNull)
+                .map(m -> m.get("amount") instanceof BigDecimal ? (BigDecimal) m.get("amount") : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
             row.put("total", total);
-            List<Map<String, Object>> entries = entry.getValue().stream()
-                .sorted(Comparator.comparing(e -> e.getExpenseDate() != null ? e.getExpenseDate() : LocalDate.EPOCH))
-                .map(e -> {
-                    Map<String, Object> m = new LinkedHashMap<>();
-                    m.put("id", e.getId());
-                    m.put("amount", e.getAmount());
-                    m.put("notes", e.getNotes());
-                    m.put("expenseDate", e.getExpenseDate() != null ? e.getExpenseDate().toString() : null);
-                    m.put("createdBy", e.getCreatedBy());
-                    m.put("createdAt", e.getCreatedAt() != null ? e.getCreatedAt().toString() : null);
-                    m.put("sourceRef", e.getSourceRef());
-                    return m;
-                })
-                .collect(Collectors.toList());
-            row.put("entries", entries);
+            row.put("entries", entry.getValue());
             result.add(row);
         }
 
-        // Sort by adminUsername
         result.sort(Comparator.comparing(m -> (String) m.get("adminUsername")));
 
         BigDecimal grandTotal = all.stream()
@@ -68,9 +87,27 @@ public class AdminExpenseController {
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        // Collect settled ADMIN club expenses as a separate list
+        List<Map<String, Object>> paidClubExpenses = clubExpenseRepository
+            .findBySettledTrueAndPaidByOrderByExpenseDateDesc(ClubExpense.PaidBy.ADMIN).stream()
+            .filter(ce -> ce.getAdminUser() != null)
+            .map(ce -> {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", ce.getId());
+                m.put("adminUser", ce.getAdminUser());
+                m.put("amount", ce.getAmount());
+                m.put("notes", ce.getDescription());
+                m.put("expenseDate", ce.getExpenseDate() != null ? ce.getExpenseDate().toString() : null);
+                m.put("settledAt", ce.getSettledAt() != null ? ce.getSettledAt().toString() : null);
+                m.put("settledBy", ce.getSettledBy());
+                return m;
+            })
+            .collect(Collectors.toList());
+
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("admins", result);
         response.put("grandTotal", grandTotal);
+        response.put("paidClubExpenses", paidClubExpenses);
         return ResponseEntity.ok(response);
     }
 
