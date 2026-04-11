@@ -55,12 +55,13 @@ public class ClubExpenseController {
             e.setSettled(false);
         } else {
             // CLUB case — already settled, deduct from bank balance
-            BankAccount bank;
+            BankAccount bank = null;
             if (body.get("bankAccountId") != null) {
                 Long bankId = Long.valueOf(body.get("bankAccountId").toString());
-                bank = bankAccountRepository.findById(bankId).orElseGet(() -> bankAccountRepository.findAll().stream().findFirst().orElseThrow());
-            } else {
-                bank = bankAccountRepository.findAll().stream().findFirst().orElseThrow();
+                bank = bankAccountRepository.findById(bankId).orElse(null);
+            }
+            if (bank == null) {
+                bank = bankAccountRepository.findAll().stream().findFirst().orElse(null);
             }
             e.setBankAccount(bank);
             e.setSettled(true);
