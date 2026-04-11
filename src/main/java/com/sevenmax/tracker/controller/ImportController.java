@@ -26,6 +26,7 @@ public class ImportController {
     private final ReportRepository reportRepository;
     private final PlayerTransferRepository playerTransferRepository;
     private final AdminExpenseRepository adminExpenseRepository;
+    private final ClubExpenseRepository clubExpenseRepository;
     private final UserRepository userRepository;
 
     @PostMapping("/players")
@@ -86,8 +87,12 @@ public class ImportController {
                     // Derive expenses live from AdminExpense table so deletions are reflected immediately
                     java.math.BigDecimal wheelExpenses = adminExpenseRepository.sumByAdminUsername("Wheel");
                     java.math.BigDecimal generalExpenses = adminExpenseRepository.sumExcludingAdminUsername("Wheel");
+                    java.math.BigDecimal clubExpensesTotal = clubExpenseRepository.sumAll();
                     summary.setWillExpense(wheelExpenses != null ? wheelExpenses : java.math.BigDecimal.ZERO);
-                    summary.setGeneralExpenses(generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO);
+                    summary.setGeneralExpenses(
+                        (generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO)
+                        .add(clubExpensesTotal != null ? clubExpensesTotal : java.math.BigDecimal.ZERO)
+                    );
                     java.math.BigDecimal promotionsTotal = transactionRepository.sumByTypeName("PROMOTION");
                     summary.setPromotionsTotal(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO);
                     java.math.BigDecimal chipPromoTotal = transactionRepository.sumByTypeName("CHIP_PROMO");
