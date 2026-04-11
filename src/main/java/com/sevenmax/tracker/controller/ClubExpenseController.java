@@ -2,8 +2,14 @@ package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.BankAccount;
 import com.sevenmax.tracker.entity.ClubExpense;
+import com.sevenmax.tracker.entity.ImportSummary;
+import com.sevenmax.tracker.entity.Player;
+import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.repository.BankAccountRepository;
 import com.sevenmax.tracker.repository.ClubExpenseRepository;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
+import com.sevenmax.tracker.repository.PlayerRepository;
+import com.sevenmax.tracker.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +27,9 @@ public class ClubExpenseController {
 
     private final ClubExpenseRepository clubExpenseRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final ImportSummaryRepository importSummaryRepository;
+    private final PlayerRepository playerRepository;
+    private final TransactionService transactionService;
 
     @GetMapping
     public ResponseEntity<List<ClubExpense>> getAll() {
@@ -45,13 +54,19 @@ public class ClubExpenseController {
             e.setAdminUser(body.get("adminUser").toString());
             e.setSettled(false);
         } else {
-            // CLUB case — already settled
-            Long bankId = Long.valueOf(body.get("bankAccountId").toString());
-            BankAccount bank = bankAccountRepository.findById(bankId).orElseThrow();
+            // CLUB case — already settled, deduct from bank balance
+            BankAccount bank;
+            if (body.get("bankAccountId") != null) {
+                Long bankId = Long.valueOf(body.get("bankAccountId").toString());
+                bank = bankAccountRepository.findById(bankId).orElseGet(() -> bankAccountRepository.findAll().stream().findFirst().orElseThrow());
+            } else {
+                bank = bankAccountRepository.findAll().stream().findFirst().orElseThrow();
+            }
             e.setBankAccount(bank);
             e.setSettled(true);
             e.setSettledAt(e.getExpenseDate());
             e.setSettledBy(auth.getName());
+            deductFromBank(e.getAmount());
         }
 
         return ResponseEntity.ok(clubExpenseRepository.save(e));
@@ -68,7 +83,35 @@ public class ClubExpenseController {
             BankAccount bank = bankAccountRepository.findById(bankId).orElseThrow();
             e.setBankAccount(bank);
         }
+        deductFromBank(e.getAmount());
+
+        // If chips method: create a pending EXPENSE_REPAYMENT transaction for the admin player
+        String method = body.containsKey("method") ? body.get("method").toString() : "CASH";
+        if ("CHIPS".equals(method) && e.getAdminUser() != null) {
+            playerRepository.findByUsername(e.getAdminUser()).ifPresent(player -> {
+                Transaction tx = new Transaction();
+                tx.setPlayer(player);
+                tx.setType(Transaction.Type.EXPENSE_REPAYMENT);
+                tx.setAmount(e.getAmount());
+                tx.setNotes("Paid expense: " + e.getDescription());
+                tx.setTransactionDate(e.getSettledAt());
+                tx.setCreatedByUsername(auth.getName());
+                tx.setPendingConfirmation(true);
+                tx.setSourceRef("EXPENSE:" + e.getId());
+                transactionService.addTransaction(tx);
+            });
+        }
+
         return ResponseEntity.ok(clubExpenseRepository.save(e));
+    }
+
+    private void deductFromBank(BigDecimal amount) {
+        ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+        summary.setId(1L);
+        BigDecimal current = summary.getBankDeposits() != null ? summary.getBankDeposits() : BigDecimal.ZERO;
+        summary.setBankDeposits(current.subtract(amount));
+        summary.setLastUpdated(java.time.LocalDateTime.now());
+        importSummaryRepository.save(summary);
     }
 
     @DeleteMapping("/{id}")
