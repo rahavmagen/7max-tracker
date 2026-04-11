@@ -40,7 +40,7 @@ public class PlayerController {
         LocalDateTime since = LocalDateTime.now().minusDays(30);
         List<Map<String, Object>> result = gameResultRepository.findActivePlayers(since).stream()
             .filter(p -> Boolean.TRUE.equals(p.getActive()))
-            .map(p -> { Map<String, Object> m = new java.util.HashMap<>(); m.put("username", p.getUsername()); m.put("fullName", p.getFullName() != null ? p.getFullName() : ""); return m; })
+            .map(p -> { Map<String, Object> m = new java.util.HashMap<>(); m.put("id", p.getId()); m.put("username", p.getUsername()); m.put("fullName", p.getFullName() != null ? p.getFullName() : ""); return m; })
             .sorted((a, b) -> a.get("username").toString().compareToIgnoreCase(b.get("username").toString()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(result);
