@@ -87,13 +87,15 @@ public class ImportController {
                     // Derive expenses live from AdminExpense table so deletions are reflected immediately
                     java.math.BigDecimal wheelExpenses = adminExpenseRepository.sumByAdminUsername("Wheel");
                     java.math.BigDecimal generalExpenses = adminExpenseRepository.sumExcludingAdminUsername("Wheel");
-                    java.math.BigDecimal clubExpensesTotal = clubExpenseRepository.sumAll();
+                    java.math.BigDecimal promotionsTotal = transactionRepository.sumByTypeName("PROMOTION");
+                    java.math.BigDecimal settledAdminClub = clubExpenseRepository.sumSettledAdminClub();
                     summary.setWillExpense(wheelExpenses != null ? wheelExpenses : java.math.BigDecimal.ZERO);
+                    // generalExpenses = Admin Expenses Grand Total: non-Wheel admin expenses + write-offs + settled admin club expenses
                     summary.setGeneralExpenses(
                         (generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO)
-                        .add(clubExpensesTotal != null ? clubExpensesTotal : java.math.BigDecimal.ZERO)
+                        .add(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO)
+                        .add(settledAdminClub != null ? settledAdminClub : java.math.BigDecimal.ZERO)
                     );
-                    java.math.BigDecimal promotionsTotal = transactionRepository.sumByTypeName("PROMOTION");
                     summary.setPromotionsTotal(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO);
                     java.math.BigDecimal chipPromoTotal = transactionRepository.sumByTypeName("CHIP_PROMO");
                     summary.setChipPromoTotal(chipPromoTotal != null ? chipPromoTotal : java.math.BigDecimal.ZERO);
