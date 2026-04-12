@@ -32,9 +32,10 @@ public class AdminExpenseController {
     public ResponseEntity<?> getAll() {
         List<AdminExpense> all = expenseRepository.findAll();
 
-        // Group admin_expenses by adminUsername
+        // Group admin_expenses by adminUsername (exclude settled — they're paid/reimbursed)
         Map<String, List<Map<String, Object>>> grouped = new LinkedHashMap<>();
         all.stream()
+            .filter(e -> !Boolean.TRUE.equals(e.getSettled()))
             .sorted(Comparator.comparing(e -> e.getExpenseDate() != null ? e.getExpenseDate() : LocalDate.EPOCH))
             .forEach(e -> {
                 String key = e.getAdminUsername() != null ? e.getAdminUsername() : "Unknown";
@@ -83,6 +84,7 @@ public class AdminExpenseController {
         result.sort(Comparator.comparing(m -> (String) m.get("adminUsername")));
 
         BigDecimal grandTotal = all.stream()
+            .filter(e -> !Boolean.TRUE.equals(e.getSettled()))
             .map(AdminExpense::getAmount)
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -168,6 +170,18 @@ public class AdminExpenseController {
             if (body.containsKey("notes")) {
                 expense.setNotes((String) body.get("notes"));
             }
+            return ResponseEntity.ok(expenseRepository.save(expense));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    // PATCH /admin-expenses/{id}/settle
+    @PatchMapping("/{id}/settle")
+    public ResponseEntity<?> settle(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        return expenseRepository.findById(id).map(expense -> {
+            expense.setSettled(true);
+            expense.setSettledBy(auth != null ? auth.getName() : "system");
+            String settledAtStr = body.get("settledAt") != null ? body.get("settledAt").toString() : null;
+            expense.setSettledAt(settledAtStr != null ? LocalDate.parse(settledAtStr) : LocalDate.now());
             return ResponseEntity.ok(expenseRepository.save(expense));
         }).orElse(ResponseEntity.notFound().build());
     }

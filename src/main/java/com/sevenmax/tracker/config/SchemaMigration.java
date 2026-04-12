@@ -62,5 +62,13 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: could not rename REPAYMENT rows: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS settled BOOLEAN DEFAULT FALSE");
+            jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS settled_at DATE");
+            jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS settled_by VARCHAR(255)");
+            log.info("SchemaMigration: admin_expenses settle columns ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: admin_expenses settle columns: {}", e.getMessage());
+        }
     }
 }

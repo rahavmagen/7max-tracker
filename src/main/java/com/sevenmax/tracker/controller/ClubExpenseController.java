@@ -115,6 +115,19 @@ public class ClubExpenseController {
         importSummaryRepository.save(summary);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        return clubExpenseRepository.findById(id).map(e -> {
+            if (body.get("amount") != null) {
+                try { e.setAmount(new BigDecimal(body.get("amount").toString())); } catch (Exception ignored) {}
+            }
+            if (body.containsKey("description")) {
+                e.setDescription((String) body.get("description"));
+            }
+            return ResponseEntity.ok(clubExpenseRepository.save(e));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         clubExpenseRepository.deleteById(id);

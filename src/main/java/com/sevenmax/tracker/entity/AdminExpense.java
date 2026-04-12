@@ -30,4 +30,8 @@ public class AdminExpense {
 
     // "XLS" for import-sourced, null/absent for manual
     private String sourceRef;
+
+    private Boolean settled = false;
+    private LocalDate settledAt;
+    private String settledBy;
 }
