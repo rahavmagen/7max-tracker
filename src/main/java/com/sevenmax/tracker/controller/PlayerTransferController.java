@@ -138,8 +138,10 @@ public class PlayerTransferController {
             row.put("delta", delta);
             row.put("method", t.getMethod() != null ? t.getMethod().toString() : "");
             row.put("notes", t.getNotes() != null ? t.getNotes() : "");
+            row.put("createdBy", t.getCreatedByUsername() != null ? t.getCreatedByUsername() : "");
             rows.add(row);
         }
+        java.util.Collections.reverse(rows); // newest first
         return ResponseEntity.ok(Map.of("rows", rows, "total", currentBank));
     }
 }
