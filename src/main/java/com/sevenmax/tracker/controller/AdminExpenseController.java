@@ -130,7 +130,7 @@ public class AdminExpenseController {
     }
 
     // GET /admin-expenses/paid-totals — summary for TotalProfit page
-    // Only counts AdminExpense records — ClubExpenses are already reflected in bankDeposits or generalExpenses
+    // Counts settled AdminExpenses + settled ClubExpenses (ADMIN paidBy) — mirrors the paid sections in getAll()
     @GetMapping("/paid-totals")
     public ResponseEntity<?> getPaidTotals() {
         BigDecimal noVatTotal = BigDecimal.ZERO;
@@ -140,6 +140,12 @@ public class AdminExpenseController {
             if (!Boolean.TRUE.equals(e.getSettled()) || e.getVatType() == null) continue;
             if ("NO_VAT".equals(e.getVatType())) noVatTotal = noVatTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
             else if ("WITH_VAT".equals(e.getVatType())) withVatTotal = withVatTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
+        }
+
+        for (ClubExpense ce : clubExpenseRepository.findBySettledTrue()) {
+            if (ce.getPaidBy() != ClubExpense.PaidBy.ADMIN || ce.getVatType() == null) continue;
+            if ("NO_VAT".equals(ce.getVatType())) noVatTotal = noVatTotal.add(ce.getAmount() != null ? ce.getAmount() : BigDecimal.ZERO);
+            else if ("WITH_VAT".equals(ce.getVatType())) withVatTotal = withVatTotal.add(ce.getAmount() != null ? ce.getAmount() : BigDecimal.ZERO);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();
