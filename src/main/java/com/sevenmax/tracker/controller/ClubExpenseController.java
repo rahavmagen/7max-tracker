@@ -67,6 +67,9 @@ public class ClubExpenseController {
             e.setSettled(true);
             e.setSettledAt(e.getExpenseDate());
             e.setSettledBy(auth.getName());
+            if (body.get("vatType") != null) {
+                e.setVatType(body.get("vatType").toString());
+            }
             deductFromBank(e.getAmount());
         }
 
@@ -83,6 +86,9 @@ public class ClubExpenseController {
             Long bankId = Long.valueOf(body.get("bankAccountId").toString());
             BankAccount bank = bankAccountRepository.findById(bankId).orElseThrow();
             e.setBankAccount(bank);
+        }
+        if (body.get("vatType") != null) {
+            e.setVatType(body.get("vatType").toString());
         }
         deductFromBank(e.getAmount());
 
@@ -113,6 +119,14 @@ public class ClubExpenseController {
         summary.setBankDeposits(current.subtract(amount));
         summary.setLastUpdated(java.time.LocalDateTime.now());
         importSummaryRepository.save(summary);
+    }
+
+    @PatchMapping("/{id}/vat-type")
+    public ResponseEntity<?> setVatType(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        return clubExpenseRepository.findById(id).map(e -> {
+            e.setVatType(body.get("vatType") != null ? body.get("vatType").toString() : null);
+            return ResponseEntity.ok(clubExpenseRepository.save(e));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")

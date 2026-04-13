@@ -49,4 +49,7 @@ public class ClubExpense {
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // "NO_VAT" or "WITH_VAT" — set when expense is paid (or on creation for CLUB type)
+    private String vatType;
 }

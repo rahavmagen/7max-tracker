@@ -34,4 +34,7 @@ public class AdminExpense {
     private Boolean settled = false;
     private LocalDate settledAt;
     private String settledBy;
+
+    // "NO_VAT" or "WITH_VAT" — set when expense is paid
+    private String vatType;
 }

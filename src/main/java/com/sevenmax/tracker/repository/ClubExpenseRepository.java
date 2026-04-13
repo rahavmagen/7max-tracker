@@ -10,6 +10,7 @@ public interface ClubExpenseRepository extends JpaRepository<ClubExpense, Long> 
     List<ClubExpense> findAllByOrderByExpenseDateDescCreatedAtDesc();
     List<ClubExpense> findBySettledFalseOrderByExpenseDateDesc();
     List<ClubExpense> findBySettledTrueAndPaidByOrderByExpenseDateDesc(ClubExpense.PaidBy paidBy);
+    List<ClubExpense> findBySettledTrue();
 
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM ClubExpense e")
     BigDecimal sumAll();
