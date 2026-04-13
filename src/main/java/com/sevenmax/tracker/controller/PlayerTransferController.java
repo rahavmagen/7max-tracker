@@ -123,19 +123,22 @@ public class PlayerTransferController {
         for (var t : transfers) {
             boolean toBank = t.getToBankAccount() != null || (t.getToPlayer() == null && t.getFromPlayer() != null);
             java.math.BigDecimal delta = toBank ? t.getAmount() : t.getAmount().negate();
-            String from = t.getFromPlayer() != null ? t.getFromPlayer().getUsername()
+            String fromName = t.getFromPlayer() != null ? t.getFromPlayer().getUsername()
                     : (t.getFromBankAccount() != null ? t.getFromBankAccount().getName() : "CLUB");
-            String to = t.getToPlayer() != null ? t.getToPlayer().getUsername()
+            String toName = t.getToPlayer() != null ? t.getToPlayer().getUsername()
                     : (t.getToBankAccount() != null ? t.getToBankAccount().getName() : "CLUB");
-            rows.add(Map.of(
-                "id", t.getId(),
-                "type", "TRANSFER",
-                "date", t.getTransferDate() != null ? t.getTransferDate().toString() : "",
-                "description", from + " → " + to,
-                "delta", delta,
-                "method", t.getMethod() != null ? t.getMethod().toString() : "",
-                "notes", t.getNotes() != null ? t.getNotes() : ""
-            ));
+            var row = new java.util.HashMap<String, Object>();
+            row.put("id", t.getId());
+            row.put("type", "TRANSFER");
+            row.put("date", t.getTransferDate() != null ? t.getTransferDate().toString() : "");
+            row.put("fromName", fromName);
+            row.put("toName", toName);
+            row.put("fromPlayerId", t.getFromPlayer() != null ? t.getFromPlayer().getId() : null);
+            row.put("toPlayerId", t.getToPlayer() != null ? t.getToPlayer().getId() : null);
+            row.put("delta", delta);
+            row.put("method", t.getMethod() != null ? t.getMethod().toString() : "");
+            row.put("notes", t.getNotes() != null ? t.getNotes() : "");
+            rows.add(row);
         }
         return ResponseEntity.ok(Map.of("rows", rows, "total", currentBank));
     }
