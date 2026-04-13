@@ -90,10 +90,10 @@ public class ImportController {
                     java.math.BigDecimal promotionsTotal = transactionRepository.sumByTypeName("PROMOTION");
                     java.math.BigDecimal settledAdminClub = clubExpenseRepository.sumSettledAdminClub();
                     summary.setWillExpense(wheelExpenses != null ? wheelExpenses : java.math.BigDecimal.ZERO);
-                    // generalExpenses = cash expenses only: non-Wheel admin + settled admin club
-                    // write-offs (promotionsTotal) are chip-based and already deducted in TotalProfit chips calculation
+                    // generalExpenses = non-Wheel admin expenses + write-offs + settled admin club
                     summary.setGeneralExpenses(
                         (generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO)
+                        .add(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO)
                         .add(settledAdminClub != null ? settledAdminClub : java.math.BigDecimal.ZERO)
                     );
                     summary.setPromotionsTotal(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO);
