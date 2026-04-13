@@ -201,8 +201,9 @@ public class ReportService {
             report.setChipsTotal(newXlsTotal);
 
             // Compute chip mismatch warning (latest report only)
+            ImportSummary summary = null;
             if (isLatestReport) {
-                ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+                summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
                 java.time.LocalDate prevReportDate = summary.getLastReportDate();
                 BigDecimal prevChipsTotal = summary.getLastReportChipsTotal() != null ? summary.getLastReportChipsTotal() : BigDecimal.ZERO;
 
@@ -237,16 +238,25 @@ public class ReportService {
                     }
                 }
 
-                // Save new chip snapshot for next check
                 summary.setId(1L);
                 summary.setLastReportChipsTotal(newXlsTotal);
                 summary.setLastReportDate(report.getPeriodEnd());
                 summary.setLastUpdated(LocalDateTime.now());
-                importSummaryRepository.save(summary);
+                // snapshotCreditTotal saved below, after parseCreditSheet updates player credits
             }
 
             // Parse מעקב קרדיטים → update player creditTotal if sheet exists
             parseCreditSheet(workbook);
+
+            // Snapshot credit total AFTER credits are updated — this is the authoritative snapshot for profit calc
+            if (isLatestReport && summary != null) {
+                BigDecimal snapshotCreditTotal = playerRepository.findAll().stream()
+                    .map(p -> p.getCreditTotal() != null ? p.getCreditTotal() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                summary.setSnapshotCreditTotal(snapshotCreditTotal);
+                importSummaryRepository.save(summary);
+                log.info("Report upload: snapshotCreditTotal={}", snapshotCreditTotal);
+            }
 
             // Parse Trade Record → create CREDIT/PAYMENT transactions (skip already-imported)
             parseTradeRecord(workbook, report);

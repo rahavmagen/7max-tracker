@@ -220,6 +220,7 @@ public class PlayerTransferService {
             item.put("pendingType", ref != null && ref.equals("SCREEN:CHIP_PROMO") ? "CHIP_PROMO"
                     : ref != null && ref.startsWith("SCREEN:PROMO") ? "PROMOTION"
                     : ref != null && ref.startsWith("TRADE:") ? "XLS_UNMATCHED"
+                    : ref != null && ref.startsWith("EXPENSE:") ? "EXPENSE_REPAYMENT"
                     : "CREDIT");
             item.put("transactionType", tx.getType() != null ? tx.getType().name() : "CREDIT");
             item.put("id", tx.getId());

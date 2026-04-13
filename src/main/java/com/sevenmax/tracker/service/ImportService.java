@@ -297,13 +297,8 @@ public class ImportService {
             }
         }
 
-        // Snapshot credit AFTER saving updated player credits
-        BigDecimal snapshotCreditTotal = playerRepository.findAll().stream()
-                .map(p -> p.getCreditTotal() != null ? p.getCreditTotal() : BigDecimal.ZERO)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        summary.setSnapshotCreditTotal(snapshotCreditTotal);
         importSummaryRepository.save(summary);
-        log.info("Saved ImportSummary: will={} expenses={} deposits={} snapshotCredit={}", willExpense, generalExpenses, bankDeposits, snapshotCreditTotal);
+        log.info("Saved ImportSummary: will={} expenses={} deposits={}", willExpense, generalExpenses, bankDeposits);
 
         Map<String, Object> result = new HashMap<>();
         result.put("created", created);
