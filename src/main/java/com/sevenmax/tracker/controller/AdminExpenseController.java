@@ -130,22 +130,24 @@ public class AdminExpenseController {
     }
 
     // GET /admin-expenses/paid-totals — summary for TotalProfit page
-    // Counts settled AdminExpenses + settled ClubExpenses (ADMIN paidBy) — mirrors the paid sections in getAll()
+    // Mirrors addToPaidList exactly: WITH_VAT → withVat, everything else (NO_VAT/null) → noVat
+    // Includes ALL settled AdminExpenses + ALL settled ClubExpenses — same set as the paid sections in getAll()
     @GetMapping("/paid-totals")
     public ResponseEntity<?> getPaidTotals() {
         BigDecimal noVatTotal = BigDecimal.ZERO;
         BigDecimal withVatTotal = BigDecimal.ZERO;
 
         for (AdminExpense e : expenseRepository.findAll()) {
-            if (!Boolean.TRUE.equals(e.getSettled()) || e.getVatType() == null) continue;
-            if ("NO_VAT".equals(e.getVatType())) noVatTotal = noVatTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
-            else if ("WITH_VAT".equals(e.getVatType())) withVatTotal = withVatTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
+            if (!Boolean.TRUE.equals(e.getSettled())) continue;
+            BigDecimal amt = e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO;
+            if ("WITH_VAT".equals(e.getVatType())) withVatTotal = withVatTotal.add(amt);
+            else noVatTotal = noVatTotal.add(amt);
         }
 
         for (ClubExpense ce : clubExpenseRepository.findBySettledTrue()) {
-            if (ce.getPaidBy() != ClubExpense.PaidBy.ADMIN || ce.getVatType() == null) continue;
-            if ("NO_VAT".equals(ce.getVatType())) noVatTotal = noVatTotal.add(ce.getAmount() != null ? ce.getAmount() : BigDecimal.ZERO);
-            else if ("WITH_VAT".equals(ce.getVatType())) withVatTotal = withVatTotal.add(ce.getAmount() != null ? ce.getAmount() : BigDecimal.ZERO);
+            BigDecimal amt = ce.getAmount() != null ? ce.getAmount() : BigDecimal.ZERO;
+            if ("WITH_VAT".equals(ce.getVatType())) withVatTotal = withVatTotal.add(amt);
+            else noVatTotal = noVatTotal.add(amt);
         }
 
         Map<String, Object> response = new LinkedHashMap<>();
