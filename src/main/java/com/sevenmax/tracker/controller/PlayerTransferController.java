@@ -131,6 +131,7 @@ public class PlayerTransferController {
             row.put("id", t.getId());
             row.put("type", "TRANSFER");
             row.put("date", t.getTransferDate() != null ? t.getTransferDate().toString() : "");
+            row.put("createdAt", t.getCreatedAt() != null ? t.getCreatedAt().toString() : "");
             row.put("fromName", fromName);
             row.put("toName", toName);
             row.put("fromPlayerId", t.getFromPlayer() != null ? t.getFromPlayer().getId() : null);
