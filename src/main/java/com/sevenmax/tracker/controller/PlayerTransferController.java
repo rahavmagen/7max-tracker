@@ -1,6 +1,8 @@
 package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.repository.PlayerTransferRepository;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.service.PlayerTransferService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 public class PlayerTransferController {
 
     private final PlayerTransferService transferService;
+    private final PlayerTransferRepository transferRepository;
+    private final ImportSummaryRepository importSummaryRepository;
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Map<String, Object> body, Authentication auth) {
@@ -96,5 +100,43 @@ public class PlayerTransferController {
         Map<String, Object> result = transferService.getLastNightMtt(d);
         if (result == null) return ResponseEntity.ok(Map.of());
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/bank-history")
+    public ResponseEntity<?> getBankHistory() {
+        var transfers = transferRepository.findBankRelatedTransfers();
+        var summary = importSummaryRepository.findById(1L).orElse(null);
+
+        // Compute XLS base = current bankDeposits - sum of all bank transfer deltas
+        java.math.BigDecimal transferSum = java.math.BigDecimal.ZERO;
+        for (var t : transfers) {
+            boolean toBank = t.getToBankAccount() != null || (t.getToPlayer() == null && t.getFromPlayer() != null);
+            transferSum = toBank ? transferSum.add(t.getAmount()) : transferSum.subtract(t.getAmount());
+        }
+        java.math.BigDecimal currentBank = summary != null && summary.getBankDeposits() != null ? summary.getBankDeposits() : java.math.BigDecimal.ZERO;
+        java.math.BigDecimal xlsBase = currentBank.subtract(transferSum);
+
+        var rows = new java.util.ArrayList<Map<String, Object>>();
+        if (xlsBase.compareTo(java.math.BigDecimal.ZERO) != 0) {
+            rows.add(Map.of("type", "XLS", "description", "XLS base (מיקום הכסף)", "delta", xlsBase, "date", ""));
+        }
+        for (var t : transfers) {
+            boolean toBank = t.getToBankAccount() != null || (t.getToPlayer() == null && t.getFromPlayer() != null);
+            java.math.BigDecimal delta = toBank ? t.getAmount() : t.getAmount().negate();
+            String from = t.getFromPlayer() != null ? t.getFromPlayer().getUsername()
+                    : (t.getFromBankAccount() != null ? t.getFromBankAccount().getName() : "CLUB");
+            String to = t.getToPlayer() != null ? t.getToPlayer().getUsername()
+                    : (t.getToBankAccount() != null ? t.getToBankAccount().getName() : "CLUB");
+            rows.add(Map.of(
+                "id", t.getId(),
+                "type", "TRANSFER",
+                "date", t.getTransferDate() != null ? t.getTransferDate().toString() : "",
+                "description", from + " → " + to,
+                "delta", delta,
+                "method", t.getMethod() != null ? t.getMethod().toString() : "",
+                "notes", t.getNotes() != null ? t.getNotes() : ""
+            ));
+        }
+        return ResponseEntity.ok(Map.of("rows", rows, "total", currentBank));
     }
 }
