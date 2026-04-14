@@ -37,8 +37,7 @@ public class PlayerController {
 
     @GetMapping("/active")
     public ResponseEntity<List<Map<String, Object>>> getActivePlayers() {
-        LocalDateTime since = LocalDateTime.now().minusDays(30);
-        List<Map<String, Object>> result = gameResultRepository.findActivePlayers(since).stream()
+        List<Map<String, Object>> result = playerRepository.findAll().stream()
             .filter(p -> Boolean.TRUE.equals(p.getActive()))
             .map(p -> { Map<String, Object> m = new java.util.HashMap<>(); m.put("id", p.getId()); m.put("username", p.getUsername()); m.put("fullName", p.getFullName() != null ? p.getFullName() : ""); return m; })
             .sorted((a, b) -> a.get("username").toString().compareToIgnoreCase(b.get("username").toString()))
