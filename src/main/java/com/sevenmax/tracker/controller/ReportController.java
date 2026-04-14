@@ -49,6 +49,24 @@ public class ReportController {
     private final PlayerRepository playerRepository;
     private final AdminExpenseRepository adminExpenseRepository;
 
+    @PostMapping("/upload-auto")
+    public ResponseEntity<?> uploadReportAuto(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey) {
+        String expectedKey = System.getenv("UPLOAD_API_KEY");
+        if (expectedKey == null || !expectedKey.equals(apiKey)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid API key"));
+        }
+        try {
+            Report report = reportService.uploadReport(file, null);
+            return ResponseEntity.ok(report);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Upload failed"));
+        }
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<?> uploadReport(
             @RequestParam("file") MultipartFile file,
