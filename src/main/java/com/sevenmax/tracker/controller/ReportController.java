@@ -13,6 +13,7 @@ import com.sevenmax.tracker.repository.ReportRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -49,12 +50,13 @@ public class ReportController {
     private final PlayerRepository playerRepository;
     private final AdminExpenseRepository adminExpenseRepository;
 
+    private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
+
     @PostMapping("/upload-auto")
     public ResponseEntity<?> uploadReportAuto(
             @RequestParam("file") MultipartFile file,
             @RequestHeader(value = "X-Api-Key", required = false) String apiKey) {
-        String expectedKey = System.getenv("UPLOAD_API_KEY");
-        if (expectedKey == null || !expectedKey.equals(apiKey)) {
+        if (!UPLOAD_API_KEY.equals(apiKey)) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid API key"));
         }
         try {
