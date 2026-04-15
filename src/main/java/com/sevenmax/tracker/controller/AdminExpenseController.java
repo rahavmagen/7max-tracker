@@ -3,8 +3,10 @@ package com.sevenmax.tracker.controller;
 import com.sevenmax.tracker.entity.AdminExpense;
 import com.sevenmax.tracker.entity.ClubExpense;
 import com.sevenmax.tracker.entity.User;
+import com.sevenmax.tracker.entity.ImportSummary;
 import com.sevenmax.tracker.repository.AdminExpenseRepository;
 import com.sevenmax.tracker.repository.ClubExpenseRepository;
+import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class AdminExpenseController {
     private final ClubExpenseRepository clubExpenseRepository;
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
+    private final ImportSummaryRepository importSummaryRepository;
 
     // GET /admin-expenses — all expenses grouped by admin with totals
     @GetMapping
@@ -228,8 +231,20 @@ public class AdminExpenseController {
             if (body.get("vatType") != null) {
                 expense.setVatType(body.get("vatType").toString());
             }
+            if (expense.getAmount() != null) {
+                deductFromBank(expense.getAmount());
+            }
             return ResponseEntity.ok(expenseRepository.save(expense));
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    private void deductFromBank(BigDecimal amount) {
+        ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+        summary.setId(1L);
+        BigDecimal current = summary.getBankDeposits() != null ? summary.getBankDeposits() : BigDecimal.ZERO;
+        summary.setBankDeposits(current.subtract(amount));
+        summary.setLastUpdated(java.time.LocalDateTime.now());
+        importSummaryRepository.save(summary);
     }
 
     // PATCH /admin-expenses/{id}/vat-type — move between NO_VAT and WITH_VAT
