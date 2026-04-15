@@ -4,9 +4,15 @@ import com.sevenmax.tracker.entity.AdminExpense;
 import com.sevenmax.tracker.entity.ClubExpense;
 import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.entity.ImportSummary;
+import com.sevenmax.tracker.entity.Player;
+import com.sevenmax.tracker.entity.PlayerTransfer;
+import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.repository.AdminExpenseRepository;
+import com.sevenmax.tracker.repository.BankAccountRepository;
 import com.sevenmax.tracker.repository.ClubExpenseRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
+import com.sevenmax.tracker.repository.PlayerRepository;
+import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +35,9 @@ public class AdminExpenseController {
     private final UserRepository userRepository;
     private final TransactionRepository transactionRepository;
     private final ImportSummaryRepository importSummaryRepository;
+    private final PlayerRepository playerRepository;
+    private final PlayerTransferRepository playerTransferRepository;
+    private final BankAccountRepository bankAccountRepository;
 
     // GET /admin-expenses — all expenses grouped by admin with totals
     @GetMapping
@@ -233,9 +242,33 @@ public class AdminExpenseController {
             }
             if (expense.getAmount() != null) {
                 deductFromBank(expense.getAmount());
+                createBankHistoryEntry(expense, auth);
             }
             return ResponseEntity.ok(expenseRepository.save(expense));
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    private void createBankHistoryEntry(AdminExpense expense, Authentication auth) {
+        PlayerTransfer transfer = new PlayerTransfer();
+        transfer.setAmount(expense.getAmount());
+        transfer.setMethod(Transaction.Method.CASH);
+        transfer.setNotes("Expense payment to " + expense.getAdminUsername()
+                + (expense.getNotes() != null ? ": " + expense.getNotes() : ""));
+        transfer.setTransferDate(expense.getSettledAt() != null ? expense.getSettledAt() : java.time.LocalDate.now());
+        transfer.setCreatedByUsername(auth != null ? auth.getName() : "system");
+        transfer.setConfirmed(true);
+
+        // Try to link to admin's player record so history shows "CLUB → adminName"
+        Player adminPlayer = playerRepository.findByUsername(expense.getAdminUsername()).orElse(null);
+        if (adminPlayer != null) {
+            transfer.setToPlayer(adminPlayer);
+            // fromPlayer = null → CLUB
+        } else {
+            // Fallback: attach a bank account so query still picks it up
+            bankAccountRepository.findAll().stream().findFirst()
+                    .ifPresent(transfer::setFromBankAccount);
+        }
+        playerTransferRepository.save(transfer);
     }
 
     private void deductFromBank(BigDecimal amount) {
