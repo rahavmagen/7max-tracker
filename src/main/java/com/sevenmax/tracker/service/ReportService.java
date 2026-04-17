@@ -134,7 +134,7 @@ public class ReportService {
                         player.setChipsStale(false);
                         player.setActive(true);
                         if (balanceClubId != null) player.setClubPlayerId(balanceClubId);
-                        player = playerRepository.save(player);
+                        player = playerService.createPlayer(player);
                         log.info("Auto-created player from Club Member Balance: {} clubId={}", nickname, balanceClubId);
                     }
                 } else {
@@ -992,7 +992,7 @@ public class ReportService {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
                             p.setUsername(nickname);
-                            return playerRepository.save(p);
+                            return playerService.createPlayer(p);
                         });
                 if (player.getClubPlayerId() == null || player.getClubPlayerId().isBlank()) {
                     player.setClubPlayerId(clubPlayerId);
@@ -1097,7 +1097,7 @@ public class ReportService {
                             Player p = new Player();
                             p.setClubPlayerId(clubPlayerId);
                             p.setUsername(nickname);
-                            return playerRepository.save(p);
+                            return playerService.createPlayer(p);
                         });
                 if (player.getClubPlayerId() == null || player.getClubPlayerId().isBlank()) {
                     player.setClubPlayerId(clubPlayerId);

@@ -290,7 +290,7 @@ public class ImportService {
                 playerRepository.save(ex);
                 updated++;
             } else {
-                playerRepository.save(p);
+                playerService.createPlayer(p);
                 created++;
                 newPlayers.add(p.getUsername());
                 log.info("New player created from import: '{}'", p.getUsername());

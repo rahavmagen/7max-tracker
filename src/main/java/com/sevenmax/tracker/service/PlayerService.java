@@ -11,6 +11,7 @@ import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +33,7 @@ public class PlayerService {
     private final GameResultRepository gameResultRepository;
     private final PlayerTransferRepository playerTransferRepository;
     private final AdminExpenseRepository adminExpenseRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public List<Player> getAllPlayers() {
         return playerRepository.findAll();
@@ -47,17 +49,55 @@ public class PlayerService {
     }
 
     public Player createPlayer(Player player) {
-        return playerRepository.save(player);
+        Player saved = playerRepository.save(player);
+        createUserForPlayer(saved);
+        return saved;
+    }
+
+    private void createUserForPlayer(Player player) {
+        if (player.getUsername() == null || player.getUsername().isBlank()) return;
+        if (userRepository.existsByUsername(player.getUsername())) return;
+        String rawPassword = (player.getPhone() != null && !player.getPhone().isBlank())
+                ? player.getPhone().replaceAll("[^0-9]", "")
+                : "123456";
+        if (rawPassword.isBlank()) rawPassword = "123456";
+        User u = new User();
+        u.setUsername(player.getUsername());
+        u.setPasswordHash(passwordEncoder.encode(rawPassword));
+        u.setRole(User.Role.PLAYER);
+        u.setPlayer(player);
+        u.setMustChangePassword(true);
+        u.setActive(true);
+        userRepository.save(u);
+        log.info("Created user account for player '{}' (password: {})", player.getUsername(),
+                player.getPhone() != null && !player.getPhone().isBlank() ? "phone digits" : "123456");
     }
 
     public Player updatePlayer(Long id, Player updated) {
         Player player = getPlayer(id);
         player.setFullName(updated.getFullName());
+        String oldPhone = player.getPhone();
         player.setPhone(updated.getPhone());
         player.setClubPlayerId(updated.getClubPlayerId());
         player.setCreditTotal(updated.getCreditTotal());
         player.setActive(updated.getActive());
-        return playerRepository.save(player);
+        Player saved = playerRepository.save(player);
+        // If phone changed, update password for users who never logged in
+        String newPhone = updated.getPhone();
+        boolean phoneChanged = newPhone != null && !newPhone.isBlank() && !newPhone.equals(oldPhone);
+        if (phoneChanged) {
+            userRepository.findByUsername(player.getUsername()).ifPresent(user -> {
+                if (user.getLastLoginAt() == null) {
+                    String digits = newPhone.replaceAll("[^0-9]", "");
+                    if (!digits.isBlank()) {
+                        user.setPasswordHash(passwordEncoder.encode(digits));
+                        userRepository.save(user);
+                        log.info("Updated password for user '{}' to new phone digits (never logged in)", player.getUsername());
+                    }
+                }
+            });
+        }
+        return saved;
     }
 
     @Transactional
