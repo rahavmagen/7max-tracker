@@ -73,11 +73,44 @@ public class WalletService {
             .sorted()
             .collect(Collectors.toList());
 
+        List<PlayerTransfer> allTransfers = transferRepository.findAll();
+        List<AdminExpense> allAdminExpenses = adminExpenseRepository.findAll();
+        List<ClubExpense> allClubExpenses = clubExpenseRepository.findAll();
+
         List<Map<String, Object>> result = new ArrayList<>();
         for (String username : adminUsernames) {
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("adminUsername", username);
             m.put("balance", computeBalance(username));
+
+            // Per-method breakdown of transfer amounts
+            Map<String, BigDecimal> breakdown = new LinkedHashMap<>();
+            for (PlayerTransfer t : allTransfers) {
+                if (t.getMethod() == null) continue;
+                String key = t.getMethod().name();
+                if (username.equals(t.getToAdminUsername())) {
+                    breakdown.merge(key, t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO, BigDecimal::add);
+                }
+                if (username.equals(t.getFromAdminUsername())) {
+                    breakdown.merge(key, t.getAmount() != null ? t.getAmount().negate() : BigDecimal.ZERO, BigDecimal::add);
+                }
+            }
+            // Expenses paid by this admin as negative "EXPENSES" bucket
+            BigDecimal expenseTotal = BigDecimal.ZERO;
+            for (AdminExpense e : allAdminExpenses) {
+                if (Boolean.TRUE.equals(e.getSettled()) && username.equals(e.getPaidFromAdminUsername())) {
+                    expenseTotal = expenseTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
+                }
+            }
+            for (ClubExpense e : allClubExpenses) {
+                if (e.isSettled() && username.equals(e.getPaidFromAdminUsername())) {
+                    expenseTotal = expenseTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
+                }
+            }
+            if (expenseTotal.compareTo(BigDecimal.ZERO) != 0) {
+                breakdown.put("EXPENSES", expenseTotal.negate());
+            }
+            m.put("breakdown", breakdown);
             result.add(m);
         }
         return result;
@@ -182,6 +215,7 @@ public class WalletService {
         m.put("fromBankAccount", t.getFromBankAccount() != null ? t.getFromBankAccount().getName() : null);
         m.put("toBankAccount", t.getToBankAccount() != null ? t.getToBankAccount().getName() : null);
         m.put("amount", t.getAmount());
+        m.put("method", t.getMethod() != null ? t.getMethod().name() : null);
         m.put("notes", t.getNotes());
         m.put("unassigned", unassigned);
         return m;
