@@ -121,6 +121,23 @@ public class ClubExpenseController {
         importSummaryRepository.save(summary);
     }
 
+    // PATCH /club-expenses/{id}/pay — pay an ADMIN-paidBy expense, recording which wallet it came from
+    @PatchMapping("/{id}/pay")
+    public ResponseEntity<?> pay(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        ClubExpense e = clubExpenseRepository.findById(id).orElseThrow();
+        e.setSettled(true);
+        e.setSettledAt(LocalDate.now());
+        e.setSettledBy(auth != null ? auth.getName() : "system");
+        if (body.get("paidFromAdminUsername") != null) {
+            e.setPaidFromAdminUsername(body.get("paidFromAdminUsername").toString());
+        }
+        if (body.get("paidFromBankAccountId") != null) {
+            e.setPaidFromBankAccountId(((Number) body.get("paidFromBankAccountId")).longValue());
+        }
+        deductFromBank(e.getAmount());
+        return ResponseEntity.ok(clubExpenseRepository.save(e));
+    }
+
     @PatchMapping("/{id}/vat-type")
     public ResponseEntity<?> setVatType(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         return clubExpenseRepository.findById(id).map(e -> {
