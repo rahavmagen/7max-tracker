@@ -101,43 +101,46 @@ public class AdminExpenseController {
             .filter(Objects::nonNull)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Paid expenses split by vatType (NO_VAT / WITH_VAT)
-        // Includes both settled AdminExpenses and settled ClubExpenses (ADMIN + CLUB paid)
-        List<Map<String, Object>> paidNoVat = new ArrayList<>();
-        List<Map<String, Object>> paidWithVat = new ArrayList<>();
+        // Single unified paid list (no VAT split)
+        List<Map<String, Object>> paid = new ArrayList<>();
 
-        // Settled admin_expenses
         all.stream()
             .filter(e -> Boolean.TRUE.equals(e.getSettled()))
             .forEach(e -> {
-                Map<String, Object> m = buildPaidEntry(e.getId(), "ADMIN_EXPENSE",
-                    e.getAdminUsername(), e.getAmount(), e.getNotes(),
-                    e.getExpenseDate(), e.getSettledAt(), e.getSettledBy(), e.getVatType());
-                addToPaidList(m, e.getVatType(), paidNoVat, paidWithVat);
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", e.getId());
+                m.put("entityType", "ADMIN_EXPENSE");
+                m.put("who", e.getAdminUsername());
+                m.put("amount", e.getAmount());
+                m.put("notes", e.getNotes());
+                m.put("expenseDate", e.getExpenseDate() != null ? e.getExpenseDate().toString() : null);
+                m.put("settledAt", e.getSettledAt() != null ? e.getSettledAt().toString() : null);
+                m.put("paidFromAdminUsername", e.getPaidFromAdminUsername());
+                paid.add(m);
             });
 
-        // Settled club expenses (both ADMIN and CLUB paidBy)
         clubExpenseRepository.findBySettledTrue().forEach(ce -> {
             String name = ce.getPaidBy() == ClubExpense.PaidBy.ADMIN
-                ? (ce.getAdminUser() != null ? "👤 " + ce.getAdminUser() : "Admin")
+                ? (ce.getAdminUser() != null ? ce.getAdminUser() : "Admin")
                 : ("🏦 " + (ce.getBankAccount() != null ? ce.getBankAccount().getName() : "Club"));
-            Map<String, Object> m = buildPaidEntry(ce.getId(), "CLUB_EXPENSE",
-                name, ce.getAmount(), ce.getDescription(),
-                ce.getExpenseDate(), ce.getSettledAt(), ce.getSettledBy(), ce.getVatType());
-            addToPaidList(m, ce.getVatType(), paidNoVat, paidWithVat);
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", ce.getId());
+            m.put("entityType", "CLUB_EXPENSE");
+            m.put("who", name);
+            m.put("amount", ce.getAmount());
+            m.put("notes", ce.getDescription());
+            m.put("expenseDate", ce.getExpenseDate() != null ? ce.getExpenseDate().toString() : null);
+            m.put("settledAt", ce.getSettledAt() != null ? ce.getSettledAt().toString() : null);
+            m.put("paidFromAdminUsername", ce.getPaidFromAdminUsername());
+            paid.add(m);
         });
 
-        // Sort by date
-        Comparator<Map<String, Object>> byDate = Comparator.comparing(
-            m -> m.get("expenseDate") != null ? m.get("expenseDate").toString() : "");
-        paidNoVat.sort(byDate);
-        paidWithVat.sort(byDate);
+        paid.sort(Comparator.comparing(m -> m.get("expenseDate") != null ? m.get("expenseDate").toString() : ""));
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("admins", result);
         response.put("grandTotal", grandTotal);
-        response.put("paidNoVat", paidNoVat);
-        response.put("paidWithVat", paidWithVat);
+        response.put("paid", paid);
         return ResponseEntity.ok(response);
     }
 
@@ -248,6 +251,27 @@ public class AdminExpenseController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    // PATCH /admin-expenses/{id}/pay — pay an expense, recording which wallet it came from
+    @PatchMapping("/{id}/pay")
+    public ResponseEntity<?> pay(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        return expenseRepository.findById(id).map(expense -> {
+            expense.setSettled(true);
+            expense.setSettledBy(auth != null ? auth.getName() : "system");
+            expense.setSettledAt(LocalDate.now());
+            if (body.get("paidFromAdminUsername") != null) {
+                expense.setPaidFromAdminUsername(body.get("paidFromAdminUsername").toString());
+            }
+            if (body.get("paidFromBankAccountId") != null) {
+                expense.setPaidFromBankAccountId(((Number) body.get("paidFromBankAccountId")).longValue());
+            }
+            if (expense.getAmount() != null) {
+                deductFromBank(expense.getAmount());
+                createBankHistoryEntry(expense, auth);
+            }
+            return ResponseEntity.ok(expenseRepository.save(expense));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     private void createBankHistoryEntry(AdminExpense expense, Authentication auth) {
         PlayerTransfer transfer = new PlayerTransfer();
         transfer.setAmount(expense.getAmount());
@@ -303,25 +327,4 @@ public class AdminExpenseController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    private Map<String, Object> buildPaidEntry(Long id, String entityType, String who,
-            BigDecimal amount, String notes, LocalDate expenseDate,
-            LocalDate settledAt, String settledBy, String vatType) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("id", id);
-        m.put("entityType", entityType);
-        m.put("who", who);
-        m.put("amount", amount);
-        m.put("notes", notes);
-        m.put("expenseDate", expenseDate != null ? expenseDate.toString() : null);
-        m.put("settledAt", settledAt != null ? settledAt.toString() : null);
-        m.put("settledBy", settledBy);
-        m.put("vatType", vatType);
-        return m;
-    }
-
-    private void addToPaidList(Map<String, Object> m, String vatType,
-            List<Map<String, Object>> paidNoVat, List<Map<String, Object>> paidWithVat) {
-        if ("WITH_VAT".equals(vatType)) paidWithVat.add(m);
-        else paidNoVat.add(m); // null or NO_VAT → no-vat list
-    }
 }
