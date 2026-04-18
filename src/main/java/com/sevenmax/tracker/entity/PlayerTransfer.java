@@ -54,4 +54,8 @@ public class PlayerTransfer {
     private String confirmedBy;
 
     private String createdByUsername;
+
+    // Which admin physically handled the club's side of this transfer (nullable)
+    private String fromAdminUsername;
+    private String toAdminUsername;
 }

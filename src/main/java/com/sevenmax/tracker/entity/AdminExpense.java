@@ -37,4 +37,8 @@ public class AdminExpense {
 
     // "NO_VAT" or "WITH_VAT" — set when expense is paid
     private String vatType;
+
+    // Which admin wallet or bank account paid this expense (set when paid)
+    private String paidFromAdminUsername;
+    private Long paidFromBankAccountId;
 }

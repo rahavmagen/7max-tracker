@@ -52,4 +52,8 @@ public class ClubExpense {
 
     // "NO_VAT" or "WITH_VAT" — set when expense is paid (or on creation for CLUB type)
     private String vatType;
+
+    // Which admin wallet or bank account paid this expense (set when paid)
+    private String paidFromAdminUsername;
+    private Long paidFromBankAccountId;
 }
