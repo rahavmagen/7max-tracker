@@ -1,7 +1,9 @@
 package com.sevenmax.tracker.controller;
 
+import com.sevenmax.tracker.entity.AdminWalletStartingBalance;
 import com.sevenmax.tracker.entity.BankAccount;
 import com.sevenmax.tracker.entity.ImportSummary;
+import com.sevenmax.tracker.repository.AdminWalletStartingBalanceRepository;
 import com.sevenmax.tracker.repository.BankAccountRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.service.WalletService;
@@ -22,6 +24,7 @@ public class WalletController {
     private final WalletService walletService;
     private final BankAccountRepository bankAccountRepository;
     private final ImportSummaryRepository importSummaryRepository;
+    private final AdminWalletStartingBalanceRepository startingBalanceRepository;
 
     @GetMapping("/summary")
     public ResponseEntity<?> getSummary(Authentication auth) {
@@ -72,6 +75,25 @@ public class WalletController {
             Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(walletService.getHistory(from, to, holder));
+    }
+
+    @PostMapping("/starting-balance")
+    public ResponseEntity<?> setStartingBalance(@RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        String adminUsername = (String) body.get("adminUsername");
+        if (adminUsername == null || adminUsername.isBlank()) return ResponseEntity.badRequest().build();
+        // Only allow setting if not already set
+        if (startingBalanceRepository.existsById(adminUsername)) {
+            return ResponseEntity.status(409).body(Map.of("error", "Starting balance already set for " + adminUsername));
+        }
+        BigDecimal amount = new BigDecimal(body.get("amount").toString());
+        String notes = body.containsKey("notes") ? (String) body.get("notes") : null;
+        AdminWalletStartingBalance sb = new AdminWalletStartingBalance();
+        sb.setAdminUsername(adminUsername);
+        sb.setAmount(amount);
+        sb.setNotes(notes);
+        startingBalanceRepository.save(sb);
+        return ResponseEntity.ok(Map.of("ok", true));
     }
 
     private boolean isPlayer(Authentication auth) {

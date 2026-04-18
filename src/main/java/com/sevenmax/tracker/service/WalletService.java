@@ -2,12 +2,14 @@ package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.*;
 import com.sevenmax.tracker.repository.*;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,13 +21,16 @@ public class WalletService {
     private final ClubExpenseRepository clubExpenseRepository;
     private final UserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
+    private final AdminWalletStartingBalanceRepository startingBalanceRepository;
 
     public BigDecimal computeBalance(String adminUsername) {
         List<PlayerTransfer> transfers = transferRepository.findAll();
         List<AdminExpense> adminExpenses = adminExpenseRepository.findAll();
         List<ClubExpense> clubExpenses = clubExpenseRepository.findAll();
 
-        BigDecimal balance = BigDecimal.ZERO;
+        BigDecimal balance = startingBalanceRepository.findById(adminUsername)
+            .map(AdminWalletStartingBalance::getAmount)
+            .orElse(BigDecimal.ZERO);
 
         for (PlayerTransfer t : transfers) {
             if (adminUsername.equals(t.getToAdminUsername())) {
@@ -77,14 +82,25 @@ public class WalletService {
         List<AdminExpense> allAdminExpenses = adminExpenseRepository.findAll();
         List<ClubExpense> allClubExpenses = clubExpenseRepository.findAll();
 
+        List<AdminWalletStartingBalance> allStarting = startingBalanceRepository.findAll();
+        Map<String, AdminWalletStartingBalance> startingMap = new HashMap<>();
+        for (AdminWalletStartingBalance s : allStarting) startingMap.put(s.getAdminUsername(), s);
+
         List<Map<String, Object>> result = new ArrayList<>();
         for (String username : adminUsernames) {
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("adminUsername", username);
             m.put("balance", computeBalance(username));
+            AdminWalletStartingBalance sb = startingMap.get(username);
+            m.put("startingBalance", sb != null ? sb.getAmount() : null);
+            m.put("startingBalanceNotes", sb != null ? sb.getNotes() : null);
 
             // Per-method breakdown of transfer amounts
             Map<String, BigDecimal> breakdown = new LinkedHashMap<>();
+            // Starting balance goes first in breakdown
+            if (sb != null && sb.getAmount().compareTo(BigDecimal.ZERO) != 0) {
+                breakdown.put("STARTING", sb.getAmount());
+            }
             for (PlayerTransfer t : allTransfers) {
                 if (t.getMethod() == null) continue;
                 String key = t.getMethod().name();

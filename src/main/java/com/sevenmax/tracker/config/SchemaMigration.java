@@ -120,5 +120,17 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: could not update transactions constraint for TICKET_GRANT: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS admin_wallet_starting_balances (" +
+                "admin_username VARCHAR(255) PRIMARY KEY, " +
+                "amount NUMERIC(12,2) NOT NULL, " +
+                "notes VARCHAR(500), " +
+                "set_at TIMESTAMP DEFAULT NOW())"
+            );
+            log.info("SchemaMigration: admin_wallet_starting_balances table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: admin_wallet_starting_balances table: {}", e.getMessage());
+        }
     }
 }

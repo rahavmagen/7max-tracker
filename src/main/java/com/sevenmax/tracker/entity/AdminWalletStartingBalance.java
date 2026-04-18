@@ -1,0 +1,24 @@
+package com.sevenmax.tracker.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "admin_wallet_starting_balances")
+@Data
+public class AdminWalletStartingBalance {
+
+    @Id
+    @Column(name = "admin_username")
+    private String adminUsername;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal amount;
+
+    private String notes;
+
+    @Column(updatable = false)
+    private LocalDateTime setAt = LocalDateTime.now();
+}
