@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,6 @@ public class WalletService {
     private final UserRepository userRepository;
     private final BankAccountRepository bankAccountRepository;
 
-    /** Compute how much club cash this admin is currently holding. */
     public BigDecimal computeBalance(String adminUsername) {
         List<PlayerTransfer> transfers = transferRepository.findAll();
         List<AdminExpense> adminExpenses = adminExpenseRepository.findAll();
@@ -53,7 +53,18 @@ public class WalletService {
         return balance;
     }
 
-    /** Summary: all admin usernames with their balance. */
+    public BigDecimal getUnassignedTotal() {
+        return transferRepository.findAll().stream()
+            .filter(t -> t.getFromAdminUsername() == null && t.getToAdminUsername() == null)
+            .filter(t -> {
+                boolean fromClub = t.getFromPlayer() == null && t.getFromBankAccount() == null;
+                boolean toClub = t.getToPlayer() == null && t.getToBankAccount() == null;
+                return fromClub || toClub;
+            })
+            .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     public List<Map<String, Object>> getAdminSummaries() {
         List<String> adminUsernames = userRepository.findAll().stream()
             .filter(u -> u.getRole() == User.Role.ADMIN || u.getRole() == User.Role.MANAGER)
@@ -72,63 +83,107 @@ public class WalletService {
         return result;
     }
 
-    /** History: all wallet events (transfers with admin attribution + paid expenses). */
-    public List<Map<String, Object>> getHistory() {
+    public List<Map<String, Object>> getHistory(String from, String to, String holder) {
         List<Map<String, Object>> events = new ArrayList<>();
+        LocalDate fromDate = from != null && !from.isEmpty() ? LocalDate.parse(from) : null;
+        LocalDate toDate = to != null && !to.isEmpty() ? LocalDate.parse(to) : null;
 
-        // Transfers with any admin attribution
         transferRepository.findAll().stream()
             .filter(t -> t.getFromAdminUsername() != null || t.getToAdminUsername() != null)
             .forEach(t -> {
-                Map<String, Object> m = new LinkedHashMap<>();
-                m.put("type", "TRANSFER");
-                m.put("date", t.getTransferDate() != null ? t.getTransferDate().toString() : "");
-                m.put("fromAdmin", t.getFromAdminUsername());
-                m.put("toAdmin", t.getToAdminUsername());
-                m.put("fromPlayer", t.getFromPlayer() != null ? t.getFromPlayer().getUsername() : null);
-                m.put("toPlayer", t.getToPlayer() != null ? t.getToPlayer().getUsername() : null);
-                m.put("amount", t.getAmount());
-                m.put("method", t.getMethod() != null ? t.getMethod().toString() : "");
-                m.put("notes", t.getNotes());
-                m.put("createdBy", t.getCreatedByUsername());
-                events.add(m);
+                LocalDate d = t.getTransferDate();
+                if (fromDate != null && d != null && d.isBefore(fromDate)) return;
+                if (toDate != null && d != null && d.isAfter(toDate)) return;
+                if (holder != null && !holder.isEmpty()) {
+                    boolean matches = holder.equals(t.getFromAdminUsername())
+                        || holder.equals(t.getToAdminUsername());
+                    if (!matches) return;
+                }
+                events.add(buildTransferEvent(t, false));
             });
 
-        // Paid admin expenses with admin payment source
+        transferRepository.findAll().stream()
+            .filter(t -> t.getFromAdminUsername() == null && t.getToAdminUsername() == null)
+            .filter(t -> {
+                boolean fromClub = t.getFromPlayer() == null && t.getFromBankAccount() == null;
+                boolean toClub = t.getToPlayer() == null && t.getToBankAccount() == null;
+                return fromClub || toClub;
+            })
+            .forEach(t -> {
+                LocalDate d = t.getTransferDate();
+                if (fromDate != null && d != null && d.isBefore(fromDate)) return;
+                if (toDate != null && d != null && d.isAfter(toDate)) return;
+                if (holder != null && !holder.isEmpty()) return;
+                events.add(buildTransferEvent(t, true));
+            });
+
         adminExpenseRepository.findAll().stream()
             .filter(e -> Boolean.TRUE.equals(e.getSettled()) && e.getPaidFromAdminUsername() != null)
             .forEach(e -> {
+                LocalDate d = e.getSettledAt();
+                if (fromDate != null && d != null && d.isBefore(fromDate)) return;
+                if (toDate != null && d != null && d.isAfter(toDate)) return;
+                if (holder != null && !holder.isEmpty() && !holder.equals(e.getPaidFromAdminUsername())) return;
                 Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", e.getId());
                 m.put("type", "EXPENSE_PAID");
-                m.put("date", e.getSettledAt() != null ? e.getSettledAt().toString() : "");
-                m.put("fromAdmin", e.getPaidFromAdminUsername());
-                m.put("toAdmin", null);
-                m.put("description", "Expense: " + (e.getNotes() != null ? e.getNotes() : e.getAdminUsername()));
+                m.put("transferDate", d != null ? d.toString() : null);
+                m.put("fromAdminUsername", e.getPaidFromAdminUsername());
+                m.put("toAdminUsername", null);
+                m.put("fromPlayer", null);
+                m.put("toPlayer", null);
+                m.put("fromBankAccount", null);
+                m.put("toBankAccount", null);
                 m.put("amount", e.getAmount());
-                m.put("notes", e.getNotes());
+                m.put("notes", "Expense: " + (e.getNotes() != null ? e.getNotes() : e.getAdminUsername()));
+                m.put("unassigned", false);
                 events.add(m);
             });
 
-        // Paid club expenses with admin payment source
         clubExpenseRepository.findAll().stream()
             .filter(e -> e.isSettled() && e.getPaidFromAdminUsername() != null)
             .forEach(e -> {
+                LocalDate d = e.getSettledAt();
+                if (fromDate != null && d != null && d.isBefore(fromDate)) return;
+                if (toDate != null && d != null && d.isAfter(toDate)) return;
+                if (holder != null && !holder.isEmpty() && !holder.equals(e.getPaidFromAdminUsername())) return;
                 Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", e.getId());
                 m.put("type", "EXPENSE_PAID");
-                m.put("date", e.getSettledAt() != null ? e.getSettledAt().toString() : "");
-                m.put("fromAdmin", e.getPaidFromAdminUsername());
-                m.put("toAdmin", null);
-                m.put("description", "Club Expense: " + e.getDescription());
+                m.put("transferDate", d != null ? d.toString() : null);
+                m.put("fromAdminUsername", e.getPaidFromAdminUsername());
+                m.put("toAdminUsername", null);
+                m.put("fromPlayer", null);
+                m.put("toPlayer", null);
+                m.put("fromBankAccount", null);
+                m.put("toBankAccount", null);
                 m.put("amount", e.getAmount());
-                m.put("notes", e.getDescription());
+                m.put("notes", "Club Expense: " + e.getDescription());
+                m.put("unassigned", false);
                 events.add(m);
             });
 
-        // Sort newest first
         events.sort(Comparator.comparing(
-            (Map<String, Object> m) -> m.get("date") != null ? m.get("date").toString() : ""
+            (Map<String, Object> mm) -> mm.get("transferDate") != null ? mm.get("transferDate").toString() : ""
         ).reversed());
 
         return events;
+    }
+
+    private Map<String, Object> buildTransferEvent(PlayerTransfer t, boolean unassigned) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id", t.getId());
+        m.put("type", "TRANSFER");
+        m.put("transferDate", t.getTransferDate() != null ? t.getTransferDate().toString() : null);
+        m.put("fromAdminUsername", t.getFromAdminUsername());
+        m.put("toAdminUsername", t.getToAdminUsername());
+        m.put("fromPlayer", t.getFromPlayer() != null ? t.getFromPlayer().getUsername() : null);
+        m.put("toPlayer", t.getToPlayer() != null ? t.getToPlayer().getUsername() : null);
+        m.put("fromBankAccount", t.getFromBankAccount() != null ? t.getFromBankAccount().getName() : null);
+        m.put("toBankAccount", t.getToBankAccount() != null ? t.getToBankAccount().getName() : null);
+        m.put("amount", t.getAmount());
+        m.put("notes", t.getNotes());
+        m.put("unassigned", unassigned);
+        return m;
     }
 }
