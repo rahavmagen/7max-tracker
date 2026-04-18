@@ -70,5 +70,26 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: admin_expenses settle columns: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute("ALTER TABLE player_transfers ADD COLUMN IF NOT EXISTS from_admin_username VARCHAR(255)");
+            jdbcTemplate.execute("ALTER TABLE player_transfers ADD COLUMN IF NOT EXISTS to_admin_username VARCHAR(255)");
+            log.info("SchemaMigration: player_transfers admin attribution columns ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: player_transfers admin attribution columns: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS paid_from_admin_username VARCHAR(255)");
+            jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS paid_from_bank_account_id BIGINT");
+            log.info("SchemaMigration: admin_expenses payment source columns ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: admin_expenses payment source columns: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute("ALTER TABLE club_expenses ADD COLUMN IF NOT EXISTS paid_from_admin_username VARCHAR(255)");
+            jdbcTemplate.execute("ALTER TABLE club_expenses ADD COLUMN IF NOT EXISTS paid_from_bank_account_id BIGINT");
+            log.info("SchemaMigration: club_expenses payment source columns ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: club_expenses payment source columns: {}", e.getMessage());
+        }
     }
 }
