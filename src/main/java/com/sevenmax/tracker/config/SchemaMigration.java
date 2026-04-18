@@ -91,5 +91,34 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: club_expenses payment source columns: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS ticket_assets (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "cost_per_ticket NUMERIC(12,2) NOT NULL, " +
+                "face_value_per_ticket NUMERIC(12,2) NOT NULL, " +
+                "quantity_total INTEGER NOT NULL, " +
+                "quantity_remaining INTEGER NOT NULL, " +
+                "buyer_admin_username VARCHAR(255) NOT NULL, " +
+                "purchase_date DATE NOT NULL, " +
+                "notes VARCHAR(500), " +
+                "created_at TIMESTAMP DEFAULT NOW())"
+            );
+            log.info("SchemaMigration: ticket_assets table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: ticket_assets table: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute(
+                "ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check"
+            );
+            jdbcTemplate.execute(
+                "ALTER TABLE transactions ADD CONSTRAINT transactions_type_check " +
+                "CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'PAYMENT', 'WHEEL_EXPENSE', 'CHIP_PROMO', 'PROMOTION', 'EXPENSE_REPAYMENT', 'TICKET_GRANT'))"
+            );
+            log.info("SchemaMigration: transactions type constraint updated for TICKET_GRANT");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: could not update transactions constraint for TICKET_GRANT: {}", e.getMessage());
+        }
     }
 }
