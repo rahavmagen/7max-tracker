@@ -35,8 +35,11 @@ public class PlayerTransferController {
             BigDecimal amount = new BigDecimal(body.get("amount").toString());
             Transaction.Method method = Transaction.Method.valueOf(body.get("method").toString());
             String notes = (String) body.get("notes");
+            String fromAdminUsername = (String) body.get("fromAdminUsername");
+            String toAdminUsername = (String) body.get("toAdminUsername");
             String createdBy = auth != null ? auth.getName() : null;
-            var transfer = transferService.createTransfer(fromPlayerId, fromBankAccountId, toPlayerId, toBankAccountId, amount, method, notes, createdBy);
+            var transfer = transferService.createTransfer(fromPlayerId, fromBankAccountId, toPlayerId, toBankAccountId,
+                    amount, method, notes, createdBy, fromAdminUsername, toAdminUsername);
             return ResponseEntity.ok(transferService.toDto(transfer));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

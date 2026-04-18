@@ -42,8 +42,9 @@ public class PlayerTransferService {
     private final ImportSummaryRepository importSummaryRepository;
 
     @Transactional
-    public PlayerTransfer createTransfer(Long fromPlayerId, Long fromBankAccountId, Long toPlayerId, Long toBankAccountId,
-                                         BigDecimal amount, Transaction.Method method, String notes, String createdBy) {
+    public PlayerTransfer createTransfer(Long fromPlayerId, Long fromBankAccountId, Long toPlayerId,
+            Long toBankAccountId, BigDecimal amount, Transaction.Method method, String notes,
+            String createdBy, String fromAdminUsername, String toAdminUsername) {
         Player fromPlayer = fromPlayerId != null ? playerRepository.findById(fromPlayerId).orElse(null) : null;
         Player toPlayer = toPlayerId != null ? playerRepository.findById(toPlayerId).orElse(null) : null;
         BankAccount fromBankAccount = fromBankAccountId != null ? bankAccountRepository.findById(fromBankAccountId).orElse(null) : null;
@@ -59,6 +60,8 @@ public class PlayerTransferService {
         transfer.setNotes(notes);
         transfer.setTransferDate(LocalDate.now());
         transfer.setCreatedByUsername(createdBy);
+        transfer.setFromAdminUsername(fromAdminUsername);
+        transfer.setToAdminUsername(toAdminUsername);
 
         transfer = transferRepository.save(transfer);
         String sourceRef = "TRANSFER:" + transfer.getId();
