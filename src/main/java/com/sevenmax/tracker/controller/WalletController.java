@@ -86,14 +86,21 @@ public class WalletController {
         if (startingBalanceRepository.existsById(adminUsername)) {
             return ResponseEntity.status(409).body(Map.of("error", "Starting balance already set for " + adminUsername));
         }
-        BigDecimal amount = new BigDecimal(body.get("amount").toString());
         String notes = body.containsKey("notes") ? (String) body.get("notes") : null;
         AdminWalletStartingBalance sb = new AdminWalletStartingBalance();
         sb.setAdminUsername(adminUsername);
-        sb.setAmount(amount);
+        sb.setCashAmount(parseBD(body.get("cashAmount")));
+        sb.setBitAmount(parseBD(body.get("bitAmount")));
+        sb.setPayboxAmount(parseBD(body.get("payboxAmount")));
+        sb.setOtherAmount(parseBD(body.get("otherAmount")));
         sb.setNotes(notes);
         startingBalanceRepository.save(sb);
         return ResponseEntity.ok(Map.of("ok", true));
+    }
+
+    private BigDecimal parseBD(Object v) {
+        if (v == null || v.toString().isBlank()) return BigDecimal.ZERO;
+        try { return new BigDecimal(v.toString()); } catch (Exception e) { return BigDecimal.ZERO; }
     }
 
     private boolean isPlayer(Authentication auth) {

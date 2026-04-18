@@ -29,7 +29,7 @@ public class WalletService {
         List<ClubExpense> clubExpenses = clubExpenseRepository.findAll();
 
         BigDecimal balance = startingBalanceRepository.findById(adminUsername)
-            .map(AdminWalletStartingBalance::getAmount)
+            .map(sb -> safe(sb.getCashAmount()).add(safe(sb.getBitAmount())).add(safe(sb.getPayboxAmount())).add(safe(sb.getOtherAmount())))
             .orElse(BigDecimal.ZERO);
 
         for (PlayerTransfer t : transfers) {
@@ -92,14 +92,20 @@ public class WalletService {
             m.put("adminUsername", username);
             m.put("balance", computeBalance(username));
             AdminWalletStartingBalance sb = startingMap.get(username);
-            m.put("startingBalance", sb != null ? sb.getAmount() : null);
+            BigDecimal sbTotal = sb != null
+                ? safe(sb.getCashAmount()).add(safe(sb.getBitAmount())).add(safe(sb.getPayboxAmount())).add(safe(sb.getOtherAmount()))
+                : null;
+            m.put("startingBalance", sbTotal);
             m.put("startingBalanceNotes", sb != null ? sb.getNotes() : null);
 
             // Per-method breakdown of transfer amounts
             Map<String, BigDecimal> breakdown = new LinkedHashMap<>();
-            // Starting balance goes first in breakdown
-            if (sb != null && sb.getAmount().compareTo(BigDecimal.ZERO) != 0) {
-                breakdown.put("STARTING", sb.getAmount());
+            // Starting balance per method goes first in breakdown
+            if (sb != null) {
+                if (safe(sb.getCashAmount()).compareTo(BigDecimal.ZERO) != 0) breakdown.put("STARTING_CASH", sb.getCashAmount());
+                if (safe(sb.getBitAmount()).compareTo(BigDecimal.ZERO) != 0)  breakdown.put("STARTING_BIT", sb.getBitAmount());
+                if (safe(sb.getPayboxAmount()).compareTo(BigDecimal.ZERO) != 0) breakdown.put("STARTING_PAYBOX", sb.getPayboxAmount());
+                if (safe(sb.getOtherAmount()).compareTo(BigDecimal.ZERO) != 0) breakdown.put("STARTING_OTHER", sb.getOtherAmount());
             }
             for (PlayerTransfer t : allTransfers) {
                 if (t.getMethod() == null) continue;
@@ -218,6 +224,8 @@ public class WalletService {
 
         return events;
     }
+
+    private BigDecimal safe(BigDecimal v) { return v != null ? v : BigDecimal.ZERO; }
 
     private Map<String, Object> buildTransferEvent(PlayerTransfer t, boolean unassigned) {
         Map<String, Object> m = new LinkedHashMap<>();

@@ -124,10 +124,19 @@ public class SchemaMigration {
             jdbcTemplate.execute(
                 "CREATE TABLE IF NOT EXISTS admin_wallet_starting_balances (" +
                 "admin_username VARCHAR(255) PRIMARY KEY, " +
-                "amount NUMERIC(12,2) NOT NULL, " +
+                "cash_amount NUMERIC(12,2) DEFAULT 0, " +
+                "bit_amount NUMERIC(12,2) DEFAULT 0, " +
+                "paybox_amount NUMERIC(12,2) DEFAULT 0, " +
+                "other_amount NUMERIC(12,2) DEFAULT 0, " +
                 "notes VARCHAR(500), " +
                 "set_at TIMESTAMP DEFAULT NOW())"
             );
+            // Migrate old schema if needed (drop old amount column, add new columns)
+            jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances DROP COLUMN IF EXISTS amount");
+            jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS cash_amount NUMERIC(12,2) DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS bit_amount NUMERIC(12,2) DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS paybox_amount NUMERIC(12,2) DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS other_amount NUMERIC(12,2) DEFAULT 0");
             log.info("SchemaMigration: admin_wallet_starting_balances table ensured");
         } catch (Exception e) {
             log.warn("SchemaMigration: admin_wallet_starting_balances table: {}", e.getMessage());
