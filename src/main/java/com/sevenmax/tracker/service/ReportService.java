@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Slf4j
@@ -1165,14 +1166,14 @@ public class ReportService {
             try {
                 Cell startCell = row.getCell(12); // M = start time
                 if (startCell != null && startCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(startCell))
-                    startTime = startCell.getLocalDateTimeCellValue();
-                else { String v = getCellValue(row, 12); if (v != null && !v.isBlank()) startTime = LocalDateTime.parse(v.trim().substring(0, 19).replace(" ", "T")); }
+                    startTime = fromClubGG(startCell.getLocalDateTimeCellValue());
+                else { String v = getCellValue(row, 12); if (v != null && !v.isBlank()) startTime = fromClubGG(LocalDateTime.parse(v.trim().substring(0, 19).replace(" ", "T"))); }
             } catch (Exception ignored) {}
             try {
                 Cell endCell = row.getCell(13); // N = end time
                 if (endCell != null && endCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(endCell))
-                    endTime = endCell.getLocalDateTimeCellValue();
-                else { String v = getCellValue(row, 13); if (v != null && !v.isBlank()) endTime = LocalDateTime.parse(v.trim().substring(0, 19).replace(" ", "T")); }
+                    endTime = fromClubGG(endCell.getLocalDateTimeCellValue());
+                else { String v = getCellValue(row, 13); if (v != null && !v.isBlank()) endTime = fromClubGG(LocalDateTime.parse(v.trim().substring(0, 19).replace(" ", "T"))); }
             } catch (Exception ignored) {}
 
             if (startTime == null) continue;
@@ -1200,9 +1201,9 @@ public class ReportService {
             if (parts.length >= 3) {
                 String datePart = (parts[1] + ":" + parts[2] + ":" + parts[3]).trim();
                 String[] range = datePart.split("~");
-                session.setStartTime(LocalDateTime.parse(range[0].trim().substring(0, 19).replace(" ", "T")));
+                session.setStartTime(fromClubGG(LocalDateTime.parse(range[0].trim().substring(0, 19).replace(" ", "T"))));
                 if (range.length > 1 && !range[1].contains("Not Ended")) {
-                    session.setEndTime(LocalDateTime.parse(range[1].trim().substring(0, 19).replace(" ", "T")));
+                    session.setEndTime(fromClubGG(LocalDateTime.parse(range[1].trim().substring(0, 19).replace(" ", "T"))));
                 }
             }
         } catch (Exception ignored) {}
@@ -1244,9 +1245,9 @@ public class ReportService {
             if (parts.length >= 3) {
                 String datePart = (parts[1] + ":" + parts[2] + ":" + parts[3]).trim();
                 String[] range = datePart.split("~");
-                session.setStartTime(LocalDateTime.parse(range[0].trim().substring(0, 19).replace(" ", "T")));
+                session.setStartTime(fromClubGG(LocalDateTime.parse(range[0].trim().substring(0, 19).replace(" ", "T"))));
                 if (range.length > 1 && !range[1].contains("Not Ended")) {
-                    session.setEndTime(LocalDateTime.parse(range[1].trim().substring(0, 19).replace(" ", "T")));
+                    session.setEndTime(fromClubGG(LocalDateTime.parse(range[1].trim().substring(0, 19).replace(" ", "T"))));
                 }
             }
         } catch (Exception ignored) {}
@@ -1273,6 +1274,16 @@ public class ReportService {
                 }
             }
         }
+    }
+
+    private static final LocalDate CLUBGG_UTC5_CUTOFF = LocalDate.of(2026, 4, 13);
+
+    /** Convert ClubGG datetime (UTC-5) to Israel time — only for dates after the cutoff when UTC-5 was enabled. */
+    private LocalDateTime fromClubGG(LocalDateTime dt) {
+        if (dt == null || !dt.toLocalDate().isAfter(CLUBGG_UTC5_CUTOFF)) return dt;
+        return dt.atZone(ZoneId.of("Etc/GMT+5"))
+                 .withZoneSameInstant(ZoneId.of("Asia/Jerusalem"))
+                 .toLocalDateTime();
     }
 
     private void parsePeriod(String periodStr, Report report) {
