@@ -115,6 +115,7 @@ public class AdminExpenseController {
                 m.put("notes", e.getNotes());
                 m.put("expenseDate", e.getExpenseDate() != null ? e.getExpenseDate().toString() : null);
                 m.put("settledAt", e.getSettledAt() != null ? e.getSettledAt().toString() : null);
+                m.put("settledBy", e.getSettledBy());
                 m.put("paidFromAdminUsername", e.getPaidFromAdminUsername());
                 paid.add(m);
             });
@@ -131,6 +132,7 @@ public class AdminExpenseController {
             m.put("notes", ce.getDescription());
             m.put("expenseDate", ce.getExpenseDate() != null ? ce.getExpenseDate().toString() : null);
             m.put("settledAt", ce.getSettledAt() != null ? ce.getSettledAt().toString() : null);
+            m.put("settledBy", ce.getSettledBy());
             m.put("paidFromAdminUsername", ce.getPaidFromAdminUsername());
             paid.add(m);
         });

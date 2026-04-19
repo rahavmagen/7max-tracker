@@ -241,6 +241,8 @@ public class WalletService {
         m.put("amount", t.getAmount());
         m.put("method", t.getMethod() != null ? t.getMethod().name() : null);
         m.put("notes", t.getNotes());
+        m.put("createdByUsername", t.getCreatedByUsername());
+        m.put("createdAt", t.getCreatedAt() != null ? t.getCreatedAt().toString() : null);
         m.put("unassigned", unassigned);
         return m;
     }
