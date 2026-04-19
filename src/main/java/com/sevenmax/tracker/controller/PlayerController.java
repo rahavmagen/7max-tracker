@@ -35,7 +35,7 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.getAllPlayers());
     }
 
-    @GetMapping("/active")
+@GetMapping("/active")
     public ResponseEntity<List<Map<String, Object>>> getActivePlayers() {
         List<Map<String, Object>> result = playerRepository.findAll().stream()
             .map(p -> { Map<String, Object> m = new java.util.HashMap<>(); m.put("id", p.getId()); m.put("username", p.getUsername()); m.put("fullName", p.getFullName() != null ? p.getFullName() : ""); return m; })

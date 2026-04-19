@@ -24,4 +24,5 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     @Query(value = "SELECT * FROM players WHERE REPLACE(club_player_id, '-', '') = REPLACE(:clubPlayerId, '-', '')", nativeQuery = true)
     List<Player> findByClubPlayerIdSafe(@Param("clubPlayerId") String clubPlayerId);
+
 }
