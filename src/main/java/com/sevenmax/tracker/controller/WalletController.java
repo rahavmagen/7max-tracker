@@ -8,6 +8,7 @@ import com.sevenmax.tracker.repository.BankAccountRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.service.WalletService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,9 @@ public class WalletController {
     private final BankAccountRepository bankAccountRepository;
     private final ImportSummaryRepository importSummaryRepository;
     private final AdminWalletStartingBalanceRepository startingBalanceRepository;
+
+    @Value("${app.wallets.starting-balance-editable:false}")
+    private boolean startingBalanceEditable;
 
     @GetMapping("/summary")
     public ResponseEntity<?> getSummary(Authentication auth) {
@@ -82,12 +86,12 @@ public class WalletController {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         String adminUsername = (String) body.get("adminUsername");
         if (adminUsername == null || adminUsername.isBlank()) return ResponseEntity.badRequest().build();
-        // Only allow setting if not already set
-        if (startingBalanceRepository.existsById(adminUsername)) {
+        // Only allow setting if not already set (unless editable mode is on)
+        if (!startingBalanceEditable && startingBalanceRepository.existsById(adminUsername)) {
             return ResponseEntity.status(409).body(Map.of("error", "Starting balance already set for " + adminUsername));
         }
         String notes = body.containsKey("notes") ? (String) body.get("notes") : null;
-        AdminWalletStartingBalance sb = new AdminWalletStartingBalance();
+        AdminWalletStartingBalance sb = startingBalanceRepository.findById(adminUsername).orElse(new AdminWalletStartingBalance());
         sb.setAdminUsername(adminUsername);
         sb.setCashAmount(parseBD(body.get("cashAmount")));
         sb.setBitAmount(parseBD(body.get("bitAmount")));

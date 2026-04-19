@@ -23,6 +23,7 @@ class WalletServiceTest {
     @Mock ClubExpenseRepository clubExpenseRepository;
     @Mock UserRepository userRepository;
     @Mock BankAccountRepository bankAccountRepository;
+    @Mock AdminWalletStartingBalanceRepository startingBalanceRepository;
 
     WalletService walletService;
 
@@ -30,7 +31,7 @@ class WalletServiceTest {
     void setUp() {
         walletService = new WalletService(
             transferRepository, adminExpenseRepository,
-            clubExpenseRepository, userRepository, bankAccountRepository
+            clubExpenseRepository, userRepository, bankAccountRepository, startingBalanceRepository
         );
     }
 
