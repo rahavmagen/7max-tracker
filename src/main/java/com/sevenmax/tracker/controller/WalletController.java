@@ -96,6 +96,7 @@ public class WalletController {
         sb.setCashAmount(parseBD(body.get("cashAmount")));
         sb.setBitAmount(parseBD(body.get("bitAmount")));
         sb.setPayboxAmount(parseBD(body.get("payboxAmount")));
+        sb.setKashcashAmount(parseBD(body.get("kashcashAmount")));
         sb.setOtherAmount(parseBD(body.get("otherAmount")));
         sb.setNotes(notes);
         startingBalanceRepository.save(sb);

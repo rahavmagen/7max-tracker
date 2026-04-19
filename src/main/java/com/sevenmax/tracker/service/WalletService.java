@@ -29,7 +29,7 @@ public class WalletService {
         List<ClubExpense> clubExpenses = clubExpenseRepository.findAll();
 
         BigDecimal balance = startingBalanceRepository.findById(adminUsername)
-            .map(sb -> safe(sb.getCashAmount()).add(safe(sb.getBitAmount())).add(safe(sb.getPayboxAmount())).add(safe(sb.getOtherAmount())))
+            .map(sb -> safe(sb.getCashAmount()).add(safe(sb.getBitAmount())).add(safe(sb.getPayboxAmount())).add(safe(sb.getKashcashAmount())).add(safe(sb.getOtherAmount())))
             .orElse(BigDecimal.ZERO);
 
         for (PlayerTransfer t : transfers) {
@@ -93,7 +93,7 @@ public class WalletService {
             m.put("balance", computeBalance(username));
             AdminWalletStartingBalance sb = startingMap.get(username);
             BigDecimal sbTotal = sb != null
-                ? safe(sb.getCashAmount()).add(safe(sb.getBitAmount())).add(safe(sb.getPayboxAmount())).add(safe(sb.getOtherAmount()))
+                ? safe(sb.getCashAmount()).add(safe(sb.getBitAmount())).add(safe(sb.getPayboxAmount())).add(safe(sb.getKashcashAmount())).add(safe(sb.getOtherAmount()))
                 : null;
             m.put("startingBalance", sbTotal);
             m.put("startingBalanceNotes", sb != null ? sb.getNotes() : null);
@@ -105,6 +105,7 @@ public class WalletService {
                 if (safe(sb.getCashAmount()).compareTo(BigDecimal.ZERO) != 0) breakdown.put("STARTING_CASH", sb.getCashAmount());
                 if (safe(sb.getBitAmount()).compareTo(BigDecimal.ZERO) != 0)  breakdown.put("STARTING_BIT", sb.getBitAmount());
                 if (safe(sb.getPayboxAmount()).compareTo(BigDecimal.ZERO) != 0) breakdown.put("STARTING_PAYBOX", sb.getPayboxAmount());
+                if (safe(sb.getKashcashAmount()).compareTo(BigDecimal.ZERO) != 0) breakdown.put("STARTING_KASHCASH", sb.getKashcashAmount());
                 if (safe(sb.getOtherAmount()).compareTo(BigDecimal.ZERO) != 0) breakdown.put("STARTING_OTHER", sb.getOtherAmount());
             }
             for (PlayerTransfer t : allTransfers) {

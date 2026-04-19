@@ -24,6 +24,9 @@ public class AdminWalletStartingBalance {
     private BigDecimal payboxAmount = BigDecimal.ZERO;
 
     @Column(precision = 12, scale = 2)
+    private BigDecimal kashcashAmount = BigDecimal.ZERO;
+
+    @Column(precision = 12, scale = 2)
     private BigDecimal otherAmount = BigDecimal.ZERO;
 
     private String notes;
