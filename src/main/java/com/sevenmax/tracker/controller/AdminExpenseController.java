@@ -261,8 +261,8 @@ public class AdminExpenseController {
             if (body.get("paidFromAdminUsername") != null) {
                 expense.setPaidFromAdminUsername(body.get("paidFromAdminUsername").toString());
             }
-            if (body.get("paidFromBankAccountId") != null) {
-                expense.setPaidFromBankAccountId(((Number) body.get("paidFromBankAccountId")).longValue());
+            if (body.get("paidFromBankAccountId") instanceof Number n) {
+                expense.setPaidFromBankAccountId(n.longValue());
             }
             if (expense.getAmount() != null) {
                 deductFromBank(expense.getAmount());

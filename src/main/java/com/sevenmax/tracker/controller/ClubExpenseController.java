@@ -131,8 +131,8 @@ public class ClubExpenseController {
         if (body.get("paidFromAdminUsername") != null) {
             e.setPaidFromAdminUsername(body.get("paidFromAdminUsername").toString());
         }
-        if (body.get("paidFromBankAccountId") != null) {
-            e.setPaidFromBankAccountId(((Number) body.get("paidFromBankAccountId")).longValue());
+        if (body.get("paidFromBankAccountId") instanceof Number n) {
+            e.setPaidFromBankAccountId(n.longValue());
         }
         deductFromBank(e.getAmount());
         return ResponseEntity.ok(clubExpenseRepository.save(e));
