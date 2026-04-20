@@ -154,6 +154,19 @@ public class PlayerController {
         return ResponseEntity.ok(m);
     }
 
+    @PatchMapping("/{id}/payment-methods")
+    public ResponseEntity<?> updatePaymentMethods(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth) && !id.equals(getPlayerId(auth))) return ResponseEntity.status(403).build();
+        return playerRepository.findById(id).map(p -> {
+            if (body.containsKey("bit"))          p.setBitEnabled(Boolean.TRUE.equals(body.get("bit")));
+            if (body.containsKey("paybox"))       p.setPayboxEnabled(Boolean.TRUE.equals(body.get("paybox")));
+            if (body.containsKey("kashcash"))     p.setKashcashEnabled(Boolean.TRUE.equals(body.get("kashcash")));
+            if (body.containsKey("cash"))         p.setCashEnabled(Boolean.TRUE.equals(body.get("cash")));
+            if (body.containsKey("bankTransfer")) p.setBankTransferEnabled(Boolean.TRUE.equals(body.get("bankTransfer")));
+            return ResponseEntity.ok(playerRepository.save(p));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePlayer(@PathVariable Long id, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();

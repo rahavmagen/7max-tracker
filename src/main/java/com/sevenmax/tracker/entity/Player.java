@@ -48,6 +48,13 @@ public class Player {
 
     private Boolean active = true;
 
+    // Payment methods the player accepts
+    private Boolean bitEnabled = true;
+    private Boolean payboxEnabled = true;
+    private Boolean kashcashEnabled = true;
+    private Boolean cashEnabled = true;
+    private Boolean bankTransferEnabled = true;
+
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 }
