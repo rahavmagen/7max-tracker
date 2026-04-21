@@ -820,16 +820,16 @@ public class ReportService {
     // or null if no such session / player not found in it.
     // buyIn already includes rake, so we don't add rakePaid.
     private BigDecimal getNightlyMttCost(LocalDate date, Long playerId) {
-        // Window in DB-stored time (UTC-5): Israel 19:30–23:59 local = 11:30–16:59 UTC-5
-        LocalDateTime windowStart = date.atTime(11, 30);
-        LocalDateTime windowEnd = date.atTime(16, 59);
+        // Sessions stored as Israel local time (LocalDateTime, no TZ). Evening window: 18:00–23:59.
+        LocalDateTime windowStart = date.atTime(18, 0);
+        LocalDateTime windowEnd = date.atTime(23, 59);
         List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
                 GameSession.GameType.MTT, windowStart, windowEnd);
         log.info("[WHEEL-DEBUG] getNightlyMttCost: window={} to {}, sessions found={}", windowStart, windowEnd, sessions.size());
         if (sessions.isEmpty()) {
             // Log all MTT sessions near this date for diagnostics
             LocalDateTime broadStart = date.minusDays(1).atTime(0, 0);
-            LocalDateTime broadEnd = date.plusDays(1).atTime(16, 59);
+            LocalDateTime broadEnd = date.plusDays(1).atTime(23, 59);
             List<GameSession> nearby = gameSessionRepository.findByGameTypeAndStartTimeBetween(GameSession.GameType.MTT, broadStart, broadEnd);
             log.info("[WHEEL-DEBUG] No MTT in window. Nearby MTT sessions (±1 day): {}", nearby.stream().map(s -> s.getId() + "@" + s.getStartTime()).toList());
             return null;
@@ -853,11 +853,11 @@ public class ReportService {
     // Returns the player's MTT prize (result_amount) from any MTT session on that date (full day).
     // Returns the standard entry cost of the nightly main MTT (minimum buy-in = one ticket price).
     // Used to detect wheel promotion: one player per night gets their entry fee refunded as chips.
-    // Checks the evening window (11:30-16:59 UTC-5 = 19:30-23:59 Israel) on txDate, then the previous day if not found.
+    // Checks the evening window (18:00-23:59 Israel local time) on txDate, then the previous day if not found.
     private BigDecimal getNightlyMainEntryCost(LocalDate date) {
         for (LocalDate d : new LocalDate[]{date, date.minusDays(1)}) {
-            LocalDateTime windowStart = d.atTime(11, 30);
-            LocalDateTime windowEnd = d.atTime(16, 59);
+            LocalDateTime windowStart = d.atTime(18, 0);
+            LocalDateTime windowEnd = d.atTime(23, 59);
             List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
                     GameSession.GameType.MTT, windowStart, windowEnd);
             for (GameSession session : sessions) {
