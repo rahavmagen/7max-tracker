@@ -136,6 +136,7 @@ public class SchemaMigration {
             jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS cash_amount NUMERIC(12,2) DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS bit_amount NUMERIC(12,2) DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS paybox_amount NUMERIC(12,2) DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS kashcash_amount NUMERIC(12,2) DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS other_amount NUMERIC(12,2) DEFAULT 0");
             log.info("SchemaMigration: admin_wallet_starting_balances table ensured");
         } catch (Exception e) {
