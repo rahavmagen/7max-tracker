@@ -5,6 +5,7 @@ import com.sevenmax.tracker.entity.BankAccount;
 import com.sevenmax.tracker.entity.ImportSummary;
 import com.sevenmax.tracker.repository.AdminWalletStartingBalanceRepository;
 import com.sevenmax.tracker.repository.BankAccountRepository;
+import com.sevenmax.tracker.repository.BankTransactionRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class WalletController {
     private final BankAccountRepository bankAccountRepository;
     private final ImportSummaryRepository importSummaryRepository;
     private final AdminWalletStartingBalanceRepository startingBalanceRepository;
+    private final BankTransactionRepository bankTransactionRepository;
 
     @Value("${app.wallets.starting-balance-editable:false}")
     private boolean startingBalanceEditable;
@@ -39,9 +41,7 @@ public class WalletController {
             .map(m -> (BigDecimal) m.get("balance"))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        ImportSummary summary = importSummaryRepository.findById(1L).orElse(null);
-        BigDecimal bankDeposits = summary != null && summary.getBankDeposits() != null
-            ? summary.getBankDeposits() : BigDecimal.ZERO;
+        BigDecimal bankDeposits = bankTransactionRepository.sumAll();
 
         List<BankAccount> bankAccounts = bankAccountRepository.findAll();
         List<Map<String, Object>> bankWallets = new ArrayList<>();
@@ -52,7 +52,7 @@ public class WalletController {
             m.put("name", ba.getName());
             m.put("balance", bankDeposits);
             bankWallets.add(m);
-        } else if (bankDeposits.compareTo(BigDecimal.ZERO) != 0) {
+        } else {
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("id", null);
             m.put("name", "Bank");

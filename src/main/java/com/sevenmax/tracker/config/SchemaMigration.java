@@ -142,5 +142,26 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: admin_wallet_starting_balances table: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS bank_transactions (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "amount NUMERIC(12,2) NOT NULL, " +
+                "transaction_date DATE, " +
+                "notes VARCHAR(500), " +
+                "created_by VARCHAR(255), " +
+                "created_at TIMESTAMP DEFAULT NOW())"
+            );
+            // Migrate existing bank_deposits from import_summary as opening balance (runs once)
+            jdbcTemplate.execute(
+                "INSERT INTO bank_transactions (amount, notes, created_by, created_at) " +
+                "SELECT bank_deposits, 'Opening balance (migrated)', 'system', NOW() " +
+                "FROM import_summary WHERE id = 1 AND bank_deposits IS NOT NULL AND bank_deposits != 0 " +
+                "AND NOT EXISTS (SELECT 1 FROM bank_transactions)"
+            );
+            log.info("SchemaMigration: bank_transactions table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: bank_transactions table: {}", e.getMessage());
+        }
     }
 }
