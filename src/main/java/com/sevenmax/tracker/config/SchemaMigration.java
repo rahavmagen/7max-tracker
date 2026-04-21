@@ -66,6 +66,7 @@ public class SchemaMigration {
             jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS settled BOOLEAN DEFAULT FALSE");
             jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS settled_at DATE");
             jdbcTemplate.execute("ALTER TABLE admin_expenses ADD COLUMN IF NOT EXISTS settled_by VARCHAR(255)");
+            jdbcTemplate.execute("ALTER TABLE club_expenses ADD COLUMN IF NOT EXISTS settled_by VARCHAR(255)");
             log.info("SchemaMigration: admin_expenses settle columns ensured");
         } catch (Exception e) {
             log.warn("SchemaMigration: admin_expenses settle columns: {}", e.getMessage());
