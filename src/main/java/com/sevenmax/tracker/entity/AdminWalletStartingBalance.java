@@ -15,19 +15,7 @@ public class AdminWalletStartingBalance {
     private String adminUsername;
 
     @Column(precision = 12, scale = 2)
-    private BigDecimal cashAmount = BigDecimal.ZERO;
-
-    @Column(precision = 12, scale = 2)
-    private BigDecimal bitAmount = BigDecimal.ZERO;
-
-    @Column(precision = 12, scale = 2)
-    private BigDecimal payboxAmount = BigDecimal.ZERO;
-
-    @Column(precision = 12, scale = 2)
-    private BigDecimal kashcashAmount = BigDecimal.ZERO;
-
-    @Column(precision = 12, scale = 2)
-    private BigDecimal otherAmount = BigDecimal.ZERO;
+    private BigDecimal startingAmount = BigDecimal.ZERO;
 
     private String notes;
 

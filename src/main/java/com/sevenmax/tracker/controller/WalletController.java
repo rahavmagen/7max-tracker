@@ -93,11 +93,7 @@ public class WalletController {
         String notes = body.containsKey("notes") ? (String) body.get("notes") : null;
         AdminWalletStartingBalance sb = startingBalanceRepository.findById(adminUsername).orElse(new AdminWalletStartingBalance());
         sb.setAdminUsername(adminUsername);
-        sb.setCashAmount(parseBD(body.get("cashAmount")));
-        sb.setBitAmount(parseBD(body.get("bitAmount")));
-        sb.setPayboxAmount(parseBD(body.get("payboxAmount")));
-        sb.setKashcashAmount(parseBD(body.get("kashcashAmount")));
-        sb.setOtherAmount(parseBD(body.get("otherAmount")));
+        sb.setStartingAmount(parseBD(body.get("amount")));
         sb.setNotes(notes);
         startingBalanceRepository.save(sb);
         return ResponseEntity.ok(Map.of("ok", true));

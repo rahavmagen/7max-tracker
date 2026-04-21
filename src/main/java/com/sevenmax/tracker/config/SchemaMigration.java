@@ -139,6 +139,16 @@ public class SchemaMigration {
             jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS paybox_amount NUMERIC(12,2) DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS kashcash_amount NUMERIC(12,2) DEFAULT 0");
             jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS other_amount NUMERIC(12,2) DEFAULT 0");
+            jdbcTemplate.execute("ALTER TABLE admin_wallet_starting_balances ADD COLUMN IF NOT EXISTS starting_amount NUMERIC(12,2) DEFAULT 0");
+            // Migrate: sum old sub-balance columns into starting_amount (only where starting_amount is still 0)
+            jdbcTemplate.execute(
+                "UPDATE admin_wallet_starting_balances SET starting_amount = " +
+                "COALESCE(cash_amount,0) + COALESCE(bit_amount,0) + COALESCE(paybox_amount,0) + " +
+                "COALESCE(kashcash_amount,0) + COALESCE(other_amount,0) " +
+                "WHERE starting_amount = 0 AND (" +
+                "COALESCE(cash_amount,0) + COALESCE(bit_amount,0) + COALESCE(paybox_amount,0) + " +
+                "COALESCE(kashcash_amount,0) + COALESCE(other_amount,0)) != 0"
+            );
             log.info("SchemaMigration: admin_wallet_starting_balances table ensured");
         } catch (Exception e) {
             log.warn("SchemaMigration: admin_wallet_starting_balances table: {}", e.getMessage());
