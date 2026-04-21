@@ -379,14 +379,14 @@ public class ReportService {
             if (!isWheelExpense && tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
                 log.info("[WHEEL-DEBUG] Send Chips negative: player={} playerId={} amount={} date={} sourceRef={}",
                         player.getUsername(), player.getId(), amount, txDate, sourceRef);
-                BigDecimal mttCost = getNightlyMttCost(txDate, player.getId());
+                BigDecimal mttCost = getNightlyMttCost(txDate, player.getId(), amount);
                 log.info("[WHEEL-DEBUG] getNightlyMttCost(date={}, playerId={}) => {}", txDate, player.getId(), mttCost);
-                if (mttCost == null || amount.compareTo(mttCost) != 0) {
+                if (mttCost == null) {
                     // Also check previous day (wheel expense may be recorded the morning after,
                     // or the amount on the current day doesn't match)
-                    BigDecimal prevCost = getNightlyMttCost(txDate.minusDays(1), player.getId());
+                    BigDecimal prevCost = getNightlyMttCost(txDate.minusDays(1), player.getId(), amount);
                     log.info("[WHEEL-DEBUG] getNightlyMttCost(prevDay={}, playerId={}) => {}", txDate.minusDays(1), player.getId(), prevCost);
-                    if (prevCost != null && amount.compareTo(prevCost) == 0) {
+                    if (prevCost != null) {
                         mttCost = prevCost;
                     }
                 }
@@ -819,7 +819,8 @@ public class ReportService {
 
     // or null if no such session / player not found in it.
     // buyIn already includes rake, so we don't add rakePaid.
-    private BigDecimal getNightlyMttCost(LocalDate date, Long playerId) {
+    // Checks ALL MTT sessions in the evening window and returns the player's buy-in only if it matches amount.
+    private BigDecimal getNightlyMttCost(LocalDate date, Long playerId, BigDecimal amount) {
         // Sessions stored as Israel local time (LocalDateTime, no TZ). Evening window: 18:00–23:59.
         LocalDateTime windowStart = date.atTime(18, 0);
         LocalDateTime windowEnd = date.atTime(23, 59);
@@ -834,18 +835,19 @@ public class ReportService {
             log.info("[WHEEL-DEBUG] No MTT in window. Nearby MTT sessions (±1 day): {}", nearby.stream().map(s -> s.getId() + "@" + s.getStartTime()).toList());
             return null;
         }
-        // Check all sessions in the window — return the player's buy-in from whichever they participated in
+        // Check ALL sessions — player may be in multiple; match only the one where buyIn == amount
         for (GameSession session : sessions) {
             List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
             log.info("[WHEEL-DEBUG] Session id={} startTime={}, results count={}", session.getId(), session.getStartTime(), results.size());
-            Optional<BigDecimal> cost = results.stream()
+            Optional<BigDecimal> match = results.stream()
                     .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
                     .map(r -> {
                         log.info("[WHEEL-DEBUG] Player {} buyIn={}", r.getPlayer().getUsername(), r.getBuyIn());
                         return r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO;
                     })
+                    .filter(buyIn -> buyIn.compareTo(amount) == 0)
                     .findFirst();
-            if (cost.isPresent()) return cost.get();
+            if (match.isPresent()) return match.get();
         }
         return null;
     }
