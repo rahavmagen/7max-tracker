@@ -16,6 +16,7 @@ import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/admin-expenses")
 @RequiredArgsConstructor
@@ -245,11 +247,12 @@ public class AdminExpenseController {
             if (body.get("vatType") != null) {
                 expense.setVatType(body.get("vatType").toString());
             }
+            AdminExpense saved = expenseRepository.save(expense);
             if (expense.getAmount() != null) {
-                deductFromBank(expense.getAmount());
-                createBankHistoryEntry(expense, auth);
+                try { deductFromBank(expense.getAmount()); } catch (Exception ex) { log.warn("deductFromBank failed: {}", ex.getMessage()); }
+                try { createBankHistoryEntry(expense, auth); } catch (Exception ex) { log.warn("createBankHistoryEntry failed: {}", ex.getMessage()); }
             }
-            return ResponseEntity.ok(expenseRepository.save(expense));
+            return ResponseEntity.ok(saved);
         }).orElse(ResponseEntity.notFound().build());
     }
 
@@ -266,11 +269,12 @@ public class AdminExpenseController {
             if (body.get("paidFromBankAccountId") instanceof Number n) {
                 expense.setPaidFromBankAccountId(n.longValue());
             }
+            AdminExpense saved = expenseRepository.save(expense);
             if (expense.getAmount() != null) {
-                deductFromBank(expense.getAmount());
-                createBankHistoryEntry(expense, auth);
+                try { deductFromBank(expense.getAmount()); } catch (Exception ex) { log.warn("deductFromBank failed: {}", ex.getMessage()); }
+                try { createBankHistoryEntry(expense, auth); } catch (Exception ex) { log.warn("createBankHistoryEntry failed: {}", ex.getMessage()); }
             }
-            return ResponseEntity.ok(expenseRepository.save(expense));
+            return ResponseEntity.ok(saved);
         }).orElse(ResponseEntity.notFound().build());
     }
 
