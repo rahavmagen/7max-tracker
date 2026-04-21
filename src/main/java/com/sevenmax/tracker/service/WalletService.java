@@ -96,35 +96,10 @@ public class WalletService {
             m.put("startingBalance", sbTotal);
             m.put("startingBalanceNotes", sb != null ? sb.getNotes() : null);
 
-            // Per-method breakdown of transfer amounts
+            // Only STARTING needed — for opening-balance row in history
             Map<String, BigDecimal> breakdown = new LinkedHashMap<>();
             if (sb != null && safe(sb.getStartingAmount()).compareTo(BigDecimal.ZERO) != 0) {
                 breakdown.put("STARTING", sb.getStartingAmount());
-            }
-            for (PlayerTransfer t : allTransfers) {
-                if (t.getMethod() == null) continue;
-                String key = t.getMethod().name();
-                if (username.equals(t.getToAdminUsername())) {
-                    breakdown.merge(key, t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO, BigDecimal::add);
-                }
-                if (username.equals(t.getFromAdminUsername())) {
-                    breakdown.merge(key, t.getAmount() != null ? t.getAmount().negate() : BigDecimal.ZERO, BigDecimal::add);
-                }
-            }
-            // Expenses paid by this admin as negative "EXPENSES" bucket
-            BigDecimal expenseTotal = BigDecimal.ZERO;
-            for (AdminExpense e : allAdminExpenses) {
-                if (Boolean.TRUE.equals(e.getSettled()) && username.equals(e.getPaidFromAdminUsername())) {
-                    expenseTotal = expenseTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
-                }
-            }
-            for (ClubExpense e : allClubExpenses) {
-                if (e.isSettled() && username.equals(e.getPaidFromAdminUsername())) {
-                    expenseTotal = expenseTotal.add(e.getAmount() != null ? e.getAmount() : BigDecimal.ZERO);
-                }
-            }
-            if (expenseTotal.compareTo(BigDecimal.ZERO) != 0) {
-                breakdown.put("EXPENSES", expenseTotal.negate());
             }
             m.put("breakdown", breakdown);
             result.add(m);
