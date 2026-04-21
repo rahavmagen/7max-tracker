@@ -145,7 +145,7 @@ public class SchemaMigration {
                 "UPDATE admin_wallet_starting_balances SET starting_amount = " +
                 "COALESCE(cash_amount,0) + COALESCE(bit_amount,0) + COALESCE(paybox_amount,0) + " +
                 "COALESCE(kashcash_amount,0) + COALESCE(other_amount,0) " +
-                "WHERE starting_amount = 0 AND (" +
+                "WHERE (starting_amount IS NULL OR starting_amount = 0) AND (" +
                 "COALESCE(cash_amount,0) + COALESCE(bit_amount,0) + COALESCE(paybox_amount,0) + " +
                 "COALESCE(kashcash_amount,0) + COALESCE(other_amount,0)) != 0"
             );
