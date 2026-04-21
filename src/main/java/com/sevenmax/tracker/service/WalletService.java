@@ -74,6 +74,7 @@ public class WalletService {
         List<String> adminUsernames = userRepository.findAll().stream()
             .filter(u -> u.getRole() == User.Role.ADMIN || u.getRole() == User.Role.MANAGER)
             .filter(u -> Boolean.TRUE.equals(u.getActive()))
+            .filter(u -> !"admin".equals(u.getUsername()))
             .map(User::getUsername)
             .sorted()
             .collect(Collectors.toList());
