@@ -15,6 +15,9 @@ import java.util.List;
 @Service
 public class WhatsAppService {
 
+    @Value("${green-api.api-url}")
+    private String apiUrl;
+
     @Value("${green-api.instance-id}")
     private String instanceId;
 
@@ -42,8 +45,8 @@ public class WhatsAppService {
     private boolean sendOne(String rawPhone, String message) {
         String chatId = formatChatId(rawPhone);
         String url = String.format(
-            "https://api.green-api.com/waInstance%s/sendMessage/%s",
-            instanceId, token
+            "%s/waInstance%s/sendMessage/%s",
+            apiUrl, instanceId, token
         );
         try {
             String body = MAPPER.writeValueAsString(
