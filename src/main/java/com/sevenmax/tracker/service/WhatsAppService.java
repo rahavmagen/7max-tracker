@@ -21,6 +21,9 @@ public class WhatsAppService {
     @Value("${green-api.token}")
     private String token;
 
+    private static final com.fasterxml.jackson.databind.ObjectMapper MAPPER =
+        new com.fasterxml.jackson.databind.ObjectMapper();
+
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     /**
@@ -42,11 +45,10 @@ public class WhatsAppService {
             "https://api.green-api.com/waInstance%s/sendMessage/%s",
             instanceId, token
         );
-        String body = String.format(
-            "{\"chatId\":\"%s\",\"message\":\"%s\"}",
-            chatId, escapeJson(message)
-        );
         try {
+            String body = MAPPER.writeValueAsString(
+                java.util.Map.of("chatId", chatId, "message", message)
+            );
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
@@ -69,10 +71,5 @@ public class WhatsAppService {
     /** Strip non-digits and append @c.us */
     private String formatChatId(String phone) {
         return phone.replaceAll("[^0-9]", "") + "@c.us";
-    }
-
-    /** Escape quotes and backslashes for inline JSON string */
-    private String escapeJson(String text) {
-        return text.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
     }
 }
