@@ -190,6 +190,20 @@ public class ReportService {
                     }
                 }
                 log.info("STALE LOOP DONE: leftClub size={} file={}", leftClub.size(), report.getFileName());
+
+                // Zero out balance for stale players where chips=0 and credit=0 (fully settled)
+                for (Player p : playerRepository.findAll()) {
+                    if (Boolean.TRUE.equals(p.getChipsStale())) {
+                        BigDecimal chips = p.getCurrentChips() != null ? p.getCurrentChips() : BigDecimal.ZERO;
+                        BigDecimal credit = p.getCreditTotal() != null ? p.getCreditTotal() : BigDecimal.ZERO;
+                        if (chips.compareTo(BigDecimal.ZERO) == 0 && credit.compareTo(BigDecimal.ZERO) == 0
+                                && p.getBalance() != null && p.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+                            p.setBalance(BigDecimal.ZERO);
+                            playerRepository.save(p);
+                            log.info("Zeroed balance for stale player {} (chips=0, credit=0)", p.getUsername());
+                        }
+                    }
+                }
             } else {
                 log.info("Historical report — skipping chip update, stale marking (periodEnd={} < latest={})", report.getPeriodEnd(), latestExistingPeriodEnd);
             }
@@ -577,6 +591,22 @@ public class ReportService {
             tx.setCreatedByUsername("Import");
             tx.setReportId(reportId);
             transactionRepository.save(tx);
+
+            // Stale player (left club): balance sheet won't update them, so update chips/balance from this trade
+            if (!isWheelExpense && Boolean.TRUE.equals(player.getChipsStale())) {
+                BigDecimal chips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
+                BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
+                if (tradeType.equals("Claim Chips")) {
+                    chips = chips.subtract(amount); // club took chips back
+                } else if (tradeType.equals("Send Chips")) {
+                    chips = chips.add(amount); // club sent chips to player
+                }
+                if (chips.compareTo(BigDecimal.ZERO) < 0) chips = BigDecimal.ZERO;
+                player.setCurrentChips(chips);
+                player.setBalance(chips.subtract(credit));
+                playerRepository.save(player);
+                log.info("Stale player {} chips updated from trade: chips={} balance={}", player.getUsername(), chips, player.getBalance());
+            }
 
             // Track wheel expenses saved so corrections can cancel them
             if (isWheelExpense) {
