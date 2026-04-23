@@ -126,6 +126,9 @@ public class ReportController {
                 BigDecimal rakeTotal = sessionResults.stream()
                     .map(r -> r.getRakePaid() != null ? r.getRakePaid() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+                int handsTotal = sessionResults.stream()
+                    .mapToInt(r -> r.getHandsPlayed() != null ? r.getHandsPlayed() : 0)
+                    .max().orElse(0);
                 Map<String, Object> m = new LinkedHashMap<>();
                 m.put("id", s.getId());
                 m.put("tableName", s.getTableName());
@@ -133,6 +136,7 @@ public class ReportController {
                 m.put("startTime", s.getStartTime() != null ? s.getStartTime().toString() : null);
                 m.put("endTime", s.getEndTime() != null ? s.getEndTime().toString() : null);
                 m.put("rakeTotal", rakeTotal);
+                m.put("handsPlayed", handsTotal);
                 m.put("entryFee", s.getEntryFee());
                 m.put("playerCount", playerCount);
                 m.put("entryCount", entries);
