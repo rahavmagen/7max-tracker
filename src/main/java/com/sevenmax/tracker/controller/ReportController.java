@@ -117,8 +117,6 @@ public class ReportController {
     public ResponseEntity<List<Map<String, Object>>> getSessions(Authentication auth) {
         List<Map<String, Object>> result = new ArrayList<>();
         gameSessionRepository.findAll().stream()
-            .filter(s -> s.getGameType() == com.sevenmax.tracker.entity.GameSession.GameType.MTT
-                      || s.getGameType() == com.sevenmax.tracker.entity.GameSession.GameType.SNG)
             .sorted((a, b) -> b.getStartTime() != null && a.getStartTime() != null
                 ? b.getStartTime().compareTo(a.getStartTime()) : 0)
             .forEach(s -> {
