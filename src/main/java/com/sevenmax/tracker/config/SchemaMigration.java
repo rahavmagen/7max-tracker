@@ -174,5 +174,33 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: bank_transactions table: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS league_config (" +
+                "id BIGINT PRIMARY KEY, " +
+                "min_hands INTEGER NOT NULL DEFAULT 100, " +
+                "updated_at TIMESTAMP DEFAULT NOW())"
+            );
+            jdbcTemplate.execute(
+                "INSERT INTO league_config (id, min_hands) VALUES (1, 100) ON CONFLICT DO NOTHING"
+            );
+            log.info("SchemaMigration: league_config table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: league_config table: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS league_session_config (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "game_session_id BIGINT NOT NULL UNIQUE REFERENCES game_sessions(id), " +
+                "included BOOLEAN NOT NULL DEFAULT FALSE, " +
+                "hands_multiplier INTEGER NOT NULL DEFAULT 1, " +
+                "profit_multiplier INTEGER NOT NULL DEFAULT 1, " +
+                "updated_at TIMESTAMP DEFAULT NOW())"
+            );
+            log.info("SchemaMigration: league_session_config table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: league_session_config table: {}", e.getMessage());
+        }
     }
 }
