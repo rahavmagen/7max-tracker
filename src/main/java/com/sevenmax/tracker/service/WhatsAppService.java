@@ -15,13 +15,13 @@ import java.util.List;
 @Service
 public class WhatsAppService {
 
-    @Value("${green-api.api-url}")
+    @Value("${green-api.api-url:}")
     private String apiUrl;
 
-    @Value("${green-api.instance-id}")
+    @Value("${green-api.instance-id:}")
     private String instanceId;
 
-    @Value("${green-api.token}")
+    @Value("${green-api.token:}")
     private String token;
 
     private static final com.fasterxml.jackson.databind.ObjectMapper MAPPER =
