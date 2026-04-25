@@ -50,7 +50,7 @@ public class LeagueService {
                 profitILSMap.merge(pid, profit, BigDecimal::add);
 
                 profitPtsMap.computeIfAbsent(pid, k -> new long[]{0});
-                profitPtsMap.get(pid)[0] += profit.longValue() * pm;
+                profitPtsMap.get(pid)[0] += profit.multiply(BigDecimal.valueOf(pm)).longValue();
             }
         }
 
