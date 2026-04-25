@@ -20,6 +20,7 @@ public class LeagueController {
     private final LeagueConfigRepository leagueConfigRepository;
     private final LeagueSessionConfigRepository leagueSessionConfigRepository;
     private final GameSessionRepository gameSessionRepository;
+    private final GameResultRepository gameResultRepository;
     private final LeagueService leagueService;
 
     private boolean isPlayer(Authentication auth) {
@@ -60,6 +61,8 @@ public class LeagueController {
                 m.put("included", cfg != null && Boolean.TRUE.equals(cfg.getIncluded()));
                 m.put("handsMultiplier", cfg != null && cfg.getHandsMultiplier() != null ? cfg.getHandsMultiplier() : 1);
                 m.put("profitMultiplier", cfg != null && cfg.getProfitMultiplier() != null ? cfg.getProfitMultiplier() : 1);
+                m.put("totalHands", gameResultRepository.sumHandsBySessionId(s.getId()));
+                m.put("rake", s.getRakeTotal());
                 result.add(m);
             });
         return ResponseEntity.ok(result);
