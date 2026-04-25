@@ -62,7 +62,7 @@ public class LeagueController {
                 m.put("handsMultiplier", cfg != null && cfg.getHandsMultiplier() != null ? cfg.getHandsMultiplier() : 1);
                 m.put("profitMultiplier", cfg != null && cfg.getProfitMultiplier() != null ? cfg.getProfitMultiplier() : 1);
                 m.put("totalHands", gameResultRepository.sumHandsBySessionId(s.getId()));
-                m.put("rake", s.getRakeTotal());
+                m.put("rake", gameResultRepository.sumRakeBySessionId(s.getId()));
                 result.add(m);
             });
         return ResponseEntity.ok(result);

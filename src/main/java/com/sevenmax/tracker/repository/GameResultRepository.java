@@ -24,6 +24,9 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
     @Query("SELECT COALESCE(SUM(g.handsPlayed), 0) FROM GameResult g WHERE g.session.id = :sessionId")
     Integer sumHandsBySessionId(@Param("sessionId") Long sessionId);
 
+    @Query("SELECT COALESCE(SUM(g.rakePaid), 0) FROM GameResult g WHERE g.session.id = :sessionId")
+    java.math.BigDecimal sumRakeBySessionId(@Param("sessionId") Long sessionId);
+
     @Query(value =
         "SELECT gs.id AS sessionId, gs.start_time AS startTime, gs.table_name AS tableName, gs.game_type AS gameType, " +
         "COUNT(gr.id) AS playerCount, COALESCE(SUM(gr.hands_played), 0) AS totalHands, COALESCE(SUM(gr.rake_paid), 0) AS totalRake " +
