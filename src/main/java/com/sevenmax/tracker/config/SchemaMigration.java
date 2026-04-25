@@ -202,5 +202,11 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: league_session_config table: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute("ALTER TABLE league_session_config ADD COLUMN IF NOT EXISTS fixed_points INTEGER NOT NULL DEFAULT 0");
+            log.info("SchemaMigration: league_session_config fixed_points column ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: league_session_config fixed_points column: {}", e.getMessage());
+        }
     }
 }

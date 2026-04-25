@@ -23,5 +23,7 @@ public class LeagueSessionConfig {
 
     private Integer profitMultiplier = 1;
 
+    private Integer fixedPoints = 0;
+
     private LocalDateTime updatedAt = LocalDateTime.now();
 }

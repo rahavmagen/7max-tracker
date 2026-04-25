@@ -28,11 +28,13 @@ public class LeagueService {
         Map<Long, long[]>       handsPtsMap   = new LinkedHashMap<>(); // [handsPoints]
         Map<Long, BigDecimal>   profitILSMap  = new LinkedHashMap<>();
         Map<Long, long[]>       profitPtsMap  = new LinkedHashMap<>(); // [profitPoints]
+        Map<Long, long[]>       fixedPtsMap   = new LinkedHashMap<>(); // [fixedPoints]
         Map<Long, String>       usernameMap   = new LinkedHashMap<>();
 
         for (LeagueSessionConfig sc : includedSessions) {
             int hm = sc.getHandsMultiplier()  != null ? sc.getHandsMultiplier()  : 1;
             int pm = sc.getProfitMultiplier() != null ? sc.getProfitMultiplier() : 1;
+            int fp = sc.getFixedPoints()      != null ? sc.getFixedPoints()      : 0;
             List<GameResult> results = gameResultRepository.findBySessionId(sc.getSession().getId());
             for (GameResult r : results) {
                 Long pid = r.getPlayer().getId();
@@ -51,6 +53,9 @@ public class LeagueService {
 
                 profitPtsMap.computeIfAbsent(pid, k -> new long[]{0});
                 profitPtsMap.get(pid)[0] += profit.multiply(BigDecimal.valueOf(pm)).longValue();
+
+                fixedPtsMap.computeIfAbsent(pid, k -> new long[]{0});
+                fixedPtsMap.get(pid)[0] += fp;
             }
         }
 
@@ -61,7 +66,8 @@ public class LeagueService {
             long       handsPoints  = handsPtsMap.getOrDefault(pid, new long[]{0})[0];
             BigDecimal profitILS    = profitILSMap.getOrDefault(pid, BigDecimal.ZERO);
             long       profitPoints = profitPtsMap.getOrDefault(pid, new long[]{0})[0];
-            long       totalPoints  = handsPoints + profitPoints;
+            long       fixedPoints  = fixedPtsMap.getOrDefault(pid, new long[]{0})[0];
+            long       totalPoints  = handsPoints + profitPoints + fixedPoints;
 
             Map<String, Object> row = new LinkedHashMap<>();
             row.put("playerId",     pid);
@@ -70,6 +76,7 @@ public class LeagueService {
             row.put("handsPoints",  handsPoints);
             row.put("profitILS",    profitILS);
             row.put("profitPoints", profitPoints);
+            row.put("fixedPoints",  fixedPoints);
             row.put("totalPoints",  totalPoints);
             row.put("qualified",    totalHands >= minHands);
             row.put("rank",         null);

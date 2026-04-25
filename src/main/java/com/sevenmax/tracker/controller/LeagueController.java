@@ -61,6 +61,7 @@ public class LeagueController {
                 m.put("included", cfg != null && Boolean.TRUE.equals(cfg.getIncluded()));
                 m.put("handsMultiplier", cfg != null && cfg.getHandsMultiplier() != null ? cfg.getHandsMultiplier() : 1);
                 m.put("profitMultiplier", cfg != null && cfg.getProfitMultiplier() != null ? cfg.getProfitMultiplier() : 1);
+                m.put("fixedPoints", cfg != null && cfg.getFixedPoints() != null ? cfg.getFixedPoints() : 0);
                 m.put("totalHands", gameResultRepository.sumHandsBySessionId(s.getId()));
                 m.put("rake", gameResultRepository.sumRakeBySessionId(s.getId()));
                 result.add(m);
@@ -90,6 +91,7 @@ public class LeagueController {
             boolean included = Boolean.TRUE.equals(s.get("included"));
             int hm = s.containsKey("handsMultiplier")  ? ((Number) s.get("handsMultiplier")).intValue()  : 1;
             int pm = s.containsKey("profitMultiplier") ? ((Number) s.get("profitMultiplier")).intValue() : 1;
+            int fp = s.containsKey("fixedPoints")      ? ((Number) s.get("fixedPoints")).intValue()      : 0;
 
             LeagueSessionConfig sc = leagueSessionConfigRepository.findBySessionId(sessionId)
                 .orElseGet(() -> {
@@ -100,6 +102,7 @@ public class LeagueController {
             sc.setIncluded(included);
             sc.setHandsMultiplier(hm);
             sc.setProfitMultiplier(pm);
+            sc.setFixedPoints(fp);
             sc.setUpdatedAt(LocalDateTime.now());
             if (sc.getSession() != null) leagueSessionConfigRepository.save(sc);
         }
