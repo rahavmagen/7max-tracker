@@ -208,5 +208,21 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: league_session_config fixed_points column: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS ticket_grants (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "ticket_asset_id BIGINT NOT NULL REFERENCES ticket_assets(id), " +
+                "player_id BIGINT NOT NULL REFERENCES players(id), " +
+                "grant_type VARCHAR(10) NOT NULL, " +
+                "status VARCHAR(15) NOT NULL DEFAULT 'NOT_USED', " +
+                "granted_at TIMESTAMP DEFAULT NOW(), " +
+                "used_at TIMESTAMP, " +
+                "created_by_username VARCHAR(255))"
+            );
+            log.info("SchemaMigration: ticket_grants table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: ticket_grants table: {}", e.getMessage());
+        }
     }
 }
