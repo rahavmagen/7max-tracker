@@ -1,6 +1,7 @@
 package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.BankAccount;
+import com.sevenmax.tracker.entity.BankTransaction;
 import com.sevenmax.tracker.entity.GameResult;
 import com.sevenmax.tracker.entity.GameSession;
 import com.sevenmax.tracker.entity.ImportSummary;
@@ -8,6 +9,7 @@ import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.PlayerTransfer;
 import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.repository.BankAccountRepository;
+import com.sevenmax.tracker.repository.BankTransactionRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.GameSessionRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
@@ -40,6 +42,7 @@ public class PlayerTransferService {
     private final GameSessionRepository gameSessionRepository;
     private final GameResultRepository gameResultRepository;
     private final ImportSummaryRepository importSummaryRepository;
+    private final BankTransactionRepository bankTransactionRepository;
 
     @Transactional
     public PlayerTransfer createTransfer(Long fromPlayerId, Long fromBankAccountId, Long toPlayerId,
@@ -102,13 +105,13 @@ public class PlayerTransferService {
         boolean toBank = !hasAdminAttribution && (toBankAccount != null || (toPlayer == null && fromPlayer != null));
         boolean fromBank = !hasAdminAttribution && (fromBankAccount != null || (fromPlayer == null && toPlayer != null));
         if (toBank || fromBank) {
-            ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
-            summary.setId(1L);
-            BigDecimal current = summary.getBankDeposits() != null ? summary.getBankDeposits() : BigDecimal.ZERO;
-            // Money going TO bank/club increases balance; FROM bank/club decreases it
-            summary.setBankDeposits(toBank ? current.add(amount) : current.subtract(amount));
-            summary.setLastUpdated(java.time.LocalDateTime.now());
-            importSummaryRepository.save(summary);
+            // Record in bank_transactions so the wallet page balance stays in sync
+            BankTransaction bt = new BankTransaction();
+            bt.setAmount(toBank ? amount : amount.negate());
+            bt.setTransactionDate(LocalDate.now());
+            bt.setNotes("Transfer: " + fromLabel + " → " + toLabel + (notes != null ? " - " + notes : ""));
+            bt.setCreatedBy(createdBy);
+            bankTransactionRepository.save(bt);
         }
 
         return transfer;
