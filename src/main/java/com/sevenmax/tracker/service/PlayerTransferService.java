@@ -97,9 +97,10 @@ public class PlayerTransferService {
             transactionService.addTransaction(tx);
         }
 
-        // Update bank balance when club/bank account is involved
-        boolean toBank = toBankAccount != null || (toPlayer == null && fromPlayer != null);
-        boolean fromBank = fromBankAccount != null || (fromPlayer == null && toPlayer != null);
+        // Update bank balance only when club/bank account is involved AND it's a bank transfer (no admin wallet attribution)
+        boolean hasAdminAttribution = fromAdminUsername != null || toAdminUsername != null;
+        boolean toBank = !hasAdminAttribution && (toBankAccount != null || (toPlayer == null && fromPlayer != null));
+        boolean fromBank = !hasAdminAttribution && (fromBankAccount != null || (fromPlayer == null && toPlayer != null));
         if (toBank || fromBank) {
             ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
             summary.setId(1L);
