@@ -59,6 +59,9 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
         @Param("minHands") int minHands
     );
 
+    @Query("SELECT gr FROM GameResult gr WHERE gr.player.agent.id = :agentId AND gr.agentRakeShare IS NOT NULL AND gr.agentSettlement IS NULL")
+    List<GameResult> findUnsettledByAgentId(@Param("agentId") Long agentId);
+
     @Query(value = "SELECT COALESCE(SUM(gr.rake_paid), 0) FROM game_results gr JOIN game_sessions gs ON gr.session_id = gs.id WHERE gs.start_time > :since", nativeQuery = true)
     java.math.BigDecimal sumRakeSince(@Param("since") java.time.LocalDateTime since);
 

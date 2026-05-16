@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,14 +21,16 @@ public class AgentService {
     private final AdminExpenseRepository adminExpenseRepository;
 
     /** All agents with their pending (unsettled) balance */
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> getAllAgentsSummary() {
-        return playerRepository.findAll().stream()
+        List<Player> allPlayers = playerRepository.findAll();
+        return allPlayers.stream()
             .filter(p -> Boolean.TRUE.equals(p.getIsAgent()))
             .map(agent -> {
                 BigDecimal pending = getUnsettledResults(agent.getId()).stream()
                     .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-                long playerCount = playerRepository.findAll().stream()
+                long playerCount = allPlayers.stream()
                     .filter(p -> p.getAgent() != null && agent.getId().equals(p.getAgent().getId()))
                     .count();
                 List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agent.getId());
@@ -47,9 +48,13 @@ public class AgentService {
     }
 
     /** Pending balance + settlement history for one agent */
+    @Transactional(readOnly = true)
     public Map<String, Object> getAgentSummary(Long agentId) {
         Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        if (!Boolean.TRUE.equals(agent.getIsAgent())) {
+            throw new IllegalArgumentException("Player " + agentId + " is not an agent");
+        }
 
         List<GameResult> unsettled = getUnsettledResults(agentId);
         BigDecimal pending = unsettled.stream()
@@ -77,6 +82,7 @@ public class AgentService {
     }
 
     /** Game-by-game breakdown of unsettled results for an agent, optional date filter */
+    @Transactional(readOnly = true)
     public List<Map<String, Object>> getAgentBreakdown(Long agentId, LocalDate from, LocalDate to) {
         return getUnsettledResults(agentId).stream()
             .filter(gr -> {
@@ -104,12 +110,15 @@ public class AgentService {
     public AgentSettlement settleAgent(Long agentId) {
         Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        if (!Boolean.TRUE.equals(agent.getIsAgent())) {
+            throw new IllegalArgumentException("Player " + agentId + " is not an agent");
+        }
 
         List<GameResult> unsettled = getUnsettledResults(agentId);
         if (unsettled.isEmpty()) throw new IllegalStateException("No pending balance to settle");
 
         BigDecimal totalRake = unsettled.stream()
-            .map(GameResult::getRakePaid)
+            .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal agentShare = unsettled.stream()
             .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
@@ -143,28 +152,13 @@ public class AgentService {
 
         // Mark all game results as settled
         final AgentSettlement finalSettlement = settlement;
-        for (GameResult gr : unsettled) {
-            gr.setAgentSettlement(finalSettlement);
-            gameResultRepository.save(gr);
-        }
+        unsettled.forEach(gr -> gr.setAgentSettlement(finalSettlement));
+        gameResultRepository.saveAll(unsettled);
 
         return settlement;
     }
 
     private List<GameResult> getUnsettledResults(Long agentId) {
-        // Find all players belonging to this agent
-        List<Long> playerIds = playerRepository.findAll().stream()
-            .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
-            .map(Player::getId)
-            .collect(Collectors.toList());
-
-        if (playerIds.isEmpty()) return Collections.emptyList();
-
-        // Find game results with agentRakeShare set but not yet settled
-        return gameResultRepository.findAll().stream()
-            .filter(gr -> playerIds.contains(gr.getPlayer().getId()))
-            .filter(gr -> gr.getAgentRakeShare() != null)
-            .filter(gr -> gr.getAgentSettlement() == null)
-            .collect(Collectors.toList());
+        return gameResultRepository.findUnsettledByAgentId(agentId);
     }
 }
