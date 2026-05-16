@@ -273,6 +273,9 @@ public class ReportService {
                 log.info("Report upload: snapshotCreditTotal={}", snapshotCreditTotal);
             }
 
+            // Parse Club Overview → sync agent assignments from the sheet
+            parseClubOverview(workbook);
+
             // Parse Trade Record → create CREDIT/PAYMENT transactions (skip already-imported)
             parseTradeRecord(workbook, report);
 
@@ -315,6 +318,44 @@ public class ReportService {
                 playerRepository.save(player);
                 log.debug("Updated credit for {}: creditTotal={}", player.getUsername(), total);
             });
+        }
+    }
+
+    private void parseClubOverview(Workbook workbook) {
+        Sheet sheet = workbook.getSheet("Club Overview");
+        if (sheet == null) return;
+
+        // Player rows start at row index 3 (row 4 in Excel)
+        // Col A (0): player club ID, Col B (1): player nickname
+        // Col D (3): agent club ID, Col E (4): agent nickname
+        for (int r = 3; r <= sheet.getLastRowNum(); r++) {
+            Row row = sheet.getRow(r);
+            if (row == null) continue;
+
+            String playerClubId = getCellValue(row, 0);
+            String agentClubId  = getCellValue(row, 3);
+            String agentNickname = getCellValue(row, 4);
+
+            if (playerClubId == null || playerClubId.isBlank()) continue;
+            if (agentClubId == null || agentClubId.isBlank()) continue;
+
+            // Find the player
+            Player player = playerRepository.findByClubPlayerIdSafe(playerClubId).stream().findFirst().orElse(null);
+            if (player == null) continue;
+
+            // Find the agent player — try by clubPlayerId first, then by username
+            Player agent = playerRepository.findByClubPlayerIdSafe(agentClubId).stream().findFirst()
+                    .or(() -> agentNickname != null ? findPlayerByUsername(agentNickname) : java.util.Optional.empty())
+                    .orElse(null);
+
+            if (agent == null || !Boolean.TRUE.equals(agent.getIsAgent())) continue;
+
+            // Only update if different (avoid dirty writes)
+            if (player.getAgent() == null || !agent.getId().equals(player.getAgent().getId())) {
+                player.setAgent(agent);
+                playerRepository.save(player);
+                log.info("Agent assigned: player={} agent={}", player.getUsername(), agent.getUsername());
+            }
         }
     }
 
@@ -977,6 +1018,18 @@ public class ReportService {
         return null;
     }
 
+    private void applyAgentRakeShare(GameResult result) {
+        if (result.getAgentRakeShare() != null) return; // already set — never recalculate
+        Player player = result.getPlayer();
+        if (player == null) return;
+        Player agent = player.getAgent();
+        if (agent == null || agent.getAgentRakePercentage() == null) return;
+        result.setAgentRakeShare(
+            result.getRakePaid().multiply(agent.getAgentRakePercentage())
+                .setScale(2, java.math.RoundingMode.HALF_UP)
+        );
+    }
+
     private BigDecimal parseRingGameDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId) {
         Sheet sheet = workbook.getSheet("Ring Game Detail");
         if (sheet == null) return BigDecimal.ZERO;
@@ -1040,6 +1093,7 @@ public class ReportService {
                     result.setHandsPlayed(result.getHandsPlayed() + hands);
                     result.setRakePaid(result.getRakePaid().add(rake));
                     result.setResultAmount(result.getResultAmount().add(pnl));
+                    applyAgentRakeShare(result);
                     gameResultRepository.save(result);
                 } else {
                     result = new GameResult();
@@ -1050,6 +1104,7 @@ public class ReportService {
                     result.setHandsPlayed(hands);
                     result.setRakePaid(rake);
                     result.setResultAmount(pnl);
+                    applyAgentRakeShare(result);
                     gameResultRepository.save(result);
                     resultMap.put(resultKey, result);
                 }
@@ -1145,6 +1200,7 @@ public class ReportService {
                     result.setHandsPlayed(result.getHandsPlayed() + hands);
                     result.setRakePaid(result.getRakePaid().add(rake));
                     result.setResultAmount(result.getResultAmount().add(prize));
+                    applyAgentRakeShare(result);
                     gameResultRepository.save(result);
                 } else {
                     int place = sessionPositions.merge(currentSession.getId(), 1, Integer::sum);
@@ -1157,6 +1213,7 @@ public class ReportService {
                     result.setRakePaid(rake);
                     result.setResultAmount(prize);
                     result.setTournamentPlace(place);
+                    applyAgentRakeShare(result);
                     gameResultRepository.save(result);
                     resultMap.put(resultKey, result);
                 }
