@@ -81,6 +81,16 @@ public class PlayerService {
         player.setClubPlayerId(updated.getClubPlayerId());
         player.setCreditTotal(updated.getCreditTotal());
         player.setActive(updated.getActive());
+        // Agent system fields
+        if (updated.getIsAgent() != null) {
+            player.setIsAgent(updated.getIsAgent());
+        }
+        if (updated.getAgentRakePercentage() != null) {
+            player.setAgentRakePercentage(updated.getAgentRakePercentage());
+        } else if (Boolean.FALSE.equals(updated.getIsAgent())) {
+            // Clear rake % when un-marking as agent
+            player.setAgentRakePercentage(null);
+        }
         Player saved = playerRepository.save(player);
         // If phone changed, update password for users who never logged in
         String newPhone = updated.getPhone();

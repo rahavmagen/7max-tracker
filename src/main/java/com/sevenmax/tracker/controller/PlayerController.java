@@ -167,6 +167,24 @@ public class PlayerController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @PatchMapping("/{id}/agent")
+    public ResponseEntity<?> setAgent(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        try {
+            Player player = playerService.getPlayer(id);
+            Object agentIdVal = body.get("agentId");
+            if (agentIdVal == null || agentIdVal.toString().isBlank()) {
+                player.setAgent(null);
+            } else {
+                Long agentId = Long.parseLong(agentIdVal.toString());
+                Player agent = playerService.getPlayer(agentId);
+                player.setAgent(agent);
+            }
+            return ResponseEntity.ok(playerRepository.save(player));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePlayer(@PathVariable Long id, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
