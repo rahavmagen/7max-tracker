@@ -3,7 +3,6 @@ package com.sevenmax.tracker.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
-import com.sevenmax.tracker.entity.AgentSettlement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

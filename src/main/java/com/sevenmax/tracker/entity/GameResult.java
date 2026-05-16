@@ -3,7 +3,6 @@ package com.sevenmax.tracker.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
-import com.sevenmax.tracker.entity.AgentSettlement;
 
 @Entity
 @Table(name = "game_results")
