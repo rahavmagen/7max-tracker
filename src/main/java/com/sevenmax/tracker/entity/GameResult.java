@@ -3,6 +3,7 @@ package com.sevenmax.tracker.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import com.sevenmax.tracker.entity.AgentSettlement;
 
 @Entity
 @Table(name = "game_results")
@@ -36,4 +37,11 @@ public class GameResult {
     private BigDecimal resultAmount = BigDecimal.ZERO; // P&L from ClubGG
 
     private Integer tournamentPlace; // MTT/SNG only
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal agentRakeShare; // null if no agent, set once at upload, never recalculated
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_settlement_id")
+    private AgentSettlement agentSettlement; // null until settled
 }

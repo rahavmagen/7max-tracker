@@ -3,6 +3,7 @@ package com.sevenmax.tracker.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
+import com.sevenmax.tracker.entity.AgentSettlement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -41,4 +42,12 @@ public class AdminExpense {
     // Which admin wallet or bank account paid this expense (set when paid)
     private String paidFromAdminUsername;
     private Long paidFromBankAccountId;
+
+    // Agent system
+    @Column(columnDefinition = "varchar(20) default 'ADMIN'")
+    private String expenseType = "ADMIN"; // 'ADMIN' or 'AGENT'
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_settlement_id")
+    private AgentSettlement agentSettlement; // set when this expense was created by agent settlement
 }

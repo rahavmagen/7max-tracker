@@ -57,4 +57,14 @@ public class Player {
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // Agent system
+    private Boolean isAgent = false;
+
+    @Column(precision = 6, scale = 4)
+    private BigDecimal agentRakePercentage; // e.g. 0.3000 = 30%
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "agent_id")
+    private Player agent; // self-referential FK, null if no agent
 }
