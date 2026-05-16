@@ -1,5 +1,6 @@
 package com.sevenmax.tracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "players")
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Player {
 
     @Id
@@ -65,7 +67,10 @@ public class Player {
     @Column(precision = 6, scale = 4)
     private BigDecimal agentRakePercentage; // e.g. 0.3000 = 30%
 
-    @JsonIgnoreProperties({"agent", "hibernateLazyInitializer", "handler"})
+    @Column(name = "agent_id", insertable = false, updatable = false)
+    private Long agentId;
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "agent_id")
     private Player agent; // self-referential FK, null if no agent

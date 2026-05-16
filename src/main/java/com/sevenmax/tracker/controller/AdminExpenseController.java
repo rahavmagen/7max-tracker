@@ -62,6 +62,7 @@ public class AdminExpenseController {
                 m.put("expenseDate", e.getExpenseDate() != null ? e.getExpenseDate().toString() : null);
                 m.put("createdBy", e.getCreatedBy());
                 m.put("sourceRef", e.getSourceRef());
+                m.put("expenseType", e.getExpenseType() != null ? e.getExpenseType() : "ADMIN");
                 grouped.get(key).add(m);
             });
 

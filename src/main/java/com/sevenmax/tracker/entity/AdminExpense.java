@@ -1,5 +1,6 @@
 package com.sevenmax.tracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -42,10 +43,10 @@ public class AdminExpense {
     private String paidFromAdminUsername;
     private Long paidFromBankAccountId;
 
-    // Agent system
-    @Column(columnDefinition = "varchar(20) default 'ADMIN'")
-    private String expenseType = "ADMIN"; // 'ADMIN' or 'AGENT'
+    // Agent system: 'ADMIN' or 'AGENT'
+    private String expenseType = "ADMIN";
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "adminExpense")
     private AgentSettlement agentSettlement; // set when this expense was created by agent settlement
 }

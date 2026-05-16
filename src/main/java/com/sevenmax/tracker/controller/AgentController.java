@@ -62,6 +62,28 @@ public class AgentController {
         }
     }
 
+    /** Admin or agent: per-player rake stats with optional date filter */
+    @GetMapping("/{id}/player-stats")
+    public ResponseEntity<?> getPlayerStats(
+            @PathVariable Long id,
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to,
+            Authentication auth) {
+        if (!isAdminOrOwner(auth, id)) return ResponseEntity.status(403).build();
+        LocalDate fromDate, toDate;
+        try {
+            fromDate = from != null ? LocalDate.parse(from) : null;
+            toDate   = to   != null ? LocalDate.parse(to)   : null;
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format"));
+        }
+        try {
+            return ResponseEntity.ok(agentService.getPlayerStats(id, fromDate, toDate));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     /** Admin only: trigger settlement */
     @PostMapping("/{id}/settle")
     public ResponseEntity<?> settle(@PathVariable Long id, Authentication auth) {

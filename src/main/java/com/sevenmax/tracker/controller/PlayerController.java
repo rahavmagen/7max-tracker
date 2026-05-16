@@ -62,7 +62,7 @@ public class PlayerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayer(@PathVariable Long id, Authentication auth) {
-        if (isPlayer(auth) && !id.equals(getPlayerId(auth))) {
+        if (isPlayer(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayer(id));
@@ -137,7 +137,7 @@ public class PlayerController {
 
     @GetMapping("/{id}/transactions")
     public ResponseEntity<List<Transaction>> getTransactions(@PathVariable Long id, Authentication auth) {
-        if (isPlayer(auth) && !id.equals(getPlayerId(auth))) {
+        if (isPlayer(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayerTransactions(id));
@@ -210,6 +210,13 @@ public class PlayerController {
         playerRepository.deleteAll(toDelete);
         return ResponseEntity.ok(Map.of("deleted", toDelete.size(),
                 "names", toDelete.stream().map(Player::getUsername).collect(Collectors.toList())));
+    }
+
+    private boolean isAgentOfPlayer(Authentication auth, Long targetPlayerId) {
+        Long agentPlayerId = getPlayerId(auth);
+        return playerRepository.findById(targetPlayerId)
+                .map(p -> agentPlayerId.equals(p.getAgentId()))
+                .orElse(false);
     }
 
     private boolean isPlayer(Authentication auth) {

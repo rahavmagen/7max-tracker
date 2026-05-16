@@ -32,6 +32,7 @@ public class AgentService {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
                 long playerCount = allPlayers.stream()
                     .filter(p -> p.getAgent() != null && agent.getId().equals(p.getAgent().getId()))
+                    .filter(p -> !p.getId().equals(agent.getId()))
                     .count();
                 List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agent.getId());
                 LocalDate lastSettlement = settlements.isEmpty() ? null : settlements.get(0).getToDate();
@@ -73,10 +74,23 @@ public class AgentService {
             return h;
         }).collect(Collectors.toList());
 
+        List<Map<String, Object>> playersList = playerRepository.findAll().stream()
+            .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
+            .filter(p -> !p.getId().equals(agentId))
+            .map(p -> {
+                Map<String, Object> pm = new LinkedHashMap<>();
+                pm.put("id", p.getId());
+                pm.put("username", p.getUsername());
+                pm.put("fullName", p.getFullName());
+                return pm;
+            })
+            .collect(Collectors.toList());
+
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("agentId", agentId);
         result.put("username", agent.getUsername());
         result.put("pendingBalance", pending);
+        result.put("players", playersList);
         result.put("settlementHistory", historyList);
         return result;
     }
@@ -156,6 +170,50 @@ public class AgentService {
         gameResultRepository.saveAll(unsettled);
 
         return settlement;
+    }
+
+    /** Per-player rake stats for an agent, with optional date filter (all results, settled+unsettled) */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getPlayerStats(Long agentId, LocalDate from, LocalDate to) {
+        playerRepository.findById(agentId)
+            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+
+        // All players under this agent (excluding the agent themselves)
+        List<Player> agentPlayers = playerRepository.findAll().stream()
+            .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
+            .filter(p -> !p.getId().equals(agentId))
+            .collect(Collectors.toList());
+
+        // Game results grouped by player id
+        Map<Long, List<GameResult>> resultsByPlayer = gameResultRepository.findAllByAgentId(agentId).stream()
+            .filter(gr -> {
+                LocalDate d = gr.getSession().getStartTime().toLocalDate();
+                if (from != null && d.isBefore(from)) return false;
+                if (to != null && d.isAfter(to)) return false;
+                return true;
+            })
+            .collect(Collectors.groupingBy(gr -> gr.getPlayer().getId()));
+
+        return agentPlayers.stream()
+            .map(player -> {
+                List<GameResult> rows = resultsByPlayer.getOrDefault(player.getId(), Collections.emptyList());
+                BigDecimal totalRake = rows.stream()
+                    .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal agentShare = rows.stream()
+                    .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("playerId", player.getId());
+                m.put("username", player.getUsername());
+                m.put("fullName", player.getFullName());
+                m.put("gameCount", rows.size());
+                m.put("totalRake", totalRake);
+                m.put("agentShare", agentShare);
+                return m;
+            })
+            .sorted((a, b) -> ((BigDecimal) b.get("agentShare")).compareTo((BigDecimal) a.get("agentShare")))
+            .collect(Collectors.toList());
     }
 
     private List<GameResult> getUnsettledResults(Long agentId) {

@@ -93,7 +93,11 @@ public class ReportController {
     @GetMapping("/player/{playerId}/results")
     public ResponseEntity<List<GameResult>> getPlayerResults(@PathVariable Long playerId, Authentication auth) {
         if (isPlayer(auth) && !playerId.equals(getPlayerId(auth))) {
-            return ResponseEntity.status(403).build();
+            Long agentPlayerId = getPlayerId(auth);
+            boolean isAgentOfPlayer = playerRepository.findById(playerId)
+                    .map(p -> agentPlayerId.equals(p.getAgentId()))
+                    .orElse(false);
+            if (!isAgentOfPlayer) return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(reportService.getResultsByPlayer(playerId));
     }
