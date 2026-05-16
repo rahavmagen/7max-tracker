@@ -327,21 +327,24 @@ public class ReportService {
         }
 
         // Player rows start at row index 3 (row 4 in Excel)
-        // Col A (0): player club ID, Col B (1): player nickname
         // Col D (3): agent club ID, Col E (4): agent nickname
+        // Col H (7): member club ID, Col I (8): member nickname
         for (int r = 3; r <= sheet.getLastRowNum(); r++) {
             Row row = sheet.getRow(r);
             if (row == null) continue;
 
-            String playerClubId = getCellValue(row, 0);
-            String agentClubId  = getCellValue(row, 3);
-            String agentNickname = getCellValue(row, 4);
+            String agentClubId    = getCellValue(row, 3);
+            String agentNickname  = getCellValue(row, 4);
+            String playerClubId   = getCellValue(row, 7);
+            String playerNickname = getCellValue(row, 8);
 
-            if (playerClubId == null || playerClubId.isBlank()) continue;
             if (agentClubId == null || agentClubId.isBlank()) continue;
+            if (playerClubId == null || playerClubId.isBlank()) continue;
 
-            // Find the player
-            Player player = playerRepository.findByClubPlayerIdSafe(playerClubId).stream().findFirst().orElse(null);
+            // Find the player (member)
+            Player player = playerRepository.findByClubPlayerIdSafe(playerClubId).stream().findFirst()
+                    .or(() -> playerNickname != null ? findPlayerByUsername(playerNickname) : java.util.Optional.empty())
+                    .orElse(null);
             if (player == null) continue;
 
             // Find the agent player — try by clubPlayerId first, then by username
