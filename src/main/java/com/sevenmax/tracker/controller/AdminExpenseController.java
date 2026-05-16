@@ -119,6 +119,7 @@ public class AdminExpenseController {
                 m.put("settledAt", e.getSettledAt() != null ? e.getSettledAt().toString() : null);
                 m.put("settledBy", e.getSettledBy());
                 m.put("paidFromAdminUsername", e.getPaidFromAdminUsername());
+                m.put("expenseType", e.getExpenseType() != null ? e.getExpenseType() : "ADMIN");
                 paid.add(m);
             });
 
