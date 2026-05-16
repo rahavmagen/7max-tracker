@@ -80,6 +80,7 @@ public class ReportService {
             Map<String, BigDecimal> gamePnlMap = new HashMap<>();
             Map<String, String> nicknameToClubId = new HashMap<>();
             BigDecimal totalRake = BigDecimal.ZERO;
+            parseClubOverview(workbook);  // sync agent FKs FIRST
             totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap, nicknameToClubId));
             totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap, nicknameToClubId));
             parseMttStatistics(workbook);
@@ -273,9 +274,6 @@ public class ReportService {
                 log.info("Report upload: snapshotCreditTotal={}", snapshotCreditTotal);
             }
 
-            // Parse Club Overview → sync agent assignments from the sheet
-            parseClubOverview(workbook);
-
             // Parse Trade Record → create CREDIT/PAYMENT transactions (skip already-imported)
             parseTradeRecord(workbook, report);
 
@@ -323,7 +321,10 @@ public class ReportService {
 
     private void parseClubOverview(Workbook workbook) {
         Sheet sheet = workbook.getSheet("Club Overview");
-        if (sheet == null) return;
+        if (sheet == null) {
+            log.debug("Club Overview sheet not found, skipping agent sync");
+            return;
+        }
 
         // Player rows start at row index 3 (row 4 in Excel)
         // Col A (0): player club ID, Col B (1): player nickname
@@ -1024,6 +1025,7 @@ public class ReportService {
         if (player == null) return;
         Player agent = player.getAgent();
         if (agent == null || agent.getAgentRakePercentage() == null) return;
+        if (result.getRakePaid() == null) return;
         result.setAgentRakeShare(
             result.getRakePaid().multiply(agent.getAgentRakePercentage())
                 .setScale(2, java.math.RoundingMode.HALF_UP)
