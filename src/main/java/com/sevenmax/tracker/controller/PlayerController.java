@@ -168,7 +168,8 @@ public class PlayerController {
     }
 
     @PatchMapping("/{id}/agent")
-    public ResponseEntity<?> setAgent(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> setAgent(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
         try {
             Player player = playerService.getPlayer(id);
             Object agentIdVal = body.get("agentId");
