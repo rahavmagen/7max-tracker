@@ -23,10 +23,10 @@ public class AgentSettlement {
     private LocalDate toDate;
 
     @Column(precision = 12, scale = 2)
-    private BigDecimal totalRake = BigDecimal.ZERO;
+    private BigDecimal totalRake = BigDecimal.ZERO; // sum of rakePaid from covered game_results
 
     @Column(precision = 12, scale = 2)
-    private BigDecimal agentShare = BigDecimal.ZERO;
+    private BigDecimal agentShare = BigDecimal.ZERO; // sum of agentRakeShare — actual payment amount
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_expense_id")

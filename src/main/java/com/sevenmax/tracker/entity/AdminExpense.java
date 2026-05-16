@@ -46,7 +46,6 @@ public class AdminExpense {
     @Column(columnDefinition = "varchar(20) default 'ADMIN'")
     private String expenseType = "ADMIN"; // 'ADMIN' or 'AGENT'
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "agent_settlement_id")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "adminExpense")
     private AgentSettlement agentSettlement; // set when this expense was created by agent settlement
 }
