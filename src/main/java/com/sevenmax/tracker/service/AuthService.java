@@ -42,9 +42,11 @@ public class AuthService {
         result.put("role", user.getRole().name());
         result.put("username", user.getUsername());
         result.put("mustChangePassword", Boolean.TRUE.equals(user.getMustChangePassword()));
-        if (user.getPlayer() != null) {
-            result.put("playerId", user.getPlayer().getId());
+        var player = user.getPlayer();
+        if (player != null) {
+            result.put("playerId", player.getId());
         }
+        result.put("isAgent", player != null && Boolean.TRUE.equals(player.getIsAgent()));
         return result;
     }
 

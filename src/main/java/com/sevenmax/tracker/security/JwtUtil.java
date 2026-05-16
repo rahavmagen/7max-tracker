@@ -23,9 +23,11 @@ public class JwtUtil {
     public String generate(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole().name());
-        if (user.getPlayer() != null) {
-            claims.put("playerId", user.getPlayer().getId());
+        var player = user.getPlayer();
+        if (player != null) {
+            claims.put("playerId", player.getId());
         }
+        claims.put("isAgent", player != null && Boolean.TRUE.equals(player.getIsAgent()));
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claims(claims)
