@@ -45,6 +45,7 @@ public class XlsMatchingService {
             case PROMOTION          -> BigDecimal.ZERO;  // write-off: not XLS-matched
             case EXPENSE_REPAYMENT  -> tx.getAmount();   // club sends chips to admin as repayment
             case TICKET_GRANT       -> tx.getAmount().negate(); // face value deducted from player
+            case KASHCASH_DEPOSIT   -> tx.getAmount();           // player deposits via KashCash
         };
     }
 }
