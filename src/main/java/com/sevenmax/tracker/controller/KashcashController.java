@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -26,7 +27,11 @@ public class KashcashController {
     @PostMapping("/initiate")
     public ResponseEntity<?> initiate(@RequestBody Map<String, Object> body, Authentication auth) {
         try {
-            BigDecimal amount = new BigDecimal(body.get("amount").toString());
+            Object rawAmount = body.get("amount");
+            if (rawAmount == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Missing required field: amount"));
+            }
+            BigDecimal amount = new BigDecimal(rawAmount.toString());
             if (amount.compareTo(BigDecimal.ONE) < 0) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Minimum deposit is 1"));
             }
@@ -93,7 +98,7 @@ public class KashcashController {
     @GetMapping("/my")
     public ResponseEntity<?> myDeposits(Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
-        if (user == null || user.getPlayer() == null) return ResponseEntity.ok(java.util.List.of());
+        if (user == null || user.getPlayer() == null) return ResponseEntity.ok(List.of());
         return ResponseEntity.ok(kashcashService.getMyDeposits(user.getPlayer().getId()));
     }
 
