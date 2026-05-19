@@ -97,7 +97,7 @@ public class KashcashService {
         }
     }
 
-    private String getToken() {
+    private synchronized String getToken() {
         if (cachedToken == null) authenticate();
         return cachedToken;
     }
@@ -178,7 +178,12 @@ public class KashcashService {
         }
 
         // NOTE: adjust "transactionId" field name if KashCash uses a different key
-        String kashcashTxId = payload.get("transactionId").toString();
+        Object txIdObj = payload.get("transactionId");
+        if (txIdObj == null) {
+            log.warn("KashCash webhook: missing transactionId, payload={}", payload);
+            return;
+        }
+        String kashcashTxId = txIdObj.toString();
 
         KashcashInitiated initiated = kashcashInitiatedRepository
                 .findByKashcashTransactionId(kashcashTxId)
