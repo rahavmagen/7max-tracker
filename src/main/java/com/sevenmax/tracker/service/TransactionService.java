@@ -44,7 +44,8 @@ public class TransactionService {
         if (tx.getType() != Transaction.Type.CHIP_PROMO && tx.getType() != Transaction.Type.PROMOTION && tx.getType() != Transaction.Type.EXPENSE_REPAYMENT) {
             BigDecimal diff = newAmount.subtract(tx.getAmount());
             boolean adds = tx.getType() == Transaction.Type.DEPOSIT
-                    || tx.getType() == Transaction.Type.PAYMENT;
+                    || tx.getType() == Transaction.Type.PAYMENT
+                    || tx.getType() == Transaction.Type.KASHCASH_DEPOSIT;
             Player player = tx.getPlayer();
             player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
             playerRepository.save(player);

@@ -171,7 +171,7 @@ public class KashcashService {
             log.warn("KashCash webhook: missing status field, payload={}", payload);
             return;
         }
-        int status = ((Number) statusObj).intValue();
+        int status = Integer.parseInt(statusObj.toString());
         if (status != 1) {
             log.info("KashCash webhook: status={}, ignoring", status);
             return;
