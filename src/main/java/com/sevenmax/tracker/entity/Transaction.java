@@ -45,11 +45,13 @@ public class Transaction {
 
     private Boolean pendingConfirmation = false;
 
+    private Boolean chipsConfirmed = false;
+
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Type {
-        DEPOSIT, WITHDRAWAL, CREDIT, PAYMENT, WHEEL_EXPENSE, CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT, TICKET_GRANT
+        DEPOSIT, WITHDRAWAL, CREDIT, PAYMENT, WHEEL_EXPENSE, CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT, TICKET_GRANT, KASHCASH_DEPOSIT
     }
 
     public enum Method {
