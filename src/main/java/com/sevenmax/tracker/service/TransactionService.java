@@ -25,7 +25,8 @@ public class TransactionService {
         // CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT: no balance change
         if (type != Transaction.Type.CHIP_PROMO && type != Transaction.Type.PROMOTION && type != Transaction.Type.EXPENSE_REPAYMENT) {
             boolean isCredit = type == Transaction.Type.DEPOSIT
-                    || type == Transaction.Type.PAYMENT;
+                    || type == Transaction.Type.PAYMENT
+                    || type == Transaction.Type.KASHCASH_DEPOSIT;
             BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
             player.setBalance(player.getBalance().add(delta));
             playerRepository.save(player);
