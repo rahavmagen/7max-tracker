@@ -72,16 +72,20 @@ public class KashcashService {
 
     private synchronized String authenticate() {
         try {
-            String body = MAPPER.writeValueAsString(Map.of(
-                    "username", apiUsername,
-                    "password", apiPassword
-            ));
+            Map<String, Object> bodyMap = new HashMap<>();
+            bodyMap.put("username", apiUsername);
+            bodyMap.put("password", apiPassword);
+            bodyMap.put("businessId", businessId);
+            bodyMap.put("posVendorId", posVendorId);
+            String body = MAPPER.writeValueAsString(bodyMap);
+            log.info("KashCash login REQUEST → POST {}/login body={}", baseUrl, body);
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/login"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
             HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            log.info("KashCash login RESPONSE ← HTTP {} body={}", resp.statusCode(), resp.body());
             if (resp.statusCode() != 200) {
                 throw new RuntimeException("KashCash login failed HTTP " + resp.statusCode() + ": " + resp.body());
             }
@@ -122,13 +126,16 @@ public class KashcashService {
             body.put("withPaymentCode", true);
             body.put("callbackUrl", callbackUrl);
 
+            String bodyJson = MAPPER.writeValueAsString(body);
+            log.info("KashCash create REQUEST → POST {}/request/create body={}", baseUrl, bodyJson);
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/request/create"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + getToken())
-                    .POST(HttpRequest.BodyPublishers.ofString(MAPPER.writeValueAsString(body)))
+                    .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
                     .build();
             HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            log.info("KashCash create RESPONSE ← HTTP {} body={}", resp.statusCode(), resp.body());
 
             if (resp.statusCode() == 401 && !retried) {
                 cachedToken = null;
@@ -140,10 +147,36 @@ public class KashcashService {
             }
 
             JsonNode json = MAPPER.readTree(resp.body());
-            // NOTE: adjust field names to match actual KashCash create response
-            String transactionId = json.get("transactionId").asText();
-            String iframeUrl = json.get("iframeUrl").asText();
-            String appPaymentIntentUrl = json.get("appPaymentIntentUrl").asText();
+            log.info("KashCash create response fields: {}", MAPPER.writeValueAsString(json.fieldNames()));
+
+            String appPaymentIntentUrl = json.has("appPaymentIntentUrl") ? json.get("appPaymentIntentUrl").asText() : "";
+
+            // Extract transactionId from appPaymentIntentUrl query param (e.g. ?transactionId=uuid)
+            String transactionId = null;
+            if (json.has("transactionId")) {
+                transactionId = json.get("transactionId").asText();
+            } else if (json.has("id")) {
+                transactionId = json.get("id").asText();
+            } else if (!appPaymentIntentUrl.isEmpty()) {
+                // Parse from: cashiclientsheet://bottomsheet?transactionId=UUID#...
+                java.util.regex.Matcher m = java.util.regex.Pattern
+                        .compile("[?&]transactionId=([^&#]+)")
+                        .matcher(appPaymentIntentUrl);
+                if (m.find()) transactionId = m.group(1);
+            }
+            if (transactionId == null || transactionId.isBlank()) {
+                throw new RuntimeException("KashCash create: could not determine transactionId from response: " + resp.body());
+            }
+
+            // Prefer SVG QR code (renders inline, no X-Frame-Options issues)
+            String iframeUrl = "";
+            if (json.has("qrCodeAsSvg") && !json.get("qrCodeAsSvg").asText().isBlank()) {
+                iframeUrl = json.get("qrCodeAsSvg").asText();
+            } else if (json.has("iFrameUrl") && !json.get("iFrameUrl").asText().isBlank()) {
+                iframeUrl = json.get("iFrameUrl").asText();
+            } else if (json.has("qrCodeAsString") && !json.get("qrCodeAsString").asText().isBlank()) {
+                iframeUrl = json.get("qrCodeAsString").asText();
+            }
 
             KashcashInitiated initiated = new KashcashInitiated();
             initiated.setKashcashTransactionId(transactionId);
