@@ -220,6 +220,14 @@ public class KashcashService {
         }
         String kashcashTxId = txIdObj.toString();
 
+        long totalRecords = kashcashInitiatedRepository.count();
+        log.info("KashCash webhook: looking up txId={}, total kashcash_initiated records={}", kashcashTxId, totalRecords);
+        if (totalRecords > 0) {
+            kashcashInitiatedRepository.findAll().forEach(r ->
+                log.info("  kashcash_initiated row: id={}, txId={}, processed={}", r.getId(), r.getKashcashTransactionId(), r.getProcessed())
+            );
+        }
+
         KashcashInitiated initiated = kashcashInitiatedRepository
                 .findByKashcashTransactionId(kashcashTxId)
                 .orElse(null);
