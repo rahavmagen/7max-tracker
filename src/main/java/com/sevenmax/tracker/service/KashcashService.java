@@ -186,7 +186,7 @@ public class KashcashService {
             kashcashInitiatedRepository.save(initiated);
 
             log.info("KashCash deposit initiated: player={}, amount={}, txId={}", player.getUsername(), amount, transactionId);
-            return Map.of("iframeUrl", iframeUrl, "appPaymentIntentUrl", appPaymentIntentUrl);
+            return Map.of("iframeUrl", iframeUrl, "appPaymentIntentUrl", appPaymentIntentUrl, "transactionId", transactionId);
 
         } catch (RuntimeException e) {
             throw e;
