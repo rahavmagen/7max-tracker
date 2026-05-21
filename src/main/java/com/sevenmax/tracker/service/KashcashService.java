@@ -124,7 +124,7 @@ public class KashcashService {
             body.put("withIframeUrl", true);
             body.put("withAppPaymentIntentUrl", true);
             body.put("withPaymentCode", true);
-            body.put("callbackUrl", callbackUrl);
+            body.put("callbackurl", callbackUrl);
 
             String bodyJson = MAPPER.writeValueAsString(body);
             log.info("KashCash create REQUEST → POST {}/request/create body={}", baseUrl, bodyJson);
@@ -168,12 +168,13 @@ public class KashcashService {
                 throw new RuntimeException("KashCash create: could not determine transactionId from response: " + resp.body());
             }
 
-            // Prefer SVG QR code (renders inline, no X-Frame-Options issues)
+            // Prefer iFrameUrl — KashCash Web iframe sends postMessage on payment completion
+            // Fall back to SVG QR if no iframe URL
             String iframeUrl = "";
-            if (json.has("qrCodeAsSvg") && !json.get("qrCodeAsSvg").asText().isBlank()) {
-                iframeUrl = json.get("qrCodeAsSvg").asText();
-            } else if (json.has("iFrameUrl") && !json.get("iFrameUrl").asText().isBlank()) {
+            if (json.has("iFrameUrl") && !json.get("iFrameUrl").asText().isBlank()) {
                 iframeUrl = json.get("iFrameUrl").asText();
+            } else if (json.has("qrCodeAsSvg") && !json.get("qrCodeAsSvg").asText().isBlank()) {
+                iframeUrl = json.get("qrCodeAsSvg").asText();
             } else if (json.has("qrCodeAsString") && !json.get("qrCodeAsString").asText().isBlank()) {
                 iframeUrl = json.get("qrCodeAsString").asText();
             }
@@ -257,10 +258,10 @@ public class KashcashService {
     private void finalizeWithKashCash(String kashcashTxId) {
         try {
             // NOTE: adjust endpoint path and field name to match actual KashCash finalize API
-            String body = MAPPER.writeValueAsString(Map.of("transactionId", kashcashTxId));
-            log.info("KashCash finalize REQUEST → POST {}/finalize-payment body={}", baseUrl, body);
+            String body = MAPPER.writeValueAsString(Map.of("businessId", businessId, "transactionId", kashcashTxId));
+            log.info("KashCash finalize REQUEST → POST {}/request/finalize-payment body={}", baseUrl, body);
             HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(baseUrl + "/finalize-payment"))
+                    .uri(URI.create(baseUrl + "/request/finalize-payment"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + getToken())
                     .POST(HttpRequest.BodyPublishers.ofString(body))
