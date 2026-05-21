@@ -73,7 +73,9 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
 
     @Query(value =
         "SELECT p.id, p.username, p.full_name, COUNT(gr.id) as session_count, " +
-        "COALESCE(SUM(gr.result_amount), 0) as total_pnl " +
+        "COALESCE(SUM(CASE WHEN gs.game_type IN ('MTT','SNG','SPIN_GOLD') " +
+        "  THEN gr.result_amount - gr.buy_in " +
+        "  ELSE gr.result_amount END), 0) as total_pnl " +
         "FROM players p " +
         "JOIN game_results gr ON gr.player_id = p.id " +
         "JOIN game_sessions gs ON gr.session_id = gs.id " +
