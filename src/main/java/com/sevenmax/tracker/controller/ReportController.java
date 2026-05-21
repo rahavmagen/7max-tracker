@@ -559,6 +559,26 @@ public class ReportController {
         }
     }
 
+    @GetMapping("/player-stats")
+    public ResponseEntity<?> getPlayerStats(
+            @RequestParam(required = false) String gameType,
+            Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        String gt = (gameType == null || gameType.isBlank()) ? null : gameType;
+        List<Object[]> rows = gameResultRepository.getPlayerStats(gt);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] r : rows) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("playerId", r[0]);
+            m.put("username", r[1]);
+            m.put("fullName", r[2]);
+            m.put("sessionCount", ((Number) r[3]).longValue());
+            m.put("totalPnl", r[4]);
+            result.add(m);
+        }
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/inactive-players")
     public ResponseEntity<?> getInactivePlayers(
             @RequestParam(defaultValue = "7") int recentDays,
