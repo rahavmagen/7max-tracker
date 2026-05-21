@@ -225,7 +225,7 @@ public class KashcashService {
                 .orElse(null);
         if (initiated == null) {
             log.warn("KashCash webhook: unknown transactionId={}", kashcashTxId);
-            return;
+            throw new RuntimeException("KashCash: unknown transactionId=" + kashcashTxId);
         }
         if (Boolean.TRUE.equals(initiated.getProcessed())) {
             log.info("KashCash webhook: already processed transactionId={}", kashcashTxId);
