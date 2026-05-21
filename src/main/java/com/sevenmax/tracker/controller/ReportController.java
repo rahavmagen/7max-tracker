@@ -559,6 +559,33 @@ public class ReportController {
         }
     }
 
+    @GetMapping("/inactive-players")
+    public ResponseEntity<?> getInactivePlayers(
+            @RequestParam(defaultValue = "7") int recentDays,
+            @RequestParam(defaultValue = "30") int lookbackDays,
+            @RequestParam(defaultValue = "1") int minSessions,
+            @RequestParam(required = false) String gameType,
+            Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime recentStart = now.minusDays(recentDays);
+        LocalDateTime refEnd = recentStart;
+        LocalDateTime refStart = recentStart.minusDays(lookbackDays);
+        String gt = (gameType == null || gameType.isBlank()) ? null : gameType;
+        List<Object[]> rows = gameResultRepository.getInactivePlayers(refStart, refEnd, recentStart, minSessions, gt);
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Object[] r : rows) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("playerId", r[0]);
+            m.put("username", r[1]);
+            m.put("fullName", r[2]);
+            m.put("sessionCount", r[3]);
+            m.put("lastPlayed", r[4] != null ? r[4].toString() : null);
+            result.add(m);
+        }
+        return ResponseEntity.ok(result);
+    }
+
     @DeleteMapping("/all")
     public ResponseEntity<Map<String, Object>> deleteAllReports() {
         long results = gameResultRepository.count();

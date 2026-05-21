@@ -72,6 +72,31 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
     List<Object[]> getRakePerPlayerSince(@Param("since") java.time.LocalDateTime since);
 
     @Query(value =
+        "SELECT p.id, p.username, p.full_name, COUNT(gr.id), MAX(gs.start_time) " +
+        "FROM players p " +
+        "JOIN game_results gr ON gr.player_id = p.id " +
+        "JOIN game_sessions gs ON gr.session_id = gs.id " +
+        "WHERE gs.start_time >= :refStart AND gs.start_time < :refEnd " +
+        "AND (:gameType IS NULL OR gs.game_type = :gameType) " +
+        "GROUP BY p.id, p.username, p.full_name " +
+        "HAVING COUNT(gr.id) >= :minSessions " +
+        "AND p.id NOT IN (" +
+        "  SELECT DISTINCT gr2.player_id FROM game_results gr2 " +
+        "  JOIN game_sessions gs2 ON gr2.session_id = gs2.id " +
+        "  WHERE gs2.start_time >= :recentStart " +
+        "  AND (:gameType IS NULL OR gs2.game_type = :gameType)" +
+        ") " +
+        "ORDER BY COUNT(gr.id) DESC",
+        nativeQuery = true)
+    List<Object[]> getInactivePlayers(
+        @Param("refStart") LocalDateTime refStart,
+        @Param("refEnd") LocalDateTime refEnd,
+        @Param("recentStart") LocalDateTime recentStart,
+        @Param("minSessions") int minSessions,
+        @Param("gameType") String gameType
+    );
+
+    @Query(value =
         "SELECT gs.id AS sessionId, gs.start_time AS startTime, gs.end_time AS endTime, " +
         "gs.table_name AS tableName, gs.game_type AS gameType, " +
         "COUNT(gr.id) AS playerCount, COALESCE(SUM(gr.rake_paid), 0) AS totalRake " +
