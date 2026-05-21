@@ -48,6 +48,20 @@ public class KashcashController {
         }
     }
 
+    /** PLAYER: finalize payment after postMessage from iframe (transactionId comes from KashCash postMessage event) */
+    @PostMapping("/finalize")
+    public ResponseEntity<?> finalizeFromFrontend(@RequestBody Map<String, Object> body, Authentication auth) {
+        try {
+            Object txIdObj = body.get("transactionId");
+            if (txIdObj == null) return ResponseEntity.badRequest().body(Map.of("error", "Missing transactionId"));
+            kashcashService.handleWebhook(Map.of("status", 1, "transactionId", txIdObj.toString()));
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            log.error("KashCash finalize error: {}", e.getMessage());
+            return ResponseEntity.ok(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
     /** PUBLIC: KashCash webhook callback — always returns 200 so KashCash does not retry */
     @PostMapping("/webhook")
     public ResponseEntity<?> webhook(@RequestBody Map<String, Object> payload) {
