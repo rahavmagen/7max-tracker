@@ -54,10 +54,11 @@ public class KashcashController {
         try {
             Object txIdObj = body.get("transactionId");
             if (txIdObj == null) return ResponseEntity.badRequest().body(Map.of("error", "Missing transactionId"));
+            log.info("KashCash finalize called: transactionId={} by user={}", txIdObj, auth != null ? auth.getName() : "null");
             kashcashService.handleWebhook(Map.of("status", 1, "transactionId", txIdObj.toString()));
             return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
-            log.error("KashCash finalize error: {}", e.getMessage());
+            log.error("KashCash finalize error for txId={}: {}", body.get("transactionId"), e.getMessage());
             return ResponseEntity.ok(Map.of("success", false, "error", e.getMessage()));
         }
     }

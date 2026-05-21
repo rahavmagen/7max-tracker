@@ -210,6 +210,20 @@ public class SchemaMigration {
         }
         try {
             jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS kashcash_initiated (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "kashcash_transaction_id VARCHAR(255) NOT NULL UNIQUE, " +
+                "player_id BIGINT NOT NULL, " +
+                "amount NUMERIC(12,2) NOT NULL, " +
+                "processed BOOLEAN DEFAULT FALSE, " +
+                "created_at TIMESTAMP DEFAULT NOW())"
+            );
+            log.info("SchemaMigration: kashcash_initiated table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: kashcash_initiated table: {}", e.getMessage());
+        }
+        try {
+            jdbcTemplate.execute(
                 "CREATE TABLE IF NOT EXISTS ticket_grants (" +
                 "id BIGSERIAL PRIMARY KEY, " +
                 "ticket_asset_id BIGINT NOT NULL REFERENCES ticket_assets(id), " +
