@@ -198,6 +198,7 @@ public class KashcashService {
 
     @Transactional
     public void handleWebhook(Map<String, Object> payload) {
+        log.info("KashCash webhook RECEIVED payload={}", payload);
         // NOTE: adjust "status" field name if KashCash uses a different key
         Object statusObj = payload.get("status");
         if (statusObj == null) {
@@ -257,6 +258,7 @@ public class KashcashService {
         try {
             // NOTE: adjust endpoint path and field name to match actual KashCash finalize API
             String body = MAPPER.writeValueAsString(Map.of("transactionId", kashcashTxId));
+            log.info("KashCash finalize REQUEST → POST {}/finalize-payment body={}", baseUrl, body);
             HttpRequest req = HttpRequest.newBuilder()
                     .uri(URI.create(baseUrl + "/finalize-payment"))
                     .header("Content-Type", "application/json")
@@ -264,9 +266,7 @@ public class KashcashService {
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
             HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
-            if (resp.statusCode() != 200) {
-                log.warn("KashCash finalize returned HTTP {}: {}", resp.statusCode(), resp.body());
-            }
+            log.info("KashCash finalize RESPONSE ← HTTP {} body={}", resp.statusCode(), resp.body());
         } catch (Exception e) {
             log.error("KashCash finalize failed for txId={}: {}", kashcashTxId, e.getMessage());
         }
