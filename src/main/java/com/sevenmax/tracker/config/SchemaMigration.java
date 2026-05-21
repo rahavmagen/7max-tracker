@@ -45,16 +45,12 @@ public class SchemaMigration {
             log.warn("SchemaMigration: admin_expenses table: {}", e.getMessage());
         }
         try {
-            jdbcTemplate.execute(
-                "ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check"
-            );
-            jdbcTemplate.execute(
-                "ALTER TABLE transactions ADD CONSTRAINT transactions_type_check " +
-                "CHECK (type IN ('DEPOSIT', 'WITHDRAWAL', 'CREDIT', 'PAYMENT', 'WHEEL_EXPENSE', 'CHIP_PROMO', 'PROMOTION'))"
-            );
-            log.info("SchemaMigration: transactions type constraint updated");
+            // Drop check constraints — Java enum is the authoritative constraint, DB check blocks new enum values
+            jdbcTemplate.execute("ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_type_check");
+            jdbcTemplate.execute("ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_method_check");
+            log.info("SchemaMigration: transactions type/method check constraints dropped");
         } catch (Exception e) {
-            log.warn("SchemaMigration: could not update transactions constraint: {}", e.getMessage());
+            log.warn("SchemaMigration: could not drop transactions constraints: {}", e.getMessage());
         }
         try {
             int updated = jdbcTemplate.update("UPDATE transactions SET type = 'PAYMENT' WHERE type = 'REPAYMENT'");
