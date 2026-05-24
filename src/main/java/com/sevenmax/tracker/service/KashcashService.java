@@ -116,8 +116,8 @@ public class KashcashService {
 
     private Map<String, String> doInitiateWithRetry(Player player, BigDecimal amount, boolean retried) {
         try {
-            // NOTE: businessId and posVendorId are already in the JWT — do not resend in create body
             Map<String, Object> body = new HashMap<>();
+            body.put("businessId", businessId);
             body.put("amount", amount);
             body.put("withIframeUrl", true);
             body.put("withAppPaymentIntentUrl", true);
