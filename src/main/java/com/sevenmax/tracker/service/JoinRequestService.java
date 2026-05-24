@@ -92,7 +92,7 @@ public class JoinRequestService {
         user.setPasswordHash(passwordEncoder.encode(rawPassword));
         user.setRole(User.Role.PLAYER);
         user.setPlayer(player);
-        user.setMustChangePassword(false);
+        user.setMustChangePassword(true);
         user.setActive(true);
         userRepository.save(user);
 
