@@ -223,5 +223,21 @@ public class SchemaMigration {
         } catch (Exception e) {
             log.warn("SchemaMigration: ticket_grants table: {}", e.getMessage());
         }
+        try {
+            jdbcTemplate.execute(
+                "CREATE TABLE IF NOT EXISTS join_requests (" +
+                "id BIGSERIAL PRIMARY KEY, " +
+                "username VARCHAR(255) NOT NULL, " +
+                "full_name VARCHAR(255) NOT NULL, " +
+                "phone VARCHAR(255) NOT NULL, " +
+                "club_player_id VARCHAR(255), " +
+                "status VARCHAR(50) NOT NULL DEFAULT 'PENDING', " +
+                "created_at TIMESTAMP, " +
+                "reviewed_at TIMESTAMP)"
+            );
+            log.info("SchemaMigration: join_requests table ensured");
+        } catch (Exception e) {
+            log.warn("SchemaMigration: join_requests table: {}", e.getMessage());
+        }
     }
 }
