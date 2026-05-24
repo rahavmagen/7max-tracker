@@ -124,7 +124,7 @@ public class KashcashService {
             body.put("withIframeUrl", true);
             body.put("withAppPaymentIntentUrl", true);
             body.put("withPaymentCode", true);
-            body.put("callbackurl", callbackUrl);
+            body.put("callbackUrl", callbackUrl);
 
             String bodyJson = MAPPER.writeValueAsString(body);
             log.info("KashCash create REQUEST → POST {}/request/create body={}", baseUrl, bodyJson);
