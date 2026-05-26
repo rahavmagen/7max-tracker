@@ -118,6 +118,7 @@ public class KashcashService {
         try {
             Map<String, Object> body = new HashMap<>();
             body.put("businessId", businessId);
+            body.put("posVendorId", posVendorId);
             body.put("amount", amount);
             body.put("withIframeUrl", true);
             body.put("withAppPaymentIntentUrl", true);
