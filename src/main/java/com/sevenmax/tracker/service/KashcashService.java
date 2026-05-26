@@ -198,23 +198,31 @@ public class KashcashService {
 
     @Transactional
     public void handleWebhook(Map<String, Object> payload) {
-        log.info("KashCash webhook RECEIVED payload={}", payload);
-        // NOTE: adjust "status" field name if KashCash uses a different key
+        processPayment(payload, true);
+    }
+
+    /** Called from frontend after user returns from KashCash app. Validates with KashCash before crediting. */
+    @Transactional
+    public void handleFrontendFinalize(Map<String, Object> payload) {
+        processPayment(payload, false);
+    }
+
+    private void processPayment(Map<String, Object> payload, boolean fromKashcashWebhook) {
+        log.info("KashCash payment RECEIVED fromWebhook={} payload={}", fromKashcashWebhook, payload);
         Object statusObj = payload.get("status");
         if (statusObj == null) {
-            log.warn("KashCash webhook: missing status field, payload={}", payload);
+            log.warn("KashCash payment: missing status field");
             return;
         }
         int status = Integer.parseInt(statusObj.toString());
         if (status != 1) {
-            log.info("KashCash webhook: status={}, ignoring", status);
+            log.info("KashCash payment: status={}, ignoring", status);
             return;
         }
 
-        // NOTE: adjust "transactionId" field name if KashCash uses a different key
         Object txIdObj = payload.get("transactionId");
         if (txIdObj == null) {
-            log.warn("KashCash webhook: missing transactionId, payload={}", payload);
+            log.warn("KashCash payment: missing transactionId");
             return;
         }
         String kashcashTxId = txIdObj.toString();
@@ -223,19 +231,28 @@ public class KashcashService {
                 .findByKashcashTransactionId(kashcashTxId)
                 .orElse(null);
         if (initiated == null) {
-            log.warn("KashCash webhook: unknown transactionId={}", kashcashTxId);
+            log.warn("KashCash payment: unknown transactionId={}", kashcashTxId);
             throw new RuntimeException("KashCash: unknown transactionId=" + kashcashTxId);
         }
         if (Boolean.TRUE.equals(initiated.getProcessed())) {
-            log.info("KashCash webhook: already processed transactionId={}", kashcashTxId);
+            log.info("KashCash payment: already processed transactionId={}", kashcashTxId);
             return;
         }
 
-        // Set processed=true BEFORE creating Transaction — prevents duplicate if webhook fires twice
+        // Set processed=true before calling KashCash — prevents duplicate if webhook fires twice
         initiated.setProcessed(true);
         kashcashInitiatedRepository.save(initiated);
 
-        finalizeWithKashCash(kashcashTxId);
+        boolean finalized = finalizeWithKashCash(kashcashTxId);
+
+        // For frontend-triggered finalize: if KashCash says payment not complete (e.g. 409 Conflict),
+        // revert processed flag and abort — do not credit chips for an unpaid transaction.
+        if (!fromKashcashWebhook && !finalized) {
+            log.warn("KashCash frontend finalize: KashCash rejected finalization for txId={}, reverting", kashcashTxId);
+            initiated.setProcessed(false);
+            kashcashInitiatedRepository.save(initiated);
+            throw new RuntimeException("Payment not yet completed by KashCash");
+        }
 
         Player player = playerRepository.findById(initiated.getPlayerId())
                 .orElseThrow(() -> new RuntimeException("Player not found: " + initiated.getPlayerId()));
@@ -254,9 +271,9 @@ public class KashcashService {
         log.info("KashCash deposit processed: player={}, amount={}, txId={}", player.getUsername(), initiated.getAmount(), kashcashTxId);
     }
 
-    private void finalizeWithKashCash(String kashcashTxId) {
+    /** Returns true if KashCash accepted the finalize call (2xx), false otherwise. */
+    private boolean finalizeWithKashCash(String kashcashTxId) {
         try {
-            // NOTE: adjust endpoint path and field name to match actual KashCash finalize API
             String body = MAPPER.writeValueAsString(Map.of("businessId", businessId, "transactionId", kashcashTxId));
             log.info("KashCash finalize REQUEST → POST {}/request/finalize-payment body={}", baseUrl, body);
             HttpRequest req = HttpRequest.newBuilder()
@@ -267,8 +284,10 @@ public class KashcashService {
                     .build();
             HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
             log.info("KashCash finalize RESPONSE ← HTTP {} body={}", resp.statusCode(), resp.body());
+            return resp.statusCode() >= 200 && resp.statusCode() < 300;
         } catch (Exception e) {
             log.error("KashCash finalize failed for txId={}: {}", kashcashTxId, e.getMessage());
+            return false;
         }
     }
 
