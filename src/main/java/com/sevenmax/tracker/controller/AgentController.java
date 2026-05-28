@@ -84,6 +84,22 @@ public class AgentController {
         }
     }
 
+    /** Admin only: set rake percentage for an agent */
+    @PatchMapping("/{id}/rake-percentage")
+    public ResponseEntity<?> setRakePercentage(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        try {
+            Object pct = body.get("rakePercentage");
+            if (pct == null) return ResponseEntity.badRequest().body(Map.of("error", "Missing rakePercentage"));
+            agentService.setRakePercentage(id, new java.math.BigDecimal(pct.toString()));
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     /** Admin only: trigger settlement */
     @PostMapping("/{id}/settle")
     public ResponseEntity<?> settle(@PathVariable Long id, Authentication auth) {

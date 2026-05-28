@@ -40,6 +40,7 @@ public class AgentService {
                 m.put("id", agent.getId());
                 m.put("username", agent.getUsername());
                 m.put("fullName", agent.getFullName());
+                m.put("rakePercentage", agent.getAgentRakePercentage());
                 m.put("pendingBalance", pending);
                 m.put("playerCount", playerCount);
                 m.put("lastSettlementDate", lastSettlement != null ? lastSettlement.toString() : null);
@@ -89,6 +90,7 @@ public class AgentService {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("agentId", agentId);
         result.put("username", agent.getUsername());
+        result.put("rakePercentage", agent.getAgentRakePercentage());
         result.put("pendingBalance", pending);
         result.put("players", playersList);
         result.put("settlementHistory", historyList);
@@ -214,6 +216,16 @@ public class AgentService {
             })
             .sorted((a, b) -> ((BigDecimal) b.get("agentShare")).compareTo((BigDecimal) a.get("agentShare")))
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void setRakePercentage(Long agentId, BigDecimal percentage) {
+        Player agent = playerRepository.findById(agentId)
+            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        if (!Boolean.TRUE.equals(agent.getIsAgent()))
+            throw new IllegalArgumentException("Player " + agentId + " is not an agent");
+        agent.setAgentRakePercentage(percentage);
+        playerRepository.save(agent);
     }
 
     private List<GameResult> getUnsettledResults(Long agentId) {
