@@ -71,8 +71,12 @@ public class WhatsAppService {
         }
     }
 
-    /** Strip non-digits and append @c.us */
+    /** Strip non-digits, normalize Israeli leading 0 to 972, and append @c.us */
     private String formatChatId(String phone) {
-        return phone.replaceAll("[^0-9]", "") + "@c.us";
+        String digits = phone.replaceAll("[^0-9]", "");
+        if (digits.startsWith("0")) {
+            digits = "972" + digits.substring(1);
+        }
+        return digits + "@c.us";
     }
 }
