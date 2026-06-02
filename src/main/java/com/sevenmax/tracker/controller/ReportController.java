@@ -606,6 +606,69 @@ public class ReportController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/admin/rakeback")
+    public ResponseEntity<List<Map<String, Object>>> rakebackReport(
+            @RequestParam String dateFrom,
+            @RequestParam String dateTo,
+            Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        LocalDate fromDate = LocalDate.parse(dateFrom);
+        LocalDate toDate = LocalDate.parse(dateTo);
+
+        // Build rake map for the full requested period
+        LocalDateTime fromDt = fromDate.atStartOfDay();
+        LocalDateTime toDt = toDate.plusDays(1).atStartOfDay();
+        Map<Long, BigDecimal> rakeMap = new HashMap<>();
+        for (Object[] r : gameResultRepository.getRakePerPlayerBetween(fromDt, toDt)) {
+            rakeMap.put(((Number) r[0]).longValue(), new BigDecimal(r[1].toString()));
+        }
+
+        // Build per-player effective rake (respecting rakebackSince)
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Player p : playerRepository.findAll()) {
+            if (p.getRakebackPercentage() == null || p.getRakebackPercentage().compareTo(BigDecimal.ZERO) == 0) continue;
+
+            // Effective start = MAX(dateFrom, rakebackSince)
+            LocalDate effectiveFrom = fromDate;
+            if (p.getRakebackSince() != null && p.getRakebackSince().isAfter(fromDate)) {
+                effectiveFrom = p.getRakebackSince();
+            }
+
+            // If rakebackSince is after dateTo, skip
+            if (effectiveFrom.isAfter(toDate)) continue;
+
+            BigDecimal totalRakePaid;
+            if (effectiveFrom.equals(fromDate)) {
+                // Use the already-fetched full-period rake
+                totalRakePaid = rakeMap.getOrDefault(p.getId(), BigDecimal.ZERO);
+            } else {
+                // Re-query from effectiveFrom
+                List<Object[]> rows = gameResultRepository.getRakePerPlayerBetween(
+                        effectiveFrom.atStartOfDay(), toDt);
+                totalRakePaid = rows.stream()
+                        .filter(r -> ((Number) r[0]).longValue() == p.getId())
+                        .map(r -> new BigDecimal(r[1].toString()))
+                        .findFirst().orElse(BigDecimal.ZERO);
+            }
+
+            BigDecimal rakebackAmount = totalRakePaid.multiply(p.getRakebackPercentage())
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("playerId", p.getId());
+            m.put("username", p.getUsername());
+            m.put("fullName", p.getFullName());
+            m.put("rakebackPercentage", p.getRakebackPercentage());
+            m.put("rakebackSince", p.getRakebackSince() != null ? p.getRakebackSince().toString() : null);
+            m.put("effectiveFrom", effectiveFrom.toString());
+            m.put("totalRakePaid", totalRakePaid);
+            m.put("rakebackAmount", rakebackAmount);
+            result.add(m);
+        }
+        result.sort((a, b) -> ((BigDecimal) b.get("rakebackAmount")).compareTo((BigDecimal) a.get("rakebackAmount")));
+        return ResponseEntity.ok(result);
+    }
+
     @DeleteMapping("/all")
     public ResponseEntity<Map<String, Object>> deleteAllReports() {
         long results = gameResultRepository.count();

@@ -67,6 +67,12 @@ public class Player {
     @Column(precision = 6, scale = 4)
     private BigDecimal agentRakePercentage; // e.g. 0.3000 = 30%
 
+    // Rakeback
+    @Column(precision = 6, scale = 4)
+    private BigDecimal rakebackPercentage; // e.g. 0.2000 = 20%
+
+    private LocalDate rakebackSince; // start date for rakeback eligibility
+
     @Column(name = "agent_id", insertable = false, updatable = false)
     private Long agentId;
 

@@ -91,6 +91,9 @@ public class PlayerService {
             // Clear rake % when un-marking as agent
             player.setAgentRakePercentage(null);
         }
+        // Rakeback fields
+        player.setRakebackPercentage(updated.getRakebackPercentage());
+        player.setRakebackSince(updated.getRakebackSince());
         Player saved = playerRepository.save(player);
         // If phone changed, update password for users who never logged in
         String newPhone = updated.getPhone();
