@@ -18,6 +18,8 @@ public interface PlayerTransferRepository extends JpaRepository<PlayerTransfer, 
     Optional<PlayerTransfer> findFirstByToPlayerIdAndAmountAndConfirmedTrue(Long toPlayerId, BigDecimal amount);
     List<PlayerTransfer> findByFromPlayerIdAndConfirmedTrue(Long fromPlayerId);
 
+    List<PlayerTransfer> findByFromAdminUsernameOrToAdminUsernameOrderById(String fromAdmin, String toAdmin);
+
     @Query("SELECT t FROM PlayerTransfer t WHERE t.fromBankAccount IS NOT NULL OR t.toBankAccount IS NOT NULL OR (t.fromPlayer IS NULL AND t.toPlayer IS NOT NULL) OR (t.toPlayer IS NULL AND t.fromPlayer IS NOT NULL) ORDER BY t.transferDate ASC, t.createdAt ASC")
     List<PlayerTransfer> findBankRelatedTransfers();
 

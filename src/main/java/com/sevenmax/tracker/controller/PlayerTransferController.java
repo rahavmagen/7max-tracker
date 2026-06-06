@@ -105,6 +105,24 @@ public class PlayerTransferController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/by-admin")
+    public ResponseEntity<?> getByAdmin(@RequestParam String admin) {
+        var transfers = transferRepository.findByFromAdminUsernameOrToAdminUsernameOrderById(admin, admin);
+        var result = new java.util.ArrayList<Map<String, Object>>();
+        for (var t : transfers) {
+            boolean isIn = admin.equalsIgnoreCase(t.getToAdminUsername());
+            var player = isIn ? t.getFromPlayer() : t.getToPlayer();
+            var row = new java.util.HashMap<String, Object>();
+            row.put("id", t.getId());
+            row.put("amount", t.getAmount());
+            row.put("dir", isIn ? "in" : "out");
+            row.put("playerName", player != null && player.getFullName() != null ? player.getFullName() : "");
+            row.put("username", player != null ? player.getUsername() : "");
+            result.add(row);
+        }
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/bank-history")
     public ResponseEntity<?> getBankHistory() {
         var transfers = transferRepository.findBankRelatedTransfers();
