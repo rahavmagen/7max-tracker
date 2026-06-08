@@ -37,8 +37,21 @@ public class PlayerController {
 
 @GetMapping("/active")
     public ResponseEntity<List<Map<String, Object>>> getActivePlayers() {
-        List<Map<String, Object>> result = playerRepository.findAll().stream()
-            .map(p -> { Map<String, Object> m = new java.util.HashMap<>(); m.put("id", p.getId()); m.put("username", p.getUsername()); m.put("fullName", p.getFullName() != null ? p.getFullName() : ""); return m; })
+        List<com.sevenmax.tracker.entity.Player> all = playerRepository.findAll();
+        Map<Long, String> agentNames = all.stream()
+            .filter(p -> Boolean.TRUE.equals(p.getIsAgent()))
+            .collect(java.util.stream.Collectors.toMap(
+                com.sevenmax.tracker.entity.Player::getId,
+                com.sevenmax.tracker.entity.Player::getUsername));
+        List<Map<String, Object>> result = all.stream()
+            .map(p -> {
+                Map<String, Object> m = new java.util.HashMap<>();
+                m.put("id", p.getId());
+                m.put("username", p.getUsername());
+                m.put("fullName", p.getFullName() != null ? p.getFullName() : "");
+                m.put("agentUsername", p.getAgentId() != null ? agentNames.getOrDefault(p.getAgentId(), "") : "");
+                return m;
+            })
             .sorted((a, b) -> a.get("username").toString().compareToIgnoreCase(b.get("username").toString()))
             .collect(Collectors.toList());
         return ResponseEntity.ok(result);
