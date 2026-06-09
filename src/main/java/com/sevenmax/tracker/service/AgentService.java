@@ -209,6 +209,7 @@ public class AgentService {
                 m.put("playerId", player.getId());
                 m.put("username", player.getUsername());
                 m.put("fullName", player.getFullName());
+                m.put("balance", player.getBalance());
                 m.put("gameCount", rows.size());
                 m.put("totalRake", totalRake);
                 m.put("agentShare", agentShare);
