@@ -304,7 +304,7 @@ public class KashcashService {
                     amount.toPlainString(), player != null ? player.getUsername() : "TEST"));
             msg.setText("new cashcash deposit - check web site");
             mailSender.send(msg);
-            log.info("KashCash deposit email sent for player={}", player.getUsername());
+            log.info("KashCash deposit email sent for player={}", player != null ? player.getUsername() : "TEST");
         } catch (Exception e) {
             log.error("Failed to send KashCash deposit email: {}", e.getMessage());
         }
