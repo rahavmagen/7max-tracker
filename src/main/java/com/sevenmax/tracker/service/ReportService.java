@@ -1464,13 +1464,6 @@ public class ReportService {
         List<GameSession> sessions = gameSessionRepository.findByReportId(reportId);
         for (GameSession session : sessions) {
             List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
-            for (GameResult result : results) {
-                Player player = result.getPlayer();
-                player.setCurrentChips(BigDecimal.ZERO);
-                BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
-                player.setBalance(BigDecimal.ZERO.subtract(credit));
-                playerRepository.save(player);
-            }
             gameResultRepository.deleteAll(results);
         }
         gameSessionRepository.deleteAll(sessions);
