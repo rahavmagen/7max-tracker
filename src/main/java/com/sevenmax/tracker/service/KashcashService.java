@@ -301,13 +301,17 @@ public class KashcashService {
             msg.setFrom(fromEmail);
             msg.setTo(recipients);
             msg.setSubject(String.format("New KashCash deposit pending: \u20aa%s from player %s",
-                    amount.toPlainString(), player.getUsername()));
+                    amount.toPlainString(), player != null ? player.getUsername() : "TEST"));
             msg.setText("new cashcash deposit - check web site");
             mailSender.send(msg);
             log.info("KashCash deposit email sent for player={}", player.getUsername());
         } catch (Exception e) {
             log.error("Failed to send KashCash deposit email: {}", e.getMessage());
         }
+    }
+
+    public void sendTestEmail() {
+        sendDepositEmail(null, BigDecimal.valueOf(100), "test-tx-id");
     }
 
     // ── Admin queries ─────────────────────────────────────────────────────────

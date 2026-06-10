@@ -117,6 +117,19 @@ public class KashcashController {
         return ResponseEntity.ok(kashcashService.getMyDeposits(user.getPlayer().getId()));
     }
 
+    /** ADMIN: send a test deposit notification email */
+    @PostMapping("/test-email")
+    public ResponseEntity<?> testEmail(Authentication auth) {
+        if (!isAdminOrManager(auth)) return ResponseEntity.status(403).build();
+        try {
+            kashcashService.sendTestEmail();
+            return ResponseEntity.ok(Map.of("success", true, "message", "Test email sent"));
+        } catch (Exception e) {
+            log.error("Test email failed: {}", e.getMessage());
+            return ResponseEntity.ok(Map.of("success", false, "error", e.getMessage()));
+        }
+    }
+
     private boolean isAdminOrManager(Authentication auth) {
         if (auth == null) return false;
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
