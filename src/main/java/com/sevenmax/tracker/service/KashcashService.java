@@ -22,7 +22,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -300,15 +299,9 @@ public class KashcashService {
             SimpleMailMessage msg = new SimpleMailMessage();
             msg.setFrom(fromEmail);
             msg.setTo(recipients);
-            msg.setSubject("New KashCash Deposit - Action Required");
-            msg.setText(String.format(
-                    "Player: %s (%s)\nAmount: \u20aa%s\nTime: %s\nKashCash TxID: %s\n\nPlease add chips to the player's account.",
-                    player.getUsername(),
-                    player.getFullName() != null ? player.getFullName() : "",
-                    amount.toPlainString(),
-                    LocalDateTime.now(),
-                    kashcashTxId
-            ));
+            msg.setSubject(String.format("New KashCash deposit pending: \u20aa%s from player %s",
+                    amount.toPlainString(), player.getUsername()));
+            msg.setText("new cashcash deposit - check web site");
             mailSender.send(msg);
             log.info("KashCash deposit email sent for player={}", player.getUsername());
         } catch (Exception e) {
