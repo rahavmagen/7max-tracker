@@ -213,9 +213,10 @@ public class KashcashService {
             log.warn("KashCash payment: missing status field");
             return;
         }
-        int status = Integer.parseInt(statusObj.toString());
-        if (status != 1) {
-            log.info("KashCash payment: status={}, ignoring", status);
+        String statusStr = statusObj.toString().toLowerCase();
+        boolean isApproved = statusStr.equals("1") || statusStr.equals("approved") || statusStr.equals("success");
+        if (!isApproved) {
+            log.info("KashCash payment: status={}, ignoring", statusObj);
             return;
         }
 
