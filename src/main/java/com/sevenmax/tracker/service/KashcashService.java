@@ -11,8 +11,6 @@ import com.sevenmax.tracker.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,14 +52,16 @@ public class KashcashService {
     @Value("${app.kashcash.notification-emails:}")
     private String notificationEmails;
 
-    @Value("${spring.mail.username:}")
+    @Value("${resend.api-key:}")
+    private String resendApiKey;
+
+    @Value("${resend.from-email:noreply@7max.club}")
     private String fromEmail;
 
     private final KashcashInitiatedRepository kashcashInitiatedRepository;
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
-    private final JavaMailSender mailSender;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -293,18 +293,37 @@ public class KashcashService {
 
     private void sendDepositEmail(Player player, BigDecimal amount, String kashcashTxId) {
         if (notificationEmails == null || notificationEmails.isBlank()) return;
+        if (resendApiKey == null || resendApiKey.isBlank()) {
+            log.warn("Resend API key not configured, skipping email");
+            return;
+        }
         try {
-            String[] recipients = Arrays.stream(notificationEmails.split(","))
-                    .map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
-            if (recipients.length == 0) return;
-            SimpleMailMessage msg = new SimpleMailMessage();
-            msg.setFrom(fromEmail);
-            msg.setTo(recipients);
-            msg.setSubject(String.format("New KashCash deposit pending: \u20aa%s from player %s",
-                    amount.toPlainString(), player != null ? player.getUsername() : "TEST"));
-            msg.setText("new cashcash deposit - check web site");
-            mailSender.send(msg);
-            log.info("KashCash deposit email sent for player={}", player != null ? player.getUsername() : "TEST");
+            List<String> recipients = Arrays.stream(notificationEmails.split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+            if (recipients.isEmpty()) return;
+
+            String subject = String.format("New KashCash deposit pending: \u20aa%s from player %s",
+                    amount.toPlainString(), player != null ? player.getUsername() : "TEST");
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("from", fromEmail);
+            body.put("to", recipients);
+            body.put("subject", subject);
+            body.put("text", "new cashcash deposit - check web site");
+
+            String bodyJson = MAPPER.writeValueAsString(body);
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create("https://api.resend.com/emails"))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + resendApiKey)
+                    .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
+                    .build();
+            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                log.info("KashCash deposit email sent for player={}", player != null ? player.getUsername() : "TEST");
+            } else {
+                log.error("Resend API error HTTP {}: {}", resp.statusCode(), resp.body());
+            }
         } catch (Exception e) {
             log.error("Failed to send KashCash deposit email: {}", e.getMessage());
         }
