@@ -20,6 +20,9 @@ public class ShabatRake {
     @Column(nullable = false)
     private LocalDateTime date;
 
+    @Column(length = 200)
+    private String playerName;
+
     @Column(length = 500)
     private String reason;
 
