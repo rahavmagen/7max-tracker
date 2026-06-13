@@ -227,6 +227,7 @@ public class AgentService {
                     .map(gr -> {
                         Map<String, Object> g = new LinkedHashMap<>();
                         g.put("date", gr.getSession().getStartTime().toString());
+                        g.put("tableName", gr.getSession().getTableName());
                         g.put("gameType", gr.getSession().getGameType().name());
                         g.put("pnl", pnlOf(gr));
                         g.put("buyIn", gr.getBuyIn());
