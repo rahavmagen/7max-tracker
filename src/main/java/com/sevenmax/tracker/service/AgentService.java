@@ -174,6 +174,20 @@ public class AgentService {
         return settlement;
     }
 
+    private static final Set<GameSession.GameType> TOURNAMENT_TYPES = Set.of(
+        GameSession.GameType.MTT, GameSession.GameType.SNG, GameSession.GameType.AoF, GameSession.GameType.SPIN_GOLD
+    );
+
+    /** resultAmount, tournament-adjusted (resultAmount - buyIn) for MTT/SNG/AoF/SPIN_GOLD */
+    private static BigDecimal pnlOf(GameResult gr) {
+        BigDecimal resultAmount = gr.getResultAmount() != null ? gr.getResultAmount() : BigDecimal.ZERO;
+        if (TOURNAMENT_TYPES.contains(gr.getSession().getGameType())) {
+            BigDecimal buyIn = gr.getBuyIn() != null ? gr.getBuyIn() : BigDecimal.ZERO;
+            return resultAmount.subtract(buyIn);
+        }
+        return resultAmount;
+    }
+
     /** Per-player rake stats for an agent, with optional date filter (all results, settled+unsettled) */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getPlayerStats(Long agentId, LocalDate from, LocalDate to) {
@@ -205,6 +219,22 @@ public class AgentService {
                 BigDecimal agentShare = rows.stream()
                     .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal periodPnl = rows.stream()
+                    .map(AgentService::pnlOf)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                List<Map<String, Object>> games = rows.stream()
+                    .sorted((a, b) -> b.getSession().getStartTime().compareTo(a.getSession().getStartTime()))
+                    .map(gr -> {
+                        Map<String, Object> g = new LinkedHashMap<>();
+                        g.put("date", gr.getSession().getStartTime().toString());
+                        g.put("gameType", gr.getSession().getGameType().name());
+                        g.put("pnl", pnlOf(gr));
+                        g.put("buyIn", gr.getBuyIn());
+                        g.put("cashout", gr.getCashout());
+                        g.put("rakePaid", gr.getRakePaid());
+                        return g;
+                    })
+                    .collect(Collectors.toList());
                 Map<String, Object> m = new LinkedHashMap<>();
                 m.put("playerId", player.getId());
                 m.put("username", player.getUsername());
@@ -213,6 +243,8 @@ public class AgentService {
                 m.put("gameCount", rows.size());
                 m.put("totalRake", totalRake);
                 m.put("agentShare", agentShare);
+                m.put("periodPnl", periodPnl);
+                m.put("games", games);
                 return m;
             })
             .sorted((a, b) -> ((BigDecimal) b.get("agentShare")).compareTo((BigDecimal) a.get("agentShare")))
