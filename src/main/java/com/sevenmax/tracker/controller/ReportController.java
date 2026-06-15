@@ -85,6 +85,11 @@ public class ReportController {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         try {
             Report report = reportService.uploadReport(file, null);
+            try {
+                missingNameNotificationService.checkAndNotify();
+            } catch (Exception e) {
+                log.error("Missing-name notification check failed: {}", e.getMessage());
+            }
             return ResponseEntity.ok(report);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
