@@ -11,8 +11,10 @@ import com.sevenmax.tracker.repository.PlayerHandsProjection;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.ReportRepository;
 import com.sevenmax.tracker.repository.TransactionRepository;
+import com.sevenmax.tracker.service.MissingNameNotificationService;
 import com.sevenmax.tracker.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -36,6 +38,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.ArrayList;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
@@ -49,6 +52,7 @@ public class ReportController {
     private final TransactionRepository transactionRepository;
     private final PlayerRepository playerRepository;
     private final AdminExpenseRepository adminExpenseRepository;
+    private final MissingNameNotificationService missingNameNotificationService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
 
@@ -61,6 +65,11 @@ public class ReportController {
         }
         try {
             Report report = reportService.uploadReport(file, null);
+            try {
+                missingNameNotificationService.checkAndNotify();
+            } catch (Exception e) {
+                log.error("Missing-name notification check failed: {}", e.getMessage());
+            }
             return ResponseEntity.ok(report);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
@@ -667,6 +676,19 @@ public class ReportController {
         }
         result.sort((a, b) -> ((BigDecimal) b.get("rakebackAmount")).compareTo((BigDecimal) a.get("rakebackAmount")));
         return ResponseEntity.ok(result);
+    }
+
+    /** ADMIN: manually trigger the missing-name notification check (for testing) */
+    @PostMapping("/admin/test-missing-names-email")
+    public ResponseEntity<?> testMissingNamesEmail(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        try {
+            missingNameNotificationService.checkAndNotify();
+            return ResponseEntity.ok(Map.of("success", true, "message", "Check complete - email sent if any missing-name players with chips were found"));
+        } catch (Exception e) {
+            log.error("Missing-names test check failed: {}", e.getMessage());
+            return ResponseEntity.ok(Map.of("success", false, "error", e.getMessage()));
+        }
     }
 
     @DeleteMapping("/all")
