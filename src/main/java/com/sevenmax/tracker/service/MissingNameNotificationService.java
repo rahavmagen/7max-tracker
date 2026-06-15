@@ -71,8 +71,6 @@ public class MissingNameNotificationService {
                     p.getCurrentChips().toPlainString(),
                     p.getBalance() != null ? p.getBalance().toPlainString() : "0"));
             }
-            text.append("\nSet their names at: Account > Tools > Missing Names");
-
             Map<String, Object> body = new HashMap<>();
             body.put("from", fromEmail);
             body.put("to", recipients);
