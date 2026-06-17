@@ -45,17 +45,19 @@ public class ReportService {
         try (InputStream is = new java.io.ByteArrayInputStream(fileBytes);
              Workbook workbook = new XSSFWorkbook(is)) {
 
-            // Require Club Member Balance tab
+            // Require Club Member Balance tab (ClubGG renamed it to "Member Statistics" in 2026-06)
             Sheet memberBalanceSheet = findSheet(workbook, "club member balance");
+            if (memberBalanceSheet == null) memberBalanceSheet = findSheet(workbook, "member statistics");
             if (memberBalanceSheet == null) {
                 StringBuilder sheetNames = new StringBuilder();
                 for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                     if (i > 0) sheetNames.append(", ");
                     sheetNames.append(workbook.getSheetAt(i).getSheetName());
                 }
-                log.error("No 'Club Member Balance' sheet found. Sheets in file: [{}]", sheetNames);
+                log.error("No member balance/statistics sheet found. Sheets in file: [{}]", sheetNames);
                 throw new IllegalArgumentException("no member balance tab exists - update the right xls file");
             }
+            log.info("Using member sheet: {}", memberBalanceSheet.getSheetName());
 
             Report report = new Report();
             report.setUploadedBy(uploadedBy);
