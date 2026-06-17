@@ -177,8 +177,10 @@ public class ReportService {
             report.setRecovered(recovered);
 
             // For the latest report: mark missing players as stale and collect leftClub
+            // Skip entirely if balance map is empty — it means ClubGG didn't include balance data
+            // in this report (e.g. renamed/removed sheet), so we have nothing to compare against.
             List<Map<String, String>> leftClub = new java.util.ArrayList<>();
-            if (isLatestReport) {
+            if (isLatestReport && !newChipsMap.isEmpty()) {
                 log.info("STALE LOOP: updatedPlayerIds count={} file={}", updatedPlayerIds.size(), report.getFileName());
                 for (Player player : playerRepository.findAll()) {
                     if (!updatedPlayerIds.contains(player.getId())) {
