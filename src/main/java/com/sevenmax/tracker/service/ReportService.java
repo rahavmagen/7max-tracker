@@ -48,6 +48,12 @@ public class ReportService {
             // Require Club Member Balance tab
             Sheet memberBalanceSheet = findSheet(workbook, "club member balance");
             if (memberBalanceSheet == null) {
+                StringBuilder sheetNames = new StringBuilder();
+                for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                    if (i > 0) sheetNames.append(", ");
+                    sheetNames.append(workbook.getSheetAt(i).getSheetName());
+                }
+                log.error("No 'Club Member Balance' sheet found. Sheets in file: [{}]", sheetNames);
                 throw new IllegalArgumentException("no member balance tab exists - update the right xls file");
             }
 
