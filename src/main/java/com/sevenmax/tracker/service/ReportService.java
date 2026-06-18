@@ -89,8 +89,9 @@ public class ReportService {
             Map<String, String> nicknameToClubId = new HashMap<>();
             BigDecimal totalRake = BigDecimal.ZERO;
             parseClubOverview(workbook);  // sync agent FKs FIRST
-            totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap, nicknameToClubId));
-            totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap, nicknameToClubId));
+            BigDecimal detailScale = computeDetailScaleFactor(workbook);
+            totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap, nicknameToClubId, detailScale));
+            totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap, nicknameToClubId, detailScale));
             parseMttStatistics(workbook);
 
             // Parse Club Member Balance → map of nickname → [chips, clubId]
@@ -1045,7 +1046,48 @@ public class ReportService {
         );
     }
 
-    private BigDecimal parseRingGameDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId) {
+    /**
+     * ClubGG changed Ring Game Detail (and MTT Detail) in mid-2026 to store chip values
+     * at 1/100 of their actual amount. Detect by comparing Ring Game Statistics column T
+     * (actual buy-in per table) against Ring Game Detail Total rows column B (reported total).
+     * Returns 100 if the ratio is ~100, otherwise 1 (no scaling needed).
+     */
+    private BigDecimal computeDetailScaleFactor(Workbook workbook) {
+        Sheet statsSheet = workbook.getSheet("Ring Game Statistics");
+        Sheet detailSheet = workbook.getSheet("Ring Game Detail");
+        if (statsSheet == null || detailSheet == null) return BigDecimal.ONE;
+
+        BigDecimal statsBuyIn = BigDecimal.ZERO;
+        for (int r = 5; r <= statsSheet.getLastRowNum(); r++) {
+            Row row = statsSheet.getRow(r);
+            if (row == null) continue;
+            String a = getCellValue(row, 0);
+            if (a == null || a.isBlank() || a.startsWith("TOTAL")) continue;
+            statsBuyIn = statsBuyIn.add(parseBigDecimal(getCellValue(row, 19))); // col T = total buy-in
+        }
+
+        BigDecimal detailBuyIn = BigDecimal.ZERO;
+        for (int r = 0; r <= detailSheet.getLastRowNum(); r++) {
+            Row row = detailSheet.getRow(r);
+            if (row == null) continue;
+            if ("Total".equals(getCellValue(row, 0))) {
+                detailBuyIn = detailBuyIn.add(parseBigDecimal(getCellValue(row, 2)));
+            }
+        }
+
+        if (detailBuyIn.compareTo(BigDecimal.ZERO) == 0 || statsBuyIn.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ONE;
+        }
+
+        BigDecimal ratio = statsBuyIn.divide(detailBuyIn, 2, java.math.RoundingMode.HALF_UP);
+        if (ratio.compareTo(new BigDecimal("50")) > 0 && ratio.compareTo(new BigDecimal("150")) < 0) {
+            log.info("Ring Game Detail scale factor: 100x (stats={}, detail={})", statsBuyIn, detailBuyIn);
+            return new BigDecimal("100");
+        }
+        return BigDecimal.ONE;
+    }
+
+    private BigDecimal parseRingGameDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId, BigDecimal scaleFactor) {
         Sheet sheet = workbook.getSheet("Ring Game Detail");
         if (sheet == null) return BigDecimal.ZERO;
 
@@ -1081,11 +1123,11 @@ public class ReportService {
             if (currentSession != null && firstCell.matches("\\d{4}-\\d{4}")) {
                 String clubPlayerId = firstCell;
                 String nickname = getCellValue(row, 1);
-                BigDecimal buyIn = parseBigDecimal(getCellValue(row, 2));
-                BigDecimal cashout = parseBigDecimal(getCellValue(row, 3));
+                BigDecimal buyIn = parseBigDecimal(getCellValue(row, 2)).multiply(scaleFactor);
+                BigDecimal cashout = parseBigDecimal(getCellValue(row, 3)).multiply(scaleFactor);
                 int hands = parseInteger(getCellValue(row, 4));
-                BigDecimal rake = parseBigDecimal(getCellValue(row, 10));
-                BigDecimal pnl = parseBigDecimal(getCellValue(row, 11));
+                BigDecimal rake = parseBigDecimal(getCellValue(row, 10)).multiply(scaleFactor);
+                BigDecimal pnl = parseBigDecimal(getCellValue(row, 11)).multiply(scaleFactor);
 
                 Player player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst()
                         .or(() -> findPlayerByUsername(nickname))
@@ -1135,7 +1177,7 @@ public class ReportService {
         return totalRake;
     }
 
-    private BigDecimal parseMttDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId) {
+    private BigDecimal parseMttDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId, BigDecimal scaleFactor) {
         Sheet sheet = workbook.getSheet("MTT Detail");
         if (sheet == null) return BigDecimal.ZERO;
 
@@ -1176,16 +1218,19 @@ public class ReportService {
                         .add(parseBigDecimal(getCellValue(row, 3)));           // initial buy-in chips + ticket
                 BigDecimal reEntryBuyIn = parseBigDecimal(getCellValue(row, 6))
                         .add(parseBigDecimal(getCellValue(row, 7)));           // re-entry chips + ticket
-                // Count entries: 1 initial + however many re-entries (reEntryBuyIn / initialBuyIn)
+                // Count entries using raw ratio (scale-invariant)
                 int playerEntries = 1;
                 if (initialBuyIn.compareTo(BigDecimal.ZERO) > 0 && reEntryBuyIn.compareTo(BigDecimal.ZERO) > 0) {
                     playerEntries += reEntryBuyIn.divide(initialBuyIn, 0, java.math.RoundingMode.HALF_UP).intValue();
                 }
                 sessionEntryCounts.merge(currentSession.getId(), playerEntries, Integer::sum);
-                BigDecimal rake = parseBigDecimal(getCellValue(row, 4))   // initial fee chips (col E)
+                // Apply scale factor to chip amounts (prize and winnings are already in actual chip units)
+                initialBuyIn = initialBuyIn.multiply(scaleFactor);
+                reEntryBuyIn = reEntryBuyIn.multiply(scaleFactor);
+                BigDecimal rake = (parseBigDecimal(getCellValue(row, 4))   // initial fee chips (col E)
                         .add(parseBigDecimal(getCellValue(row, 5)))            // initial fee ticket (col F)
                         .add(parseBigDecimal(getCellValue(row, 8)))            // re-entry fee chips (col I)
-                        .add(parseBigDecimal(getCellValue(row, 9)));           // re-entry fee ticket (col J)
+                        .add(parseBigDecimal(getCellValue(row, 9)))).multiply(scaleFactor); // re-entry fee ticket (col J)
                 BigDecimal buyIn = initialBuyIn
                         .add(rake)
                         .add(reEntryBuyIn);
