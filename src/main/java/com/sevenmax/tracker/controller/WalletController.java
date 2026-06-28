@@ -5,7 +5,6 @@ import com.sevenmax.tracker.entity.BankAccount;
 import com.sevenmax.tracker.entity.ImportSummary;
 import com.sevenmax.tracker.repository.AdminWalletStartingBalanceRepository;
 import com.sevenmax.tracker.repository.BankAccountRepository;
-import com.sevenmax.tracker.repository.BankTransactionRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
 import com.sevenmax.tracker.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ public class WalletController {
     private final BankAccountRepository bankAccountRepository;
     private final ImportSummaryRepository importSummaryRepository;
     private final AdminWalletStartingBalanceRepository startingBalanceRepository;
-    private final BankTransactionRepository bankTransactionRepository;
 
     @Value("${app.wallets.starting-balance-editable:false}")
     private boolean startingBalanceEditable;
@@ -41,7 +39,12 @@ public class WalletController {
             .map(m -> (BigDecimal) m.get("balance"))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal bankDeposits = bankTransactionRepository.sumAll();
+        // Bank balance shown here must match the real, transaction-tracked balance
+        // on the Bank Balance page (ImportSummary.bankDeposits), not the separate
+        // manually-entered bank_transactions ledger.
+        BigDecimal bankDeposits = importSummaryRepository.findById(1L)
+            .map(ImportSummary::getBankDeposits)
+            .orElse(BigDecimal.ZERO);
 
         List<BankAccount> bankAccounts = bankAccountRepository.findAll();
         List<Map<String, Object>> bankWallets = new ArrayList<>();
