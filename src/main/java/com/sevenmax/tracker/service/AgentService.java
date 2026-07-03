@@ -20,9 +20,10 @@ public class AgentService {
     private final AgentSettlementRepository agentSettlementRepository;
     private final AdminExpenseRepository adminExpenseRepository;
 
-    /** All agents with their pending (unsettled) balance */
+    /** All agents with their pending (unsettled) balance, plus games played and total club rake
+     *  by their players over an optional date range (null = all time). */
     @Transactional(readOnly = true)
-    public List<Map<String, Object>> getAllAgentsSummary() {
+    public List<Map<String, Object>> getAllAgentsSummary(LocalDate from, LocalDate to) {
         List<Player> allPlayers = playerRepository.findAll();
         return allPlayers.stream()
             .filter(p -> Boolean.TRUE.equals(p.getIsAgent()))
@@ -34,6 +35,29 @@ public class AgentService {
                     .filter(p -> p.getAgent() != null && agent.getId().equals(p.getAgent().getId()))
                     .filter(p -> !p.getId().equals(agent.getId()))
                     .count();
+
+                // Games played and total club rake by this agent's players, over the date range.
+                // Exclude the agent's OWN games — only their players count, same as the detail page.
+                final Long agentId = agent.getId();
+                List<GameResult> results = gameResultRepository.findAllByAgentId(agentId).stream()
+                    .filter(gr -> !gr.getPlayer().getId().equals(agentId))
+                    .filter(gr -> {
+                        LocalDate d = gr.getSession().getStartTime().toLocalDate();
+                        if (from != null && d.isBefore(from)) return false;
+                        if (to != null && d.isAfter(to)) return false;
+                        return true;
+                    })
+                    .collect(Collectors.toList());
+                long gameCount = results.size();
+                BigDecimal totalRake = results.stream()
+                    .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                // Active players: distinct players with >= 1 game in range (agent already excluded)
+                long activePlayerCount = results.stream()
+                    .map(gr -> gr.getPlayer().getId())
+                    .distinct()
+                    .count();
+
                 List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agent.getId());
                 LocalDate lastSettlement = settlements.isEmpty() ? null : settlements.get(0).getToDate();
                 Map<String, Object> m = new LinkedHashMap<>();
@@ -43,6 +67,9 @@ public class AgentService {
                 m.put("rakePercentage", agent.getAgentRakePercentage());
                 m.put("pendingBalance", pending);
                 m.put("playerCount", playerCount);
+                m.put("activePlayerCount", activePlayerCount);
+                m.put("gameCount", gameCount);
+                m.put("totalRake", totalRake);
                 m.put("lastSettlementDate", lastSettlement != null ? lastSettlement.toString() : null);
                 return m;
             })

@@ -21,11 +21,21 @@ public class AgentController {
     private final AgentService agentService;
     private final UserRepository userRepository;
 
-    /** Admin: list all agents with pending balances */
+    /** Admin: list all agents with pending balances, plus games/rake over an optional date range */
     @GetMapping
-    public ResponseEntity<?> getAllAgents(Authentication auth) {
+    public ResponseEntity<?> getAllAgents(
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to,
+            Authentication auth) {
         if (!isAdmin(auth)) return ResponseEntity.status(403).build();
-        return ResponseEntity.ok(agentService.getAllAgentsSummary());
+        LocalDate fromDate, toDate;
+        try {
+            fromDate = from != null ? LocalDate.parse(from) : null;
+            toDate   = to   != null ? LocalDate.parse(to)   : null;
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format. Use ISO-8601 (yyyy-MM-dd)"));
+        }
+        return ResponseEntity.ok(agentService.getAllAgentsSummary(fromDate, toDate));
     }
 
     /** Agent or admin: pending balance + settlement history */
