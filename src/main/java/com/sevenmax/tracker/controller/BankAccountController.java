@@ -19,7 +19,16 @@ public class BankAccountController {
 
     @GetMapping
     public List<BankAccount> getAll() {
-        return bankAccountRepository.findByActiveTrueOrderByNameAsc();
+        List<BankAccount> accounts = bankAccountRepository.findByActiveTrueOrderByNameAsc();
+        if (accounts.isEmpty()) {
+            // The club always has a bank, conceptually - don't force an admin-facing setup
+            // step just to unlock bank-side transfers.
+            BankAccount defaultAccount = new BankAccount();
+            defaultAccount.setName("Bank");
+            bankAccountRepository.save(defaultAccount);
+            accounts = bankAccountRepository.findByActiveTrueOrderByNameAsc();
+        }
+        return accounts;
     }
 
     @PostMapping

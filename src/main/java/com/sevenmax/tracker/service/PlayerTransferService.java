@@ -114,6 +114,26 @@ public class PlayerTransferService {
             bankTransactionRepository.save(bt);
         }
 
+        // A genuine, explicitly-linked bank account always moves the real tracked bank balance
+        // (ImportSummary.bankDeposits), regardless of who's on the other side - money leaving/
+        // entering the real bank is real bank movement whether it's going to/from a player, an
+        // admin wallet (e.g. admin withdraws cash to pay a player, or deposits collected cash),
+        // or unassigned club funds. Only the ambiguous "unassigned club money" heuristic bucket
+        // above (toBank/fromBank, with no real bank account linked) should stay admin-gated.
+        boolean realToBank = toBankAccount != null;
+        boolean realFromBank = fromBankAccount != null;
+        if (realToBank || realFromBank) {
+            ImportSummary summary = importSummaryRepository.findById(1L).orElse(new ImportSummary());
+            summary.setId(1L);
+            BigDecimal current = summary.getBankDeposits() != null ? summary.getBankDeposits() : BigDecimal.ZERO;
+            BigDecimal updated = current;
+            if (realToBank) updated = updated.add(amount);
+            if (realFromBank) updated = updated.subtract(amount);
+            summary.setBankDeposits(updated);
+            summary.setLastUpdated(LocalDateTime.now());
+            importSummaryRepository.save(summary);
+        }
+
         return transfer;
     }
 
