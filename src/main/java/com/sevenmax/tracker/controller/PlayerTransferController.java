@@ -1,5 +1,6 @@
 package com.sevenmax.tracker.controller;
 
+import com.sevenmax.tracker.entity.PlayerTransfer;
 import com.sevenmax.tracker.entity.Transaction;
 import com.sevenmax.tracker.repository.PlayerTransferRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
@@ -128,11 +129,10 @@ public class PlayerTransferController {
         var transfers = transferRepository.findBankRelatedTransfers();
         var summary = importSummaryRepository.findById(1L).orElse(null);
 
-        // Compute XLS base = current bankDeposits - sum of all bank transfer deltas
+        // Compute XLS base = current bankDeposits - sum of all bank transfer/adjustment deltas
         java.math.BigDecimal transferSum = java.math.BigDecimal.ZERO;
         for (var t : transfers) {
-            boolean toBank = t.getToBankAccount() != null || (t.getToPlayer() == null && t.getFromPlayer() != null);
-            transferSum = toBank ? transferSum.add(t.getAmount()) : transferSum.subtract(t.getAmount());
+            transferSum = transferSum.add(bankDelta(t));
         }
         java.math.BigDecimal currentBank = summary != null && summary.getBankDeposits() != null ? summary.getBankDeposits() : java.math.BigDecimal.ZERO;
         java.math.BigDecimal xlsBase = currentBank.subtract(transferSum);
@@ -142,15 +142,15 @@ public class PlayerTransferController {
             rows.add(Map.of("type", "XLS", "description", "XLS base (מיקום הכסף)", "delta", xlsBase, "date", ""));
         }
         for (var t : transfers) {
-            boolean toBank = t.getToBankAccount() != null || (t.getToPlayer() == null && t.getFromPlayer() != null);
-            java.math.BigDecimal delta = toBank ? t.getAmount() : t.getAmount().negate();
-            String fromName = t.getFromPlayer() != null ? t.getFromPlayer().getUsername()
-                    : (t.getFromBankAccount() != null ? t.getFromBankAccount().getName() : "CLUB");
-            String toName = t.getToPlayer() != null ? t.getToPlayer().getUsername()
-                    : (t.getToBankAccount() != null ? t.getToBankAccount().getName() : "CLUB");
+            boolean isAdjustment = t.getMethod() == Transaction.Method.ADJUSTMENT;
+            java.math.BigDecimal delta = bankDelta(t);
+            String fromName = isAdjustment ? null : (t.getFromPlayer() != null ? t.getFromPlayer().getUsername()
+                    : (t.getFromBankAccount() != null ? t.getFromBankAccount().getName() : "CLUB"));
+            String toName = isAdjustment ? null : (t.getToPlayer() != null ? t.getToPlayer().getUsername()
+                    : (t.getToBankAccount() != null ? t.getToBankAccount().getName() : "CLUB"));
             var row = new java.util.HashMap<String, Object>();
             row.put("id", t.getId());
-            row.put("type", "TRANSFER");
+            row.put("type", isAdjustment ? "ADJUSTMENT" : "TRANSFER");
             row.put("date", t.getTransferDate() != null ? t.getTransferDate().toString() : "");
             row.put("createdAt", t.getCreatedAt() != null ? t.getCreatedAt().toString() : "");
             row.put("fromName", fromName);
@@ -165,5 +165,13 @@ public class PlayerTransferController {
         }
         java.util.Collections.reverse(rows); // newest first
         return ResponseEntity.ok(Map.of("rows", rows, "total", currentBank));
+    }
+
+    // Signed delta this row contributes to the tracked bank total. Adjustment rows already
+    // store the signed delta directly as amount (see ImportSummaryController.setBankBalance).
+    private java.math.BigDecimal bankDelta(PlayerTransfer t) {
+        if (t.getMethod() == Transaction.Method.ADJUSTMENT) return t.getAmount();
+        boolean toBank = t.getToBankAccount() != null || (t.getToPlayer() == null && t.getFromPlayer() != null);
+        return toBank ? t.getAmount() : t.getAmount().negate();
     }
 }
