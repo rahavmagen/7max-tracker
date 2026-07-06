@@ -20,7 +20,7 @@ public interface PlayerTransferRepository extends JpaRepository<PlayerTransfer, 
 
     List<PlayerTransfer> findByFromAdminUsernameOrToAdminUsernameOrderById(String fromAdmin, String toAdmin);
 
-    @Query("SELECT t FROM PlayerTransfer t WHERE t.fromBankAccount IS NOT NULL OR t.toBankAccount IS NOT NULL OR (t.fromPlayer IS NULL AND t.toPlayer IS NOT NULL) OR (t.toPlayer IS NULL AND t.fromPlayer IS NOT NULL) ORDER BY t.transferDate ASC, t.createdAt ASC")
+    @Query("SELECT t FROM PlayerTransfer t WHERE t.fromBankAccount IS NOT NULL OR t.toBankAccount IS NOT NULL OR (t.fromPlayer IS NULL AND t.toPlayer IS NOT NULL) OR (t.toPlayer IS NULL AND t.fromPlayer IS NOT NULL) OR t.method = com.sevenmax.tracker.entity.Transaction.Method.ADJUSTMENT ORDER BY t.transferDate ASC, t.createdAt ASC")
     List<PlayerTransfer> findBankRelatedTransfers();
 
 }
