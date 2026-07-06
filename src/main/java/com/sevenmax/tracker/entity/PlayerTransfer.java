@@ -33,6 +33,8 @@ public class PlayerTransfer {
     @JoinColumn(name = "to_bank_account_id")
     private BankAccount toBankAccount;
 
+    // Non-negative magnitude for all transfer types EXCEPT method=ADJUSTMENT, where this is a
+    // signed delta (new balance minus previous balance) — see ImportSummaryController.setBankBalance.
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 

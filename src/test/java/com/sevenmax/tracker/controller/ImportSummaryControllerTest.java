@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,6 +59,7 @@ class ImportSummaryControllerTest {
         ResponseEntity<?> response = controller.setBankBalance(Map.of(), adminAuth());
 
         assertThat(response.getStatusCode().value()).isEqualTo(400);
+        verifyNoInteractions(importSummaryRepository, playerTransferRepository);
     }
 
     @Test
@@ -67,6 +67,15 @@ class ImportSummaryControllerTest {
         ResponseEntity<?> response = controller.setBankBalance(Map.of("bankBalance", "-50"), adminAuth());
 
         assertThat(response.getStatusCode().value()).isEqualTo(400);
+        verifyNoInteractions(importSummaryRepository, playerTransferRepository);
+    }
+
+    @Test
+    void rejectsNonNumericBankBalance() {
+        ResponseEntity<?> response = controller.setBankBalance(Map.of("bankBalance", "abc"), adminAuth());
+
+        assertThat(response.getStatusCode().value()).isEqualTo(400);
+        verifyNoInteractions(importSummaryRepository, playerTransferRepository);
     }
 
     @Test
