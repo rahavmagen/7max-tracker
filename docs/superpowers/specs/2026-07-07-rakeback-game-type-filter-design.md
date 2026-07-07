@@ -7,7 +7,8 @@ The rakeback report (`GET /api/reports/admin/rakeback`, rendered on the "דוח�
 ## Requirements
 
 - Admin can select any combination of game types via checkboxes before running the rakeback report.
-- No selection = all game types (today's current, unchanged behavior) — this must remain the default so existing usage isn't disrupted.
+- **Default: only NLH is checked** when the page loads (not "all games").
+- **No selection (all checkboxes unchecked) = no rakeback** — every eligible player shows `totalRakePaid = 0` and `rakebackAmount = 0`. This is a deliberate change from today's behavior (which sums all game types with no filter) — the new default requires explicit, intentional selection rather than silently including every game type.
 - Selecting one or more types restricts the rake sum (and therefore the computed rakeback amount) to only those types, for every player in the report.
 - The `rakebackSince` / effective-start-date logic (a player's rakeback only counts from `MAX(dateFrom, rakebackSince)`) is unaffected by this filter — it narrows which rake counts, not the date logic.
 
@@ -18,17 +19,18 @@ No schema changes. `game_sessions.game_type` already exists (`NLH`, `PLO`, `PLO5
 ## API
 
 ### `GET /api/reports/admin/rakeback` (existing endpoint, extended)
-New optional query param: `gameTypes` — a comma-separated string (e.g. `NLH,PLO`), matching the existing single-`gameType`-string convention already used by `GET /api/reports/player-stats`. Omitted or empty = no filter (all games).
+New optional query param: `gameTypes` — a comma-separated string (e.g. `NLH,PLO`), matching the existing single-`gameType`-string convention already used by `GET /api/reports/player-stats`.
 
 Backend behavior:
 - Parse `gameTypes` into a `List<String>` (split on comma, trim, drop blanks).
-- If the list is empty: call the existing `GameResultRepository.getRakePerPlayerBetween(from, to)` unchanged — the "all games" path is untouched code, zero regression risk.
-- If the list is non-empty: call a new `GameResultRepository.getRakePerPlayerBetweenByGameTypes(from, to, gameTypes)`, a native query identical to the existing one plus `AND gs.game_type IN (:gameTypes)`.
-- Both call sites in `rakebackReport` that currently call `getRakePerPlayerBetween` (the main full-period fetch, and the `effectiveFrom`-adjusted re-query for players whose `rakebackSince` is later than `dateFrom`) must use the same parsed `gameTypes` list.
+- If the list is empty: skip the rake lookup entirely — treat every player's rake-per-period map as empty, so `totalRakePaid = 0` and `rakebackAmount = 0` for everyone. No query is run.
+- If the list is non-empty: call a new `GameResultRepository.getRakePerPlayerBetweenByGameTypes(from, to, gameTypes)`, a native query identical to the existing `getRakePerPlayerBetween` plus `AND gs.game_type IN (:gameTypes)`.
+- Both call sites in `rakebackReport` that currently call `getRakePerPlayerBetween` (the main full-period fetch, and the `effectiveFrom`-adjusted re-query for players whose `rakebackSince` is later than `dateFrom`) must use this same logic with the same parsed `gameTypes` list.
+- `getRakePerPlayerBetween` (the old, always-unfiltered query) becomes unused once this change lands — confirmed via search it has no other callers — so it is removed rather than left as dead code.
 
 ## UI
 
-On the Reports page, in the existing "ריקבק" (rakeback) card, above the date range inputs: 8 checkboxes, one per game type, labeled with the raw enum values (NLH, PLO, PLO5, PLO6, SNG, MTT, AoF, SPIN_GOLD). State is a plain array of selected type strings. On submit, if the array is non-empty, join with commas and send as `gameTypes`; if empty, omit the param entirely (preserves current "all games" request shape).
+On the Reports page, in the existing "ריקבק" (rakeback) card, above the date range inputs: 8 checkboxes, one per game type, labeled with the raw enum values (NLH, PLO, PLO5, PLO6, SNG, MTT, AoF, SPIN_GOLD). State is a plain array of selected type strings, **initialized to `['NLH']`** so NLH is pre-checked on page load. On submit, join the array with commas and send as `gameTypes` (including the empty-string case when the array is empty — the backend interprets an empty/missing value as "no rakeback", not "all games").
 
 ## Out of scope
 
