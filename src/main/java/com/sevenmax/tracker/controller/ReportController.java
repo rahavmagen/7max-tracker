@@ -624,17 +624,25 @@ public class ReportController {
     public ResponseEntity<List<Map<String, Object>>> rakebackReport(
             @RequestParam String dateFrom,
             @RequestParam String dateTo,
+            @RequestParam(required = false) String gameTypes,
             Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         LocalDate fromDate = LocalDate.parse(dateFrom);
         LocalDate toDate = LocalDate.parse(dateTo);
 
+        // Empty/missing selection means no rakeback at all (not "all games") - every
+        // player's rake map stays empty, so totalRakePaid/rakebackAmount come out 0.
+        List<String> gameTypeList = gameTypes == null ? List.of() : java.util.Arrays.stream(gameTypes.split(","))
+                .map(String::trim).filter(s -> !s.isEmpty()).collect(java.util.stream.Collectors.toList());
+
         // Build rake map for the full requested period
         LocalDateTime fromDt = fromDate.atStartOfDay();
         LocalDateTime toDt = toDate.plusDays(1).atStartOfDay();
         Map<Long, BigDecimal> rakeMap = new HashMap<>();
-        for (Object[] r : gameResultRepository.getRakePerPlayerBetween(fromDt, toDt)) {
-            rakeMap.put(((Number) r[0]).longValue(), new BigDecimal(r[1].toString()));
+        if (!gameTypeList.isEmpty()) {
+            for (Object[] r : gameResultRepository.getRakePerPlayerBetweenByGameTypes(fromDt, toDt, gameTypeList)) {
+                rakeMap.put(((Number) r[0]).longValue(), new BigDecimal(r[1].toString()));
+            }
         }
 
         // Build per-player effective rake (respecting rakebackSince)
@@ -655,10 +663,12 @@ public class ReportController {
             if (effectiveFrom.equals(fromDate)) {
                 // Use the already-fetched full-period rake
                 totalRakePaid = rakeMap.getOrDefault(p.getId(), BigDecimal.ZERO);
+            } else if (gameTypeList.isEmpty()) {
+                totalRakePaid = BigDecimal.ZERO;
             } else {
                 // Re-query from effectiveFrom
-                List<Object[]> rows = gameResultRepository.getRakePerPlayerBetween(
-                        effectiveFrom.atStartOfDay(), toDt);
+                List<Object[]> rows = gameResultRepository.getRakePerPlayerBetweenByGameTypes(
+                        effectiveFrom.atStartOfDay(), toDt, gameTypeList);
                 totalRakePaid = rows.stream()
                         .filter(r -> ((Number) r[0]).longValue() == p.getId())
                         .map(r -> new BigDecimal(r[1].toString()))
