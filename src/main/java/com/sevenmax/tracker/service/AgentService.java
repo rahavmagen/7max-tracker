@@ -19,6 +19,37 @@ public class AgentService {
     private final GameResultRepository gameResultRepository;
     private final AgentSettlementRepository agentSettlementRepository;
     private final AdminExpenseRepository adminExpenseRepository;
+    private final TransactionRepository transactionRepository;
+
+    /** Free-chip credit for one agent player, with the transaction-history fallback.
+     *  Base: freeCredit = currentChips − lifetime game P&L − already-booked credit.
+     *  If that's negative (doesn't reconcile), the player likely paid real money for some chips
+     *  (recorded as a PAYMENT/transfer); add those back before flagging. Only flag if still negative. */
+    private Map<String, Object> computeFreeChipCredit(Player player) {
+        BigDecimal chips = player.getCurrentChips() != null ? player.getCurrentChips() : BigDecimal.ZERO;
+        BigDecimal existingCredit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
+        BigDecimal lifetimePnl = gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(player.getId())
+            .stream().map(AgentService::pnlOf).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal freeCredit = chips.subtract(lifetimePnl).subtract(existingCredit);
+        boolean reconciles = freeCredit.compareTo(BigDecimal.ZERO) >= 0;
+        BigDecimal paidOut = BigDecimal.ZERO;
+        if (!reconciles) {
+            paidOut = transactionRepository.findByPlayerIdOrderByTransactionDateDesc(player.getId()).stream()
+                .filter(t -> t.getType() == Transaction.Type.PAYMENT)
+                .map(t -> t.getAmount() != null ? t.getAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal adjusted = freeCredit.add(paidOut);
+            if (adjusted.compareTo(BigDecimal.ZERO) >= 0) { freeCredit = adjusted; reconciles = true; }
+        }
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("currentChips", chips);
+        r.put("lifetimePnl", lifetimePnl);
+        r.put("existingCredit", existingCredit);
+        r.put("paidAdjustment", paidOut);
+        r.put("agentChipCredit", freeCredit);
+        r.put("reconciles", reconciles);
+        return r;
+    }
 
     /** All agents with their pending (unsettled) balance, plus games played and total club rake
      *  by their players over an optional date range (null = all time). */
@@ -58,6 +89,23 @@ public class AgentService {
                     .distinct()
                     .count();
 
+                // Free-chip credit total (READ-ONLY, lifetime, NOT date-filtered): sum over this
+                // agent's players of (currentChips − lifetime game P&L) = the free chips they hold.
+                // Free-chip credit per player (with the transaction fallback), summed for this agent.
+                // Also collect any players that STILL don't reconcile — surfaced on the main screen.
+                List<Player> agentPlayers = allPlayers.stream()
+                    .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
+                    .filter(p -> !p.getId().equals(agentId))
+                    .collect(Collectors.toList());
+                boolean clubManaged = Boolean.TRUE.equals(agent.getClubManaged());
+                BigDecimal freeCreditTotal = BigDecimal.ZERO;
+                List<String> flaggedPlayers = new ArrayList<>();
+                for (Player p : agentPlayers) {
+                    Map<String, Object> info = computeFreeChipCredit(p);
+                    freeCreditTotal = freeCreditTotal.add((BigDecimal) info.get("agentChipCredit"));
+                    if (!clubManaged && !Boolean.TRUE.equals(info.get("reconciles"))) flaggedPlayers.add(p.getUsername());
+                }
+
                 List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agent.getId());
                 LocalDate lastSettlement = settlements.isEmpty() ? null : settlements.get(0).getToDate();
                 Map<String, Object> m = new LinkedHashMap<>();
@@ -65,11 +113,14 @@ public class AgentService {
                 m.put("username", agent.getUsername());
                 m.put("fullName", agent.getFullName());
                 m.put("rakePercentage", agent.getAgentRakePercentage());
+                m.put("clubManaged", Boolean.TRUE.equals(agent.getClubManaged()));
                 m.put("pendingBalance", pending);
                 m.put("playerCount", playerCount);
                 m.put("activePlayerCount", activePlayerCount);
                 m.put("gameCount", gameCount);
                 m.put("totalRake", totalRake);
+                m.put("freeCreditTotal", freeCreditTotal);
+                m.put("flaggedPlayers", flaggedPlayers);
                 m.put("lastSettlementDate", lastSettlement != null ? lastSettlement.toString() : null);
                 return m;
             })
@@ -272,11 +323,23 @@ public class AgentService {
                 m.put("totalRake", totalRake);
                 m.put("agentShare", agentShare);
                 m.put("periodPnl", periodPnl);
+                // Free-chip credit (READ-ONLY — not yet booked), with the transaction-history fallback.
+                m.putAll(computeFreeChipCredit(player));
                 m.put("games", games);
                 return m;
             })
             .sorted((a, b) -> ((BigDecimal) b.get("agentShare")).compareTo((BigDecimal) a.get("agentShare")))
             .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void setClubManaged(Long agentId, boolean clubManaged) {
+        Player agent = playerRepository.findById(agentId)
+            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        if (!Boolean.TRUE.equals(agent.getIsAgent()))
+            throw new IllegalArgumentException("Player " + agentId + " is not an agent");
+        agent.setClubManaged(clubManaged);
+        playerRepository.save(agent);
     }
 
     @Transactional

@@ -330,6 +330,22 @@ public class ReportService {
         }
     }
 
+    /** Re-run agent linkage from the latest stored report — applies the super-agent rollup fix
+     *  to existing data without re-running the whole import pipeline. Idempotent. */
+    @org.springframework.transaction.annotation.Transactional
+    public int resyncAgentsFromLatestReport() throws Exception {
+        Report latest = reportRepository.findAll().stream()
+            .filter(r -> r.getFileData() != null && r.getFileData().length > 0)
+            .max(java.util.Comparator.comparing(r -> r.getPeriodEnd() != null ? r.getPeriodEnd() : LocalDate.MIN))
+            .orElse(null);
+        if (latest == null) return 0;
+        try (java.io.InputStream is = new java.io.ByteArrayInputStream(latest.getFileData());
+             Workbook workbook = new XSSFWorkbook(is)) {
+            parseClubOverview(workbook);
+        }
+        return 1;
+    }
+
     private void parseClubOverview(Workbook workbook) {
         Sheet sheet = workbook.getSheet("Club Overview");
         if (sheet == null) {
@@ -344,12 +360,21 @@ public class ReportService {
             Row row = sheet.getRow(r);
             if (row == null) continue;
 
-            String agentClubId    = getCellValue(row, 3);
-            String agentNickname  = getCellValue(row, 4);
+            // Only assign agents for actual members (Player rows), not sub-agents / super-agents.
+            String role = getCellValue(row, 6);
+            if (role != null && !"Player".equalsIgnoreCase(role.trim())) continue;
+
+            // Prefer the Super Agent (cols B/C) so an entire sub-agent tree rolls up to the top
+            // agent the club settles with; fall back to the direct Agent (cols D/E) for flat agents.
+            String superAgentId   = getCellValue(row, 1);
+            String superAgentNick = getCellValue(row, 2);
+            boolean hasSuper = superAgentId != null && !superAgentId.isBlank() && !"-".equals(superAgentId.trim());
+            String agentClubId    = hasSuper ? superAgentId : getCellValue(row, 3);
+            String agentNickname  = hasSuper ? superAgentNick : getCellValue(row, 4);
             String playerClubId   = getCellValue(row, 7);
             String playerNickname = getCellValue(row, 8);
 
-            if (agentClubId == null || agentClubId.isBlank()) continue;
+            if (agentClubId == null || agentClubId.isBlank() || "-".equals(agentClubId.trim())) continue;
             if (playerClubId == null || playerClubId.isBlank()) continue;
 
             // Find the player (member)
@@ -386,6 +411,8 @@ public class ReportService {
         // Tracks wheel expense transactions saved this upload (key = "playerId:amount")
         // so that a correction Claim Chips for the same player+amount can cancel it out
         Map<String, Transaction> wheelExpensesSavedThisUpload = new java.util.LinkedHashMap<>();
+        // One wheel refund per (player, game): tracks games already used for a refund this upload.
+        java.util.Set<String> wheelConsumedGames = new java.util.HashSet<>();
         // Accumulates net chip delta per player for group-based pending confirmation
         Map<Long, BigDecimal> xlsNetByPlayer = new java.util.LinkedHashMap<>();
 
@@ -449,12 +476,12 @@ public class ReportService {
             if (!isWheelExpense && tradeType.equals("Send Chips") && rawAmount.compareTo(BigDecimal.ZERO) < 0) {
                 log.info("[WHEEL-DEBUG] Send Chips negative: player={} playerId={} amount={} date={} sourceRef={}",
                         player.getUsername(), player.getId(), amount, txDate, sourceRef);
-                BigDecimal mttCost = getNightlyMttCost(txDate, player.getId(), amount);
+                BigDecimal mttCost = getNightlyMttCost(txDate, player.getId(), amount, wheelConsumedGames);
                 log.info("[WHEEL-DEBUG] getNightlyMttCost(date={}, playerId={}) => {}", txDate, player.getId(), mttCost);
                 if (mttCost == null) {
                     // Also check previous day (wheel expense may be recorded the morning after,
                     // or the amount on the current day doesn't match)
-                    BigDecimal prevCost = getNightlyMttCost(txDate.minusDays(1), player.getId(), amount);
+                    BigDecimal prevCost = getNightlyMttCost(txDate.minusDays(1), player.getId(), amount, wheelConsumedGames);
                     log.info("[WHEEL-DEBUG] getNightlyMttCost(prevDay={}, playerId={}) => {}", txDate.minusDays(1), player.getId(), prevCost);
                     if (prevCost != null) {
                         mttCost = prevCost;
@@ -906,9 +933,10 @@ public class ReportService {
     // or null if no such session / player not found in it.
     // buyIn already includes rake, so we don't add rakePaid.
     // Checks ALL MTT sessions in the evening window and returns the player's buy-in only if it matches amount.
-    private BigDecimal getNightlyMttCost(LocalDate date, Long playerId, BigDecimal amount) {
-        // Sessions stored as Israel local time (LocalDateTime, no TZ). Evening window: 18:00–23:59.
-        LocalDateTime windowStart = date.atTime(18, 0);
+    private BigDecimal getNightlyMttCost(LocalDate date, Long playerId, BigDecimal amount, java.util.Set<String> consumedGames) {
+        // Satellite tickets are granted for MTTs run any time of day (not just the 9 PM main),
+        // so match against the FULL day, not just the evening window.
+        LocalDateTime windowStart = date.atTime(0, 0);
         LocalDateTime windowEnd = date.atTime(23, 59);
         List<GameSession> sessions = gameSessionRepository.findByGameTypeAndStartTimeBetween(
                 GameSession.GameType.MTT, windowStart, windowEnd);
@@ -923,6 +951,9 @@ public class ReportService {
         }
         // Check ALL sessions — player may be in multiple; match only the one where buyIn == amount
         for (GameSession session : sessions) {
+            // One wheel refund per game per player: skip a game already used for this player's refund this upload.
+            String gameKey = playerId + ":" + session.getId();
+            if (consumedGames.contains(gameKey)) continue;
             List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
             log.info("[WHEEL-DEBUG] Session id={} startTime={}, results count={}", session.getId(), session.getStartTime(), results.size());
             Optional<BigDecimal> match = results.stream()
@@ -933,7 +964,7 @@ public class ReportService {
                     })
                     .filter(buyIn -> buyIn.compareTo(amount) == 0)
                     .findFirst();
-            if (match.isPresent()) return match.get();
+            if (match.isPresent()) { consumedGames.add(gameKey); return match.get(); }
         }
         return null;
     }

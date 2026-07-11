@@ -110,6 +110,20 @@ public class AgentController {
         }
     }
 
+    /** Admin only: toggle whether the club manages this agent's players directly */
+    @PatchMapping("/{id}/club-managed")
+    public ResponseEntity<?> setClubManaged(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        try {
+            Object v = body.get("clubManaged");
+            boolean flag = v instanceof Boolean b ? b : Boolean.parseBoolean(String.valueOf(v));
+            agentService.setClubManaged(id, flag);
+            return ResponseEntity.ok(Map.of("success", true, "clubManaged", flag));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
+
     /** Admin only: trigger settlement */
     @PostMapping("/{id}/settle")
     public ResponseEntity<?> settle(@PathVariable Long id, Authentication auth) {

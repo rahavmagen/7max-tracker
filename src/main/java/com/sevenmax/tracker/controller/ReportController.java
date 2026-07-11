@@ -380,6 +380,17 @@ public class ReportController {
     }
 
     /** Backfill chipsTotal for all reports that have a saved file but no chipsTotal yet */
+    @PostMapping("/admin/resync-agents")
+    public ResponseEntity<?> resyncAgents(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        try {
+            reportService.resyncAgentsFromLatestReport();
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", String.valueOf(e.getMessage())));
+        }
+    }
+
     @PostMapping("/admin/backfill-chips-total")
     public ResponseEntity<Map<String, Object>> backfillChipsTotal(Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();

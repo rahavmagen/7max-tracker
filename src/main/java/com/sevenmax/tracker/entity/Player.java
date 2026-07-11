@@ -64,6 +64,11 @@ public class Player {
     // Agent system
     private Boolean isAgent = false;
 
+    // Club-managed agent: the club handles this agent's players directly (like normal players).
+    // Such agents are excluded from the "credit given by agents" total, their players may still
+    // receive manual credit, and their players are skipped by agent free-chip auto-booking.
+    private Boolean clubManaged = false;
+
     @Column(precision = 6, scale = 4)
     private BigDecimal agentRakePercentage; // e.g. 0.3000 = 30%
 
