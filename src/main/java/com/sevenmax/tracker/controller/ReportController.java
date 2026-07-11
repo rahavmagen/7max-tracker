@@ -391,6 +391,17 @@ public class ReportController {
         }
     }
 
+    /** Recompute each player's agent free-chip credit by catching chip-grant transfers across reports. */
+    @PostMapping("/admin/compute-agent-credit")
+    public ResponseEntity<?> computeAgentCredit(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        try {
+            return ResponseEntity.ok(reportService.computeAgentGrantedCredit());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", String.valueOf(e.getMessage())));
+        }
+    }
+
     @PostMapping("/admin/backfill-chips-total")
     public ResponseEntity<Map<String, Object>> backfillChipsTotal(Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();

@@ -346,6 +346,99 @@ public class ReportService {
         return 1;
     }
 
+    private static final java.util.Set<GameSession.GameType> GRANT_TOURNEY = java.util.Set.of(
+        GameSession.GameType.MTT, GameSession.GameType.SNG, GameSession.GameType.AoF, GameSession.GameType.SPIN_GOLD);
+    private static BigDecimal grantPnl(GameResult gr) {
+        BigDecimal res = gr.getResultAmount() != null ? gr.getResultAmount() : BigDecimal.ZERO;
+        if (GRANT_TOURNEY.contains(gr.getSession().getGameType())) {
+            BigDecimal bi = gr.getBuyIn() != null ? gr.getBuyIn() : BigDecimal.ZERO;
+            return res.subtract(bi);
+        }
+        return res;
+    }
+
+    /** "Catch the transfer": scan all reports chronologically and, per player, sum the day-over-day
+     *  chip increases that are NOT explained by play (agent handed them free chips). Stored on
+     *  Player.agentChipCredit. This is the real free-credit an agent gave, from the transfer events. */
+    @org.springframework.transaction.annotation.Transactional
+    public Map<String, Object> computeAgentGrantedCredit() {
+        List<Report> reports = reportRepository.findAll().stream()
+            .filter(r -> r.getFileData() != null && r.getFileData().length > 0 && r.getPeriodEnd() != null)
+            .sorted(java.util.Comparator.comparing(Report::getPeriodEnd))
+            .collect(java.util.stream.Collectors.toList());
+
+        // Per report: held[cid]=[chips+pool, chips]; direct[cid]=direct-agent club id.
+        List<Map<String, BigDecimal[]>> held = new java.util.ArrayList<>();
+        List<Map<String, String>> direct = new java.util.ArrayList<>();
+        java.util.Set<String> allCids = new java.util.HashSet<>();
+        for (Report rep : reports) {
+            Map<String, BigDecimal[]> hc = new HashMap<>();
+            Map<String, String> da = new HashMap<>();
+            try (java.io.InputStream is = new java.io.ByteArrayInputStream(rep.getFileData());
+                 Workbook wb = new XSSFWorkbook(is)) {
+                Sheet sheet = wb.getSheet("Club Member Balance");
+                if (sheet != null) {
+                    for (int r = 0; r <= sheet.getLastRowNum(); r++) {
+                        Row row = sheet.getRow(r);
+                        if (row == null) continue;
+                        String cid = getCellValue(row, 7);
+                        if (cid == null || cid.isBlank() || "-".equals(cid.trim())) continue;
+                        cid = cid.trim();
+                        BigDecimal chips = parseBigDecimal(getCellValue(row, 9)); if (chips == null) chips = BigDecimal.ZERO;
+                        BigDecimal pool = parseBigDecimal(getCellValue(row, 10)); if (pool == null) pool = BigDecimal.ZERO;
+                        String superId = getCellValue(row, 1), agentId = getCellValue(row, 3);
+                        String d = (agentId != null && !agentId.isBlank() && !"-".equals(agentId.trim())) ? agentId.trim()
+                            : (superId != null && !superId.isBlank() && !"-".equals(superId.trim()) ? superId.trim() : null);
+                        hc.put(cid, new BigDecimal[]{chips.add(pool), chips});
+                        if (d != null) da.put(cid, d);
+                        allCids.add(cid);
+                    }
+                }
+            } catch (Exception e) { log.warn("computeAgentGrantedCredit: parse failed report {}: {}", rep.getId(), e.getMessage()); }
+            held.add(hc); direct.add(da);
+        }
+
+        // For each report step and each agent: a pool DROP is distributed to the members whose held
+        // rose that step, proportionally. Winnings never move the pool, so they are excluded.
+        Map<String, BigDecimal> grant = new HashMap<>();
+        BigDecimal HALF = new BigDecimal("0.5");
+        for (int i = 1; i < held.size(); i++) {
+            Map<String, BigDecimal[]> prev = held.get(i - 1), cur = held.get(i);
+            Map<String, String> da = direct.get(i);
+            Map<String, List<String>> byAgent = new HashMap<>();
+            for (String cid : cur.keySet()) { String a = da.get(cid); if (a != null) byAgent.computeIfAbsent(a, k -> new java.util.ArrayList<>()).add(cid); }
+            for (Map.Entry<String, List<String>> e : byAgent.entrySet()) {
+                BigDecimal[] ap = prev.get(e.getKey()), ac = cur.get(e.getKey());
+                BigDecimal drop = (ap != null ? ap[0].subtract(ap[1]) : BigDecimal.ZERO).subtract(ac != null ? ac[0].subtract(ac[1]) : BigDecimal.ZERO);
+                if (drop.compareTo(HALF) <= 0) continue;
+                Map<String, BigDecimal> incs = new HashMap<>(); BigDecimal tot = BigDecimal.ZERO;
+                for (String cid : e.getValue()) {
+                    BigDecimal inc = cur.get(cid)[0].subtract(prev.containsKey(cid) ? prev.get(cid)[0] : BigDecimal.ZERO);
+                    if (inc.compareTo(HALF) > 0) { incs.put(cid, inc); tot = tot.add(inc); }
+                }
+                if (tot.signum() <= 0) continue;
+                for (Map.Entry<String, BigDecimal> ie : incs.entrySet())
+                    grant.merge(ie.getKey(), drop.multiply(ie.getValue()).divide(tot, 2, java.math.RoundingMode.HALF_UP), BigDecimal::add);
+            }
+        }
+
+        int updated = 0; long withGrant = 0;
+        for (String cid : allCids) {
+            Player p = playerRepository.findByClubPlayerIdSafe(cid).stream().findFirst().orElse(null);
+            if (p == null) continue;
+            BigDecimal g = grant.getOrDefault(cid, BigDecimal.ZERO);
+            p.setAgentChipCredit(g);
+            playerRepository.save(p);
+            updated++;
+            if (g.signum() > 0) withGrant++;
+        }
+        log.info("computeAgentGrantedCredit (pool-based): players updated={} withGrant={}", updated, withGrant);
+        Map<String, Object> res = new HashMap<>();
+        res.put("playersUpdated", updated);
+        res.put("playersWithGrant", withGrant);
+        return res;
+    }
+
     private void parseClubOverview(Workbook workbook) {
         Sheet sheet = workbook.getSheet("Club Overview");
         if (sheet == null) {

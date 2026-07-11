@@ -69,6 +69,11 @@ public class Player {
     // receive manual credit, and their players are skipped by agent free-chip auto-booking.
     private Boolean clubManaged = false;
 
+    // Agent free chips CAUGHT from the reports: sum of day-over-day chip grants (chip balance rose
+    // beyond play). This is the actual free credit the agent gave, computed by computeAgentGrantedCredit.
+    @Column(precision = 14, scale = 2)
+    private BigDecimal agentChipCredit;
+
     @Column(precision = 6, scale = 4)
     private BigDecimal agentRakePercentage; // e.g. 0.3000 = 30%
 

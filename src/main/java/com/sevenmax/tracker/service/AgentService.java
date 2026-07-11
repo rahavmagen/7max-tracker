@@ -30,6 +30,8 @@ public class AgentService {
         BigDecimal existingCredit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
         BigDecimal lifetimePnl = gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(player.getId())
             .stream().map(AgentService::pnlOf).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // PRIMARY credit = derived: chips − game P&L − already-booked credit (with paid-buy-in fallback).
         BigDecimal freeCredit = chips.subtract(lifetimePnl).subtract(existingCredit);
         boolean reconciles = freeCredit.compareTo(BigDecimal.ZERO) >= 0;
         BigDecimal paidOut = BigDecimal.ZERO;
@@ -41,15 +43,28 @@ public class AgentService {
             BigDecimal adjusted = freeCredit.add(paidOut);
             if (adjusted.compareTo(BigDecimal.ZERO) >= 0) { freeCredit = adjusted; reconciles = true; }
         }
+
+        // CROSS-CHECK against the independently-caught pool-based grant (Player.agentChipCredit).
+        // If the two methods disagree beyond tolerance, flag for review rather than trust either.
+        BigDecimal crossCheck = player.getAgentChipCredit();
+        if (crossCheck != null) {
+            BigDecimal diff = freeCredit.subtract(crossCheck).abs();
+            if (diff.compareTo(CROSSCHECK_TOLERANCE) > 0) reconciles = false;
+        }
+
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("currentChips", chips);
         r.put("lifetimePnl", lifetimePnl);
         r.put("existingCredit", existingCredit);
         r.put("paidAdjustment", paidOut);
         r.put("agentChipCredit", freeCredit);
+        r.put("crossCheck", crossCheck);
         r.put("reconciles", reconciles);
         return r;
     }
+
+    /** How far the derived and caught credit may differ before a player is flagged for review. */
+    private static final BigDecimal CROSSCHECK_TOLERANCE = new BigDecimal("100");
 
     /** All agents with their pending (unsettled) balance, plus games played and total club rake
      *  by their players over an optional date range (null = all time). */
