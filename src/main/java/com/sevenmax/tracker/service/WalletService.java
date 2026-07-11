@@ -58,6 +58,25 @@ public class WalletService {
         return balance;
     }
 
+    /** Unsettled expenses this admin fronted — money the club still owes them.
+     *  Matches the "Debts to Admin" grouping in AdminExpenseController.getAll():
+     *  unsettled admin_expenses (by adminUsername) + unsettled club_expenses paid by ADMIN (by adminUser). */
+    public BigDecimal unsettledFrontedTotal(String adminUsername) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (AdminExpense e : adminExpenseRepository.findAll()) {
+            if (!Boolean.TRUE.equals(e.getSettled()) && adminUsername.equals(e.getAdminUsername())) {
+                total = total.add(safe(e.getAmount()));
+            }
+        }
+        for (ClubExpense e : clubExpenseRepository.findAll()) {
+            if (!e.isSettled() && e.getPaidBy() == ClubExpense.PaidBy.ADMIN
+                    && adminUsername.equals(e.getAdminUser())) {
+                total = total.add(safe(e.getAmount()));
+            }
+        }
+        return total;
+    }
+
     public BigDecimal getUnassignedTotal() {
         return transferRepository.findAll().stream()
             .filter(t -> t.getFromAdminUsername() == null && t.getToAdminUsername() == null)
@@ -91,7 +110,11 @@ public class WalletService {
         for (String username : adminUsernames) {
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("adminUsername", username);
-            m.put("balance", computeBalance(username));
+            // ONE net balance per admin: cash held for the club minus what the club still owes them
+            // for fronted expenses. Positive = admin holds club cash; negative = club owes admin.
+            BigDecimal owedForExpenses = unsettledFrontedTotal(username);
+            m.put("balance", computeBalance(username).subtract(owedForExpenses));
+            m.put("owedForExpenses", owedForExpenses);
             AdminWalletStartingBalance sb = startingMap.get(username);
             BigDecimal sbTotal = sb != null ? safe(sb.getStartingAmount()) : null;
             m.put("startingBalance", sbTotal);
@@ -184,6 +207,55 @@ public class WalletService {
                 m.put("toBankAccount", null);
                 m.put("amount", e.getAmount());
                 m.put("notes", "Club Expense: " + e.getDescription());
+                m.put("unassigned", false);
+                events.add(m);
+            });
+
+        // Unsettled expenses the admin fronted = the debt now folded into their net balance.
+        // Shown as money leaving the admin (fromAdminUsername) so it reads as −amount and the
+        // history sums to the net balance.
+        adminExpenseRepository.findAll().stream()
+            .filter(e -> !Boolean.TRUE.equals(e.getSettled()) && e.getAdminUsername() != null)
+            .forEach(e -> {
+                LocalDate d = e.getExpenseDate();
+                if (fromDate != null && d != null && d.isBefore(fromDate)) return;
+                if (toDate != null && d != null && d.isAfter(toDate)) return;
+                if (holder != null && !holder.isEmpty() && !holder.equals(e.getAdminUsername())) return;
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", "ae_" + e.getId());
+                m.put("type", "EXPENSE_DEBT");
+                m.put("transferDate", d != null ? d.toString() : null);
+                m.put("fromAdminUsername", e.getAdminUsername());
+                m.put("toAdminUsername", null);
+                m.put("fromPlayer", null);
+                m.put("toPlayer", null);
+                m.put("fromBankAccount", null);
+                m.put("toBankAccount", null);
+                m.put("amount", e.getAmount());
+                m.put("notes", "Expense (owed): " + (e.getNotes() != null ? e.getNotes() : e.getAdminUsername()));
+                m.put("unassigned", false);
+                events.add(m);
+            });
+
+        clubExpenseRepository.findAll().stream()
+            .filter(e -> !e.isSettled() && e.getPaidBy() == ClubExpense.PaidBy.ADMIN && e.getAdminUser() != null)
+            .forEach(e -> {
+                LocalDate d = e.getExpenseDate();
+                if (fromDate != null && d != null && d.isBefore(fromDate)) return;
+                if (toDate != null && d != null && d.isAfter(toDate)) return;
+                if (holder != null && !holder.isEmpty() && !holder.equals(e.getAdminUser())) return;
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", "ce_" + e.getId());
+                m.put("type", "EXPENSE_DEBT");
+                m.put("transferDate", d != null ? d.toString() : null);
+                m.put("fromAdminUsername", e.getAdminUser());
+                m.put("toAdminUsername", null);
+                m.put("fromPlayer", null);
+                m.put("toPlayer", null);
+                m.put("fromBankAccount", null);
+                m.put("toBankAccount", null);
+                m.put("amount", e.getAmount());
+                m.put("notes", "Club Expense (owed): " + e.getDescription());
                 m.put("unassigned", false);
                 events.add(m);
             });
