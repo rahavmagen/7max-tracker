@@ -339,6 +339,12 @@ public class ReportService {
             .max(java.util.Comparator.comparing(r -> r.getPeriodEnd() != null ? r.getPeriodEnd() : LocalDate.MIN))
             .orElse(null);
         if (latest == null) return 0;
+        // Clear existing links so stale/bad ones (e.g. an agent wrongly recorded under another agent)
+        // are wiped, then rebuild from the report — the report is the source of truth.
+        List<Player> linked = playerRepository.findAll().stream()
+            .filter(p -> p.getAgent() != null).collect(java.util.stream.Collectors.toList());
+        linked.forEach(p -> p.setAgent(null));
+        playerRepository.saveAll(linked);
         try (java.io.InputStream is = new java.io.ByteArrayInputStream(latest.getFileData());
              Workbook workbook = new XSSFWorkbook(is)) {
             parseClubOverview(workbook);
@@ -455,7 +461,18 @@ public class ReportService {
 
             // Only assign agents for actual members (Player rows), not sub-agents / super-agents.
             String role = getCellValue(row, 6);
-            if (role != null && !"Player".equalsIgnoreCase(role.trim())) continue;
+            if (role != null && !"Player".equalsIgnoreCase(role.trim())) {
+                // A top-level Super Agent shouldn't be linked under anyone — clear stale bad links
+                // (e.g. an agent that was wrongly recorded as another agent's player).
+                if ("Super Agent".equalsIgnoreCase(role.trim())) {
+                    String saId = getCellValue(row, 7), saNick = getCellValue(row, 8);
+                    playerRepository.findByClubPlayerIdSafe(saId).stream().findFirst()
+                        .or(() -> saNick != null ? findPlayerByUsername(saNick) : java.util.Optional.empty())
+                        .filter(sa -> sa.getAgent() != null)
+                        .ifPresent(sa -> { sa.setAgent(null); playerRepository.save(sa); });
+                }
+                continue;
+            }
 
             // Prefer the Super Agent (cols B/C) so an entire sub-agent tree rolls up to the top
             // agent the club settles with; fall back to the direct Agent (cols D/E) for flat agents.
