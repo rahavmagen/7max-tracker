@@ -124,6 +124,17 @@ public class AgentController {
         }
     }
 
+    /** Admin only: acknowledge ("Done") reconciliation flags for the given player ids */
+    @PostMapping("/dismiss-flags")
+    public ResponseEntity<?> dismissFlags(@RequestBody Map<String, Object> body, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        Object ids = body.get("playerIds");
+        if (!(ids instanceof List<?> list)) return ResponseEntity.badRequest().body(Map.of("error", "Missing playerIds"));
+        List<Long> playerIds = list.stream().map(o -> Long.valueOf(o.toString())).collect(java.util.stream.Collectors.toList());
+        int n = agentService.dismissFlags(playerIds);
+        return ResponseEntity.ok(Map.of("success", true, "dismissed", n));
+    }
+
     /** Admin only: trigger settlement */
     @PostMapping("/{id}/settle")
     public ResponseEntity<?> settle(@PathVariable Long id, Authentication auth) {

@@ -74,6 +74,10 @@ public class Player {
     @Column(precision = 14, scale = 2)
     private BigDecimal agentChipCredit;
 
+    // Admin acknowledged this player's reconciliation flag ("Done" on the Agents error list):
+    // once true the player is dropped from the flagged list even if derived≠cross-check.
+    private Boolean creditReviewed = false;
+
     @Column(precision = 6, scale = 4)
     private BigDecimal agentRakePercentage; // e.g. 0.3000 = 30%
 

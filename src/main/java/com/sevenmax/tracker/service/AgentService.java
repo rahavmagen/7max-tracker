@@ -114,11 +114,17 @@ public class AgentService {
                     .collect(Collectors.toList());
                 boolean clubManaged = Boolean.TRUE.equals(agent.getClubManaged());
                 BigDecimal freeCreditTotal = BigDecimal.ZERO;
-                List<String> flaggedPlayers = new ArrayList<>();
+                List<Map<String, Object>> flaggedPlayers = new ArrayList<>();
                 for (Player p : agentPlayers) {
                     Map<String, Object> info = computeFreeChipCredit(p);
                     freeCreditTotal = freeCreditTotal.add((BigDecimal) info.get("agentChipCredit"));
-                    if (!clubManaged && !Boolean.TRUE.equals(info.get("reconciles"))) flaggedPlayers.add(p.getUsername());
+                    boolean reviewed = Boolean.TRUE.equals(p.getCreditReviewed());
+                    if (!clubManaged && !reviewed && !Boolean.TRUE.equals(info.get("reconciles"))) {
+                        Map<String, Object> f = new LinkedHashMap<>();
+                        f.put("id", p.getId());
+                        f.put("username", p.getUsername());
+                        flaggedPlayers.add(f);
+                    }
                 }
 
                 List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agent.getId());
@@ -345,6 +351,16 @@ public class AgentService {
             })
             .sorted((a, b) -> ((BigDecimal) b.get("agentShare")).compareTo((BigDecimal) a.get("agentShare")))
             .collect(Collectors.toList());
+    }
+
+    /** Admin acknowledged these players' reconciliation flags — drop them from the flagged list. */
+    @Transactional
+    public int dismissFlags(List<Long> playerIds) {
+        if (playerIds == null || playerIds.isEmpty()) return 0;
+        List<Player> players = playerRepository.findAllById(playerIds);
+        players.forEach(p -> p.setCreditReviewed(true));
+        playerRepository.saveAll(players);
+        return players.size();
     }
 
     @Transactional
