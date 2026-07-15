@@ -455,24 +455,43 @@ public class ReportService {
         // Player rows start at row index 3 (row 4 in Excel)
         // Col D (3): agent club ID, Col E (4): agent nickname
         // Col H (7): member club ID, Col I (8): member nickname
+
+        // Pass 1: flag every Agent / Super Agent row as is_agent=true (so their own pool chips/credit
+        // are recognised as agent-held and every sub-agent is caught), and clear stale links on a
+        // top-level Super Agent that was wrongly recorded as someone else's player.
+        for (int r = 3; r <= sheet.getLastRowNum(); r++) {
+            Row row = sheet.getRow(r);
+            if (row == null) continue;
+            String role = getCellValue(row, 6);
+            if (role == null) continue;
+            String rt = role.trim();
+            boolean isAgentRow = "Agent".equalsIgnoreCase(rt);
+            boolean isSuperAgentRow = "Super Agent".equalsIgnoreCase(rt);
+            if (!isAgentRow && !isSuperAgentRow) continue;
+
+            String aId = getCellValue(row, 7), aNick = getCellValue(row, 8);
+            Player agentPlayer = playerRepository.findByClubPlayerIdSafe(aId).stream().findFirst()
+                    .or(() -> aNick != null ? findPlayerByUsername(aNick) : java.util.Optional.empty())
+                    .orElse(null);
+            if (agentPlayer == null) continue;
+            boolean dirty = false;
+            if (!Boolean.TRUE.equals(agentPlayer.getIsAgent())) { agentPlayer.setIsAgent(true); dirty = true; }
+            // A top-level Super Agent shouldn't be linked under anyone — clear stale bad links.
+            if (isSuperAgentRow && agentPlayer.getAgent() != null) { agentPlayer.setAgent(null); dirty = true; }
+            if (dirty) {
+                playerRepository.save(agentPlayer);
+                log.info("Agent flagged from report role '{}': {}", rt, agentPlayer.getUsername());
+            }
+        }
+
+        // Pass 2: link each member (Player row) to its agent.
         for (int r = 3; r <= sheet.getLastRowNum(); r++) {
             Row row = sheet.getRow(r);
             if (row == null) continue;
 
             // Only assign agents for actual members (Player rows), not sub-agents / super-agents.
             String role = getCellValue(row, 6);
-            if (role != null && !"Player".equalsIgnoreCase(role.trim())) {
-                // A top-level Super Agent shouldn't be linked under anyone — clear stale bad links
-                // (e.g. an agent that was wrongly recorded as another agent's player).
-                if ("Super Agent".equalsIgnoreCase(role.trim())) {
-                    String saId = getCellValue(row, 7), saNick = getCellValue(row, 8);
-                    playerRepository.findByClubPlayerIdSafe(saId).stream().findFirst()
-                        .or(() -> saNick != null ? findPlayerByUsername(saNick) : java.util.Optional.empty())
-                        .filter(sa -> sa.getAgent() != null)
-                        .ifPresent(sa -> { sa.setAgent(null); playerRepository.save(sa); });
-                }
-                continue;
-            }
+            if (role != null && !"Player".equalsIgnoreCase(role.trim())) continue;
 
             // Prefer the Super Agent (cols B/C) so an entire sub-agent tree rolls up to the top
             // agent the club settles with; fall back to the direct Agent (cols D/E) for flat agents.
