@@ -135,6 +135,63 @@ public class AgentController {
         return ResponseEntity.ok(Map.of("success", true, "dismissed", n));
     }
 
+    /** Admin or agent: running balance breakdown (opening + rakeback + player P&L − payments) */
+    @GetMapping("/{id}/balance")
+    public ResponseEntity<?> getBalance(@PathVariable Long id, Authentication auth) {
+        if (!isAdminOrOwner(auth, id)) return ResponseEntity.status(403).build();
+        try {
+            return ResponseEntity.ok(agentService.getAgentBalance(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /** Admin or agent: ledger entries (openings + payments), newest first */
+    @GetMapping("/{id}/ledger")
+    public ResponseEntity<?> getLedger(@PathVariable Long id, Authentication auth) {
+        if (!isAdminOrOwner(auth, id)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(agentService.getLedger(id));
+    }
+
+    /** Admin only: set/re-set the opening balance (baseline) for an agent */
+    @PostMapping("/{id}/ledger/opening")
+    public ResponseEntity<?> addOpening(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        return addLedger(id, com.sevenmax.tracker.entity.AgentLedgerEntry.Type.OPENING, body, auth);
+    }
+
+    /** Admin only: log a payment (signed: + = we paid the agent, − = the agent paid us) */
+    @PostMapping("/{id}/ledger/payment")
+    public ResponseEntity<?> addPayment(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        return addLedger(id, com.sevenmax.tracker.entity.AgentLedgerEntry.Type.PAYMENT, body, auth);
+    }
+
+    private ResponseEntity<?> addLedger(Long id, com.sevenmax.tracker.entity.AgentLedgerEntry.Type type,
+                                        Map<String, Object> body, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        try {
+            Object amt = body.get("amount");
+            if (amt == null) return ResponseEntity.badRequest().body(Map.of("error", "amount is required"));
+            java.math.BigDecimal amount = new java.math.BigDecimal(amt.toString());
+            LocalDate date = body.get("effectiveDate") != null && !body.get("effectiveDate").toString().isBlank()
+                ? LocalDate.parse(body.get("effectiveDate").toString()) : LocalDate.now();
+            String notes = body.get("notes") != null ? body.get("notes").toString() : null;
+            agentService.addLedgerEntry(id, type, amount, date, notes, auth != null ? auth.getName() : "system");
+            return ResponseEntity.ok(agentService.getAgentBalance(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /** Admin only: delete a ledger entry (fix a mistake) */
+    @DeleteMapping("/ledger/{entryId}")
+    public ResponseEntity<?> deleteLedgerEntry(@PathVariable Long entryId, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        agentService.deleteLedgerEntry(entryId);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
     /** Admin only: trigger settlement */
     @PostMapping("/{id}/settle")
     public ResponseEntity<?> settle(@PathVariable Long id, Authentication auth) {

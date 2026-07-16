@@ -20,6 +20,7 @@ public class AgentService {
     private final AgentSettlementRepository agentSettlementRepository;
     private final AdminExpenseRepository adminExpenseRepository;
     private final TransactionRepository transactionRepository;
+    private final AgentLedgerEntryRepository agentLedgerEntryRepository;
 
     /** Free-chip credit for one agent player, with the transaction-history fallback.
      *  Base: freeCredit = currentChips − lifetime game P&L − already-booked credit.
@@ -136,6 +137,7 @@ public class AgentService {
                 m.put("rakePercentage", agent.getAgentRakePercentage());
                 m.put("clubManaged", Boolean.TRUE.equals(agent.getClubManaged()));
                 m.put("pendingBalance", pending);
+                m.put("currentBalance", getAgentBalance(agent.getId()).get("currentBalance"));
                 m.put("playerCount", playerCount);
                 m.put("activePlayerCount", activePlayerCount);
                 m.put("gameCount", gameCount);
@@ -351,6 +353,84 @@ public class AgentService {
             })
             .sorted((a, b) -> ((BigDecimal) b.get("agentShare")).compareTo((BigDecimal) a.get("agentShare")))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Running balance with an agent:
+     *   currentBalance = opening (at baseline date) + rakeback + players' P&L (after baseline) − payments (after baseline).
+     * Positive = club owes agent; negative = agent owes club. Games ON the baseline date are considered part
+     * of the opening number; only games strictly after it accrue.
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getAgentBalance(Long agentId) {
+        playerRepository.findById(agentId)
+            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+
+        AgentLedgerEntry baseline = agentLedgerEntryRepository
+            .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
+            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate)
+                .thenComparing(AgentLedgerEntry::getId))
+            .orElse(null);
+        LocalDate baselineDate = baseline != null ? baseline.getEffectiveDate() : null;
+        BigDecimal openingBalance = baseline != null ? baseline.getAmount() : BigDecimal.ZERO;
+
+        List<GameResult> results = gameResultRepository.findAllByAgentId(agentId).stream()
+            .filter(gr -> !gr.getPlayer().getId().equals(agentId))
+            .filter(gr -> baselineDate == null || gr.getSession().getStartTime().toLocalDate().isAfter(baselineDate))
+            .collect(Collectors.toList());
+        BigDecimal rakebackSince = results.stream()
+            .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal playerPnlSince = results.stream()
+            .map(AgentService::pnlOf)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal paymentsSince = agentLedgerEntryRepository
+            .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
+            .filter(e -> baselineDate == null || e.getEffectiveDate().isAfter(baselineDate))
+            .map(AgentLedgerEntry::getAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal currentBalance = openingBalance.add(rakebackSince).add(playerPnlSince).subtract(paymentsSince);
+
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("agentId", agentId);
+        m.put("hasBaseline", baseline != null);
+        m.put("openingDate", baselineDate != null ? baselineDate.toString() : null);
+        m.put("openingBalance", openingBalance);
+        m.put("rakebackSince", rakebackSince);
+        m.put("playerPnlSince", playerPnlSince);
+        m.put("paymentsSince", paymentsSince);
+        m.put("currentBalance", currentBalance);
+        return m;
+    }
+
+    @Transactional
+    public AgentLedgerEntry addLedgerEntry(Long agentId, AgentLedgerEntry.Type type, BigDecimal amount,
+                                           LocalDate effectiveDate, String notes, String user) {
+        Player agent = playerRepository.findById(agentId)
+            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        if (!Boolean.TRUE.equals(agent.getIsAgent()))
+            throw new IllegalArgumentException("Player " + agentId + " is not an agent");
+        if (amount == null) throw new IllegalArgumentException("amount is required");
+        AgentLedgerEntry e = new AgentLedgerEntry();
+        e.setAgent(agent);
+        e.setType(type);
+        e.setAmount(amount);
+        e.setEffectiveDate(effectiveDate != null ? effectiveDate : LocalDate.now());
+        e.setNotes(notes);
+        e.setCreatedBy(user);
+        return agentLedgerEntryRepository.save(e);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgentLedgerEntry> getLedger(Long agentId) {
+        return agentLedgerEntryRepository.findByAgentIdOrderByEffectiveDateDescIdDesc(agentId);
+    }
+
+    @Transactional
+    public void deleteLedgerEntry(Long entryId) {
+        agentLedgerEntryRepository.deleteById(entryId);
     }
 
     /** Admin acknowledged these players' reconciliation flags — drop them from the flagged list. */
