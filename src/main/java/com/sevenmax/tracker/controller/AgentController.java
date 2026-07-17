@@ -124,6 +124,23 @@ public class AgentController {
         }
     }
 
+    /** Admin: full transaction history across all agents (openings + payments) */
+    @GetMapping("/ledger-history")
+    public ResponseEntity<?> getLedgerHistory(Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(agentService.getLedgerHistory());
+    }
+
+    /** Admin/agent: the most common last-settlement (התחשבנות) date, used as the page's default "from" */
+    @GetMapping("/last-settlement-date")
+    public ResponseEntity<?> lastSettlementDate(Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        LocalDate d = agentService.lastSettlementDate();
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("date", d != null ? d.toString() : null);
+        return ResponseEntity.ok(body);
+    }
+
     /** Admin only: acknowledge ("Done") reconciliation flags for the given player ids */
     @PostMapping("/dismiss-flags")
     public ResponseEntity<?> dismissFlags(@RequestBody Map<String, Object> body, Authentication auth) {
@@ -135,12 +152,21 @@ public class AgentController {
         return ResponseEntity.ok(Map.of("success", true, "dismissed", n));
     }
 
-    /** Admin or agent: running balance breakdown (opening + rakeback + player P&L − payments) */
+    /** Admin or agent: balance breakdown over a date range (starting − agentRake − P&L + payments) */
     @GetMapping("/{id}/balance")
-    public ResponseEntity<?> getBalance(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<?> getBalance(@PathVariable Long id,
+            @RequestParam(required = false) String from, @RequestParam(required = false) String to,
+            Authentication auth) {
         if (!isAdminOrOwner(auth, id)) return ResponseEntity.status(403).build();
+        LocalDate fromDate, toDate;
         try {
-            return ResponseEntity.ok(agentService.getAgentBalance(id));
+            fromDate = from != null && !from.isBlank() ? LocalDate.parse(from) : null;
+            toDate   = to   != null && !to.isBlank()   ? LocalDate.parse(to)   : null;
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format"));
+        }
+        try {
+            return ResponseEntity.ok(agentService.getAgentBalance(id, fromDate, toDate));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
         }
@@ -176,7 +202,11 @@ public class AgentController {
                 ? LocalDate.parse(body.get("effectiveDate").toString()) : LocalDate.now();
             String notes = body.get("notes") != null ? body.get("notes").toString() : null;
             agentService.addLedgerEntry(id, type, amount, date, notes, auth != null ? auth.getName() : "system");
-            return ResponseEntity.ok(agentService.getAgentBalance(id));
+            LocalDate fromDate = body.get("periodFrom") != null && !body.get("periodFrom").toString().isBlank()
+                ? LocalDate.parse(body.get("periodFrom").toString()) : null;
+            LocalDate toDate = body.get("periodTo") != null && !body.get("periodTo").toString().isBlank()
+                ? LocalDate.parse(body.get("periodTo").toString()) : null;
+            return ResponseEntity.ok(agentService.getAgentBalance(id, fromDate, toDate));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {

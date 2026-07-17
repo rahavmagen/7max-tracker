@@ -99,6 +99,10 @@ public class AgentService {
                 BigDecimal totalRake = results.stream()
                     .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+                // Players' net P&L over the date range (won = positive), same pnlOf used everywhere.
+                BigDecimal periodPnl = results.stream()
+                    .map(AgentService::pnlOf)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
                 // Active players: distinct players with >= 1 game in range (agent already excluded)
                 long activePlayerCount = results.stream()
                     .map(gr -> gr.getPlayer().getId())
@@ -136,8 +140,26 @@ public class AgentService {
                 m.put("fullName", agent.getFullName());
                 m.put("rakePercentage", agent.getAgentRakePercentage());
                 m.put("clubManaged", Boolean.TRUE.equals(agent.getClubManaged()));
+                // Balance reconciles with the shown columns: starting − agentRake − P&L + payments, over [from,to].
+                BigDecimal rakePct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
+                BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
+                AgentLedgerEntry openingE = agentLedgerEntryRepository
+                    .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
+                    .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
+                    .orElse(null);
+                BigDecimal startBal = openingE != null ? openingE.getAmount() : BigDecimal.ZERO;
+                BigDecimal pmts = agentLedgerEntryRepository
+                    .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
+                    .filter(e -> inRange(e.getEffectiveDate(), from, to))
+                    .map(AgentLedgerEntry::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+                BigDecimal currentBal = startBal.add(agentRake).add(periodPnl).subtract(pmts);
+
                 m.put("pendingBalance", pending);
-                m.put("currentBalance", getAgentBalance(agent.getId()).get("currentBalance"));
+                m.put("periodPnl", periodPnl);
+                m.put("agentRake", agentRake);
+                m.put("openingBalance", startBal);
+                m.put("payments", pmts);
+                m.put("currentBalance", currentBal);
                 m.put("playerCount", playerCount);
                 m.put("activePlayerCount", activePlayerCount);
                 m.put("gameCount", gameCount);
@@ -356,53 +378,65 @@ public class AgentService {
     }
 
     /**
-     * Running balance with an agent:
-     *   currentBalance = opening (at baseline date) + rakeback + players' P&L (after baseline) − payments (after baseline).
-     * Positive = club owes agent; negative = agent owes club. Games ON the baseline date are considered part
-     * of the opening number; only games strictly after it accrue.
+     * Balance with an agent over a date range, from the AGENT's point of view
+     * (positive = WE OWE THE AGENT; negative = the agent owes us):
+     *   currentBalance = startingBalance + agentRake + players' P&L − payments   (accrual over [from, to]).
+     * agentRake = the agent's rake% × total rake their players generated (rakeback we owe → +). Player winnings
+     * mean we owe the agent (+); losses mean they owe us (−). A payment where WE pay the agent (+) reduces what
+     * we owe (−payments). Columns reconcile: Total Rake → Agent Rake → P&L → Starting → Current Balance.
      */
     @Transactional(readOnly = true)
-    public Map<String, Object> getAgentBalance(Long agentId) {
-        playerRepository.findById(agentId)
+    public Map<String, Object> getAgentBalance(Long agentId, LocalDate from, LocalDate to) {
+        Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        BigDecimal rakePct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
 
+        // Starting balance = latest OPENING entry (the carry from the last התחשבנות).
         AgentLedgerEntry baseline = agentLedgerEntryRepository
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
-            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate)
-                .thenComparing(AgentLedgerEntry::getId))
+            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
             .orElse(null);
-        LocalDate baselineDate = baseline != null ? baseline.getEffectiveDate() : null;
-        BigDecimal openingBalance = baseline != null ? baseline.getAmount() : BigDecimal.ZERO;
+        LocalDate openingDate = baseline != null ? baseline.getEffectiveDate() : null;
+        BigDecimal startingBalance = baseline != null ? baseline.getAmount() : BigDecimal.ZERO;
 
         List<GameResult> results = gameResultRepository.findAllByAgentId(agentId).stream()
             .filter(gr -> !gr.getPlayer().getId().equals(agentId))
-            .filter(gr -> baselineDate == null || gr.getSession().getStartTime().toLocalDate().isAfter(baselineDate))
+            .filter(gr -> inRange(gr.getSession().getStartTime().toLocalDate(), from, to))
             .collect(Collectors.toList());
-        BigDecimal rakebackSince = results.stream()
-            .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
+        BigDecimal totalRake = results.stream()
+            .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal playerPnlSince = results.stream()
-            .map(AgentService::pnlOf)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
+        BigDecimal playerPnl = results.stream().map(AgentService::pnlOf).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal paymentsSince = agentLedgerEntryRepository
+        BigDecimal payments = agentLedgerEntryRepository
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
-            .filter(e -> baselineDate == null || e.getEffectiveDate().isAfter(baselineDate))
+            .filter(e -> inRange(e.getEffectiveDate(), from, to))
             .map(AgentLedgerEntry::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        BigDecimal currentBalance = openingBalance.add(rakebackSince).add(playerPnlSince).subtract(paymentsSince);
+        // Agent point of view (positive = WE OWE THE AGENT; negative = agent owes us):
+        // starting + agentRake (we owe them) + players' P&L (won → we owe) − payments (we paid them).
+        BigDecimal currentBalance = startingBalance.add(agentRake).add(playerPnl).subtract(payments);
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("agentId", agentId);
         m.put("hasBaseline", baseline != null);
-        m.put("openingDate", baselineDate != null ? baselineDate.toString() : null);
-        m.put("openingBalance", openingBalance);
-        m.put("rakebackSince", rakebackSince);
-        m.put("playerPnlSince", playerPnlSince);
-        m.put("paymentsSince", paymentsSince);
+        m.put("openingDate", openingDate != null ? openingDate.toString() : null);
+        m.put("openingBalance", startingBalance);
+        m.put("totalRake", totalRake);
+        m.put("rakebackSince", agentRake);      // agent's rake cut for the range (kept key for the UI)
+        m.put("playerPnlSince", playerPnl);
+        m.put("paymentsSince", payments);
         m.put("currentBalance", currentBalance);
         return m;
+    }
+
+    private static boolean inRange(LocalDate d, LocalDate from, LocalDate to) {
+        if (d == null) return false;
+        if (from != null && d.isBefore(from)) return false;
+        if (to != null && d.isAfter(to)) return false;
+        return true;
     }
 
     @Transactional
@@ -428,9 +462,60 @@ public class AgentService {
         return agentLedgerEntryRepository.findByAgentIdOrderByEffectiveDateDescIdDesc(agentId);
     }
 
+    /** Full transaction history across all agents (openings + payments), newest first, with agent name. */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getLedgerHistory() {
+        Map<Long, String> names = playerRepository.findAll().stream()
+            .collect(Collectors.toMap(Player::getId, Player::getUsername, (a, b) -> a));
+        return agentLedgerEntryRepository.findAll().stream()
+            .sorted(Comparator.comparing(AgentLedgerEntry::getEffectiveDate)
+                .thenComparing(AgentLedgerEntry::getId).reversed())
+            .map(e -> {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("id", e.getId());
+                m.put("agentId", e.getAgentId());
+                m.put("agent", names.getOrDefault(e.getAgentId(), "#" + e.getAgentId()));
+                m.put("type", e.getType().name());
+                m.put("effectiveDate", e.getEffectiveDate() != null ? e.getEffectiveDate().toString() : null);
+                m.put("amount", e.getAmount());
+                m.put("notes", e.getNotes());
+                m.put("createdBy", e.getCreatedBy());
+                m.put("createdAt", e.getCreatedAt() != null ? e.getCreatedAt().toString() : null);
+                return m;
+            })
+            .collect(Collectors.toList());
+    }
+
     @Transactional
     public void deleteLedgerEntry(Long entryId) {
         agentLedgerEntryRepository.deleteById(entryId);
+    }
+
+    /**
+     * The most recent התחשבנות (settlement) date: take each agent's latest PAYMENT date, then return the
+     * date shared by the most agents (tie → the more recent). התחשבנות is usually done for several agents
+     * on the same day, so that shared date marks the start of the current open period. null if no payments.
+     */
+    @Transactional(readOnly = true)
+    public LocalDate lastSettlementDate() {
+        Map<Long, LocalDate> latestPerAgent = new HashMap<>();
+        // New ledger payments (going forward this is the source of truth).
+        for (AgentLedgerEntry e : agentLedgerEntryRepository.findAll()) {
+            if (e.getType() != AgentLedgerEntry.Type.PAYMENT || e.getAgentId() == null || e.getEffectiveDate() == null) continue;
+            latestPerAgent.merge(e.getAgentId(), e.getEffectiveDate(), (a, b) -> b.isAfter(a) ? b : a);
+        }
+        // Legacy settlements (so the default works during the transition, before Settle & Pay is used).
+        for (AgentSettlement s : agentSettlementRepository.findAll()) {
+            if (s.getAgent() == null || s.getToDate() == null) continue;
+            latestPerAgent.merge(s.getAgent().getId(), s.getToDate(), (a, b) -> b.isAfter(a) ? b : a);
+        }
+        if (latestPerAgent.isEmpty()) return null;
+        return latestPerAgent.values().stream()
+            .collect(Collectors.groupingBy(d -> d, Collectors.counting()))
+            .entrySet().stream()
+            .max(Comparator.<Map.Entry<LocalDate, Long>>comparingLong(Map.Entry::getValue)
+                .thenComparing(Map.Entry::getKey))
+            .map(Map.Entry::getKey).orElse(null);
     }
 
     /** Admin acknowledged these players' reconciliation flags — drop them from the flagged list. */
