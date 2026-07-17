@@ -517,9 +517,10 @@ public class AgentService {
     @Transactional(readOnly = true)
     public LocalDate lastSettlementDate() {
         Map<Long, LocalDate> latestPerAgent = new HashMap<>();
-        // New ledger payments (going forward this is the source of truth).
+        // Ledger entries: a PAYMENT or a starting-balance OPENING both mark a התחשבנות checkpoint.
         for (AgentLedgerEntry e : agentLedgerEntryRepository.findAll()) {
-            if (e.getType() != AgentLedgerEntry.Type.PAYMENT || e.getAgentId() == null || e.getEffectiveDate() == null) continue;
+            if (e.getAgentId() == null || e.getEffectiveDate() == null) continue;
+            if (e.getType() != AgentLedgerEntry.Type.PAYMENT && e.getType() != AgentLedgerEntry.Type.OPENING) continue;
             latestPerAgent.merge(e.getAgentId(), e.getEffectiveDate(), (a, b) -> b.isAfter(a) ? b : a);
         }
         // Legacy settlements (so the default works during the transition, before Settle & Pay is used).
