@@ -124,6 +124,21 @@ public class AgentController {
         }
     }
 
+    /** Admin: total balance across all non-club-managed agents for a period (from defaults to last התחשבנות) */
+    @GetMapping("/total-balance")
+    public ResponseEntity<?> getTotalAgentBalance(
+            @RequestParam(required = false) String from, @RequestParam(required = false) String to, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        LocalDate fromDate, toDate;
+        try {
+            fromDate = from != null && !from.isBlank() ? LocalDate.parse(from) : null;
+            toDate   = to   != null && !to.isBlank()   ? LocalDate.parse(to)   : null;
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format"));
+        }
+        return ResponseEntity.ok(agentService.getTotalAgentBalance(fromDate, toDate));
+    }
+
     /** Admin: full transaction history across all agents (openings + payments) */
     @GetMapping("/ledger-history")
     public ResponseEntity<?> getLedgerHistory(Authentication auth) {

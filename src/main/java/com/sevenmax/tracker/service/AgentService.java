@@ -462,6 +462,24 @@ public class AgentService {
         return agentLedgerEntryRepository.findByAgentIdOrderByEffectiveDateDescIdDesc(agentId);
     }
 
+    /**
+     * Total balance across all (non-club-managed) agents for a period — matches the agents page total.
+     * from defaults to the last התחשבנות date. Positive = we owe agents (net); negative = agents owe us (net).
+     */
+    @Transactional(readOnly = true)
+    public Map<String, Object> getTotalAgentBalance(LocalDate from, LocalDate to) {
+        LocalDate f = from != null ? from : lastSettlementDate();
+        BigDecimal total = playerRepository.findAll().stream()
+            .filter(p -> Boolean.TRUE.equals(p.getIsAgent()) && !Boolean.TRUE.equals(p.getClubManaged()))
+            .map(a -> (BigDecimal) getAgentBalance(a.getId(), f, to).get("currentBalance"))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("from", f != null ? f.toString() : null);
+        m.put("to", to != null ? to.toString() : null);
+        m.put("totalBalance", total);
+        return m;
+    }
+
     /** Full transaction history across all agents (openings + payments), newest first, with agent name. */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getLedgerHistory() {
