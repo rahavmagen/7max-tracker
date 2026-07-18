@@ -399,9 +399,13 @@ public class AgentService {
         LocalDate openingDate = baseline != null ? baseline.getEffectiveDate() : null;
         BigDecimal startingBalance = baseline != null ? baseline.getAmount() : BigDecimal.ZERO;
 
+        // When no explicit from is given (e.g. the agent portal), accrue since the last התחשבנות so games
+        // already captured in the starting balance are not double-counted.
+        final LocalDate accrualFrom = from != null ? from : lastSettlementDate();
+
         List<GameResult> results = gameResultRepository.findAllByAgentId(agentId).stream()
             .filter(gr -> !gr.getPlayer().getId().equals(agentId))
-            .filter(gr -> inRange(gr.getSession().getStartTime().toLocalDate(), from, to))
+            .filter(gr -> inRange(gr.getSession().getStartTime().toLocalDate(), accrualFrom, to))
             .collect(Collectors.toList());
         BigDecimal totalRake = results.stream()
             .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
@@ -411,7 +415,7 @@ public class AgentService {
 
         BigDecimal payments = agentLedgerEntryRepository
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
-            .filter(e -> inRange(e.getEffectiveDate(), from, to))
+            .filter(e -> inRange(e.getEffectiveDate(), accrualFrom, to))
             .map(AgentLedgerEntry::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
