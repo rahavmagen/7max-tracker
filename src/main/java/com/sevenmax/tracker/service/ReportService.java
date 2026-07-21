@@ -37,6 +37,7 @@ public class ReportService {
     private final ImportSummaryRepository importSummaryRepository;
     private final AdminExpenseRepository adminExpenseRepository;
     private final XlsMatchingService xlsMatchingService;
+    private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
@@ -155,6 +156,24 @@ public class ReportService {
                     }
                     boolean wasStale = Boolean.TRUE.equals(player.getChipsStale());
                     if (isLatestReport) {
+                        // Nickname change: the club ID is stable, so a different nick = the player renamed.
+                        // Update the shown name and record the change — unless another player already has that name.
+                        if (nickname != null && !nickname.isBlank() && !nickname.equals(player.getUsername())) {
+                            Player clash = findPlayerByUsername(nickname).orElse(null);
+                            if (clash != null && !clash.getId().equals(player.getId())) {
+                                log.warn("Skip rename '{}' -> '{}' (clubId={}): name already used by playerId={}",
+                                    player.getUsername(), nickname, player.getClubPlayerId(), clash.getId());
+                            } else {
+                                PlayerNameHistory h = new PlayerNameHistory();
+                                h.setPlayer(player);
+                                h.setOldUsername(player.getUsername());
+                                h.setNewUsername(nickname);
+                                h.setSource("report " + report.getPeriodEnd());
+                                playerNameHistoryRepository.save(h);
+                                log.info("Player renamed '{}' -> '{}' (clubId={})", player.getUsername(), nickname, player.getClubPlayerId());
+                                player.setUsername(nickname);
+                            }
+                        }
                         player.setCurrentChips(newChips);
                         BigDecimal credit = player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO;
                         player.setBalance(newChips.subtract(credit));

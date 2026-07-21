@@ -28,6 +28,7 @@ public class PlayerController {
     private final PlayerRepository playerRepository;
     private final GameResultRepository gameResultRepository;
     private final UserRepository userRepository;
+    private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
 
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers(Authentication auth) {
@@ -154,6 +155,13 @@ public class PlayerController {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayerTransactions(id));
+    }
+
+    /** Admin: past nicknames for this player (name changes detected from ClubGG reports) */
+    @GetMapping("/{id}/name-history")
+    public ResponseEntity<?> getNameHistory(@PathVariable Long id, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(playerNameHistoryRepository.findByPlayerIdOrderByChangedAtDesc(id));
     }
 
     @GetMapping("/{id}/login-stats")
