@@ -1081,6 +1081,10 @@ public class ReportService {
     // or null if no such session / player not found in it.
     // buyIn already includes rake, so we don't add rakePaid.
     // Checks ALL MTT sessions in the evening window and returns the player's buy-in only if it matches amount.
+    // Wheel prizes only ever refund a satellite's single ticket price (usually ₪40-80) - never a
+    // main-event ticket or a re-entry total. This ceiling keeps the match from firing on those.
+    private static final BigDecimal WHEEL_MAX_AMOUNT = new BigDecimal("100");
+
     private BigDecimal getNightlyMttCost(LocalDate date, Long playerId, BigDecimal amount, java.util.Set<String> consumedGames) {
         // Satellite tickets are granted for MTTs run any time of day (not just the 9 PM main),
         // so match against the FULL day, not just the evening window.
@@ -1097,22 +1101,27 @@ public class ReportService {
             log.info("[WHEEL-DEBUG] No MTT in window. Nearby MTT sessions (±1 day): {}", nearby.stream().map(s -> s.getId() + "@" + s.getStartTime()).toList());
             return null;
         }
-        // Check ALL sessions — player may be in multiple; match only the one where buyIn == amount
+        // Check ALL sessions the player took part in; match against the session's own base ticket
+        // price (the minimum buy-in across everyone in it) rather than this player's own buy-in,
+        // so a re-entry total (e.g. a double buy-in) never counts as a wheel refund.
         for (GameSession session : sessions) {
             // One wheel refund per game per player: skip a game already used for this player's refund this upload.
             String gameKey = playerId + ":" + session.getId();
             if (consumedGames.contains(gameKey)) continue;
             List<GameResult> results = gameResultRepository.findBySessionId(session.getId());
             log.info("[WHEEL-DEBUG] Session id={} startTime={}, results count={}", session.getId(), session.getStartTime(), results.size());
-            Optional<BigDecimal> match = results.stream()
-                    .filter(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId))
-                    .map(r -> {
-                        log.info("[WHEEL-DEBUG] Player {} buyIn={}", r.getPlayer().getUsername(), r.getBuyIn());
-                        return r.getBuyIn() != null ? r.getBuyIn() : BigDecimal.ZERO;
-                    })
-                    .filter(buyIn -> buyIn.compareTo(amount) == 0)
-                    .findFirst();
-            if (match.isPresent()) { consumedGames.add(gameKey); return match.get(); }
+            boolean playerInSession = results.stream()
+                    .anyMatch(r -> r.getPlayer() != null && r.getPlayer().getId().equals(playerId));
+            if (!playerInSession) continue;
+            Optional<BigDecimal> baseCost = results.stream()
+                    .map(GameResult::getBuyIn)
+                    .filter(b -> b != null && b.compareTo(BigDecimal.ZERO) > 0)
+                    .min(BigDecimal::compareTo);
+            log.info("[WHEEL-DEBUG] Session {} baseCost={}", session.getId(), baseCost.orElse(null));
+            if (baseCost.isPresent() && baseCost.get().compareTo(amount) == 0 && baseCost.get().compareTo(WHEEL_MAX_AMOUNT) < 0) {
+                consumedGames.add(gameKey);
+                return baseCost.get();
+            }
         }
         return null;
     }
@@ -1121,6 +1130,7 @@ public class ReportService {
     // Returns the standard entry cost of the nightly main MTT (minimum buy-in = one ticket price).
     // Used to detect wheel promotion: one player per night gets their entry fee refunded as chips.
     // Checks the evening window (18:00-23:59 Israel local time) on txDate, then the previous day if not found.
+    // Only ever returns a cost under WHEEL_MAX_AMOUNT - see getNightlyMttCost for why.
     private BigDecimal getNightlyMainEntryCost(LocalDate date) {
         for (LocalDate d : new LocalDate[]{date, date.minusDays(1)}) {
             LocalDateTime windowStart = d.atTime(18, 0);
@@ -1133,7 +1143,7 @@ public class ReportService {
                         .map(GameResult::getBuyIn)
                         .filter(b -> b != null && b.compareTo(BigDecimal.ZERO) > 0)
                         .min(BigDecimal::compareTo);
-                if (minBuyIn.isPresent()) {
+                if (minBuyIn.isPresent() && minBuyIn.get().compareTo(WHEEL_MAX_AMOUNT) < 0) {
                     log.info("[WHEEL-DEBUG] getNightlyMainEntryCost: date={} session={} minBuyIn={}", d, session.getId(), minBuyIn.get());
                     return minBuyIn.get();
                 }
