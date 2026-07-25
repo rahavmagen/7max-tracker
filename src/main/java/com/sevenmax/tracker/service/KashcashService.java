@@ -238,14 +238,13 @@ public class KashcashService {
             log.warn("KashCash payment: unknown transactionId={}", kashcashTxId);
             throw new RuntimeException("KashCash: unknown transactionId=" + kashcashTxId);
         }
-        if (Boolean.TRUE.equals(initiated.getProcessed())) {
-            log.info("KashCash payment: already processed transactionId={}", kashcashTxId);
+        // Atomically claim the deposit. If another path (webhook vs frontend finalize) already claimed it,
+        // this returns 0 and we stop — no duplicate credit and no duplicate email/WhatsApp.
+        if (kashcashInitiatedRepository.claimForProcessing(initiated.getId()) == 0) {
+            log.info("KashCash payment: already processed/claimed transactionId={}", kashcashTxId);
             return;
         }
-
-        // Set processed=true before calling KashCash — prevents duplicate if webhook fires twice
-        initiated.setProcessed(true);
-        kashcashInitiatedRepository.save(initiated);
+        initiated.setProcessed(true); // reflect the claim on the loaded entity (for the revert path below)
 
         boolean finalized = finalizeWithKashCash(kashcashTxId);
 
