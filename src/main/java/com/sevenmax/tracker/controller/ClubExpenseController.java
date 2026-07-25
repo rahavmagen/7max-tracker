@@ -51,8 +51,15 @@ public class ClubExpenseController {
         e.setCreatedBy(auth.getName());
 
         if (e.getPaidBy() == ClubExpense.PaidBy.ADMIN) {
-            e.setAdminUser(body.get("adminUser").toString());
-            e.setSettled(false);
+            // Deduct from the admin's existing wallet balance immediately, the same way
+            // the CLUB case below deducts from a bank account - this is not a debt the
+            // club owes the admin, it's the admin spending club float they already hold.
+            String adminUser = body.get("adminUser").toString();
+            e.setAdminUser(adminUser);
+            e.setPaidFromAdminUsername(adminUser);
+            e.setSettled(true);
+            e.setSettledAt(e.getExpenseDate());
+            e.setSettledBy(auth.getName());
         } else {
             // CLUB case — already settled, deduct from bank balance
             BankAccount bank = null;
