@@ -52,6 +52,9 @@ public class KashcashService {
     @Value("${app.kashcash.notification-emails:}")
     private String notificationEmails;
 
+    @Value("${app.kashcash.notification-whatsapp:}")
+    private String notificationWhatsApp; // comma-separated phone numbers
+
     @Value("${resend.api-key:}")
     private String resendApiKey;
 
@@ -62,6 +65,7 @@ public class KashcashService {
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
+    private final WhatsAppService whatsAppService;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -268,7 +272,24 @@ public class KashcashService {
         transactionService.addTransaction(tx);
 
         sendDepositEmail(player, initiated.getAmount(), kashcashTxId);
+        sendDepositWhatsApp(player, initiated.getAmount());
         log.info("KashCash deposit processed: player={}, amount={}, txId={}", player.getUsername(), initiated.getAmount(), kashcashTxId);
+    }
+
+    /** WhatsApp the configured recipients when a KashCash deposit lands (same trigger as the email). */
+    private void sendDepositWhatsApp(Player player, BigDecimal amount) {
+        if (notificationWhatsApp == null || notificationWhatsApp.isBlank()) return;
+        try {
+            List<String> numbers = Arrays.stream(notificationWhatsApp.split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+            if (numbers.isEmpty()) return;
+            String msg = String.format("💰 New KashCash deposit: ₪%s from %s. Check the site.",
+                    amount.toPlainString(), player != null ? player.getUsername() : "TEST");
+            List<String> failed = whatsAppService.sendToAll(numbers, msg);
+            if (!failed.isEmpty()) log.warn("KashCash deposit WhatsApp failed for: {}", failed);
+        } catch (Exception e) {
+            log.error("Failed to send KashCash deposit WhatsApp: {}", e.getMessage());
+        }
     }
 
     /** Returns true if KashCash accepted the finalize call (2xx), false otherwise. */
