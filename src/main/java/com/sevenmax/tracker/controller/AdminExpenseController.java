@@ -219,6 +219,14 @@ public class AdminExpenseController {
         expense.setExpenseDate(LocalDate.now());
         expense.setCreatedBy(auth != null ? auth.getName() : "system");
 
+        // Deduct from the admin's existing wallet balance immediately - this is club float
+        // they already hold, not a personal debt the club owes them. See ClubExpenseController
+        // for the same fix applied to club_expenses.
+        expense.setPaidFromAdminUsername(adminUsername);
+        expense.setSettled(true);
+        expense.setSettledAt(expense.getExpenseDate());
+        expense.setSettledBy(auth != null ? auth.getName() : "system");
+
         return ResponseEntity.ok(expenseRepository.save(expense));
     }
 
