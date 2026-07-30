@@ -8,4 +8,6 @@ import java.util.List;
 public interface GameSessionRepository extends JpaRepository<GameSession, Long> {
     List<GameSession> findByReportId(Long reportId);
     List<GameSession> findByGameTypeAndStartTimeBetween(GameSession.GameType gameType, LocalDateTime start, LocalDateTime end);
+    List<GameSession> findByStartTimeGreaterThanEqual(LocalDateTime start);
+    List<GameSession> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
 }

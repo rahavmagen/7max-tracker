@@ -1,6 +1,7 @@
 package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.GameResult;
+import com.sevenmax.tracker.entity.GameSession;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Report;
 import com.sevenmax.tracker.repository.AdminExpenseRepository;
@@ -132,9 +133,21 @@ public class ReportController {
     }
 
     @GetMapping("/sessions")
-    public ResponseEntity<List<Map<String, Object>>> getSessions(Authentication auth) {
+    public ResponseEntity<List<Map<String, Object>>> getSessions(
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to,
+            Authentication auth) {
         List<Map<String, Object>> result = new ArrayList<>();
-        gameSessionRepository.findAll().stream()
+        List<GameSession> sessions;
+        if (from != null && to != null) {
+            sessions = gameSessionRepository.findByStartTimeBetween(
+                LocalDate.parse(from).atStartOfDay(), LocalDate.parse(to).plusDays(1).atStartOfDay());
+        } else if (from != null) {
+            sessions = gameSessionRepository.findByStartTimeGreaterThanEqual(LocalDate.parse(from).atStartOfDay());
+        } else {
+            sessions = gameSessionRepository.findAll();
+        }
+        sessions.stream()
             .sorted((a, b) -> b.getStartTime() != null && a.getStartTime() != null
                 ? b.getStartTime().compareTo(a.getStartTime()) : 0)
             .forEach(s -> {
