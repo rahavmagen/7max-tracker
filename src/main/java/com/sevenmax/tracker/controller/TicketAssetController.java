@@ -20,7 +20,6 @@ public class TicketAssetController {
 
     private final TicketAssetRepository ticketAssetRepository;
     private final TicketGrantRepository ticketGrantRepository;
-    private final AdminExpenseRepository adminExpenseRepository;
     private final PlayerRepository playerRepository;
     private final TransactionService transactionService;
 
@@ -93,15 +92,6 @@ public class TicketAssetController {
         asset.setPurchaseDate(purchaseDate);
         asset.setNotes(notes);
         ticketAssetRepository.save(asset);
-
-        // Auto-create admin expense for the buyer
-        AdminExpense expense = new AdminExpense();
-        expense.setAdminUsername(buyer);
-        expense.setAmount(cost.multiply(BigDecimal.valueOf(quantity)));
-        expense.setNotes("Ticket purchase: " + quantity + "x ₪" + faceValue + " tickets");
-        expense.setExpenseDate(purchaseDate);
-        expense.setCreatedBy(auth != null ? auth.getName() : "system");
-        adminExpenseRepository.save(expense);
 
         return ResponseEntity.ok(asset);
     }
