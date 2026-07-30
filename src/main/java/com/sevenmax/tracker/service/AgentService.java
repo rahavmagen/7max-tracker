@@ -132,6 +132,17 @@ public class AgentService {
                     }
                 }
 
+                // Chips held by this agent + their players — mirrors TotalProfit.jsx's excludedChips
+                // logic (agent's own chips + players' chips, skipping stale counts) so this figure
+                // reconciles with Total Profit's "agent-held chips" line for non-club-managed agents.
+                BigDecimal totalChips = agentPlayers.stream()
+                    .filter(p -> !Boolean.TRUE.equals(p.getChipsStale()))
+                    .map(p -> p.getCurrentChips() != null ? p.getCurrentChips() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (!Boolean.TRUE.equals(agent.getChipsStale())) {
+                    totalChips = totalChips.add(agent.getCurrentChips() != null ? agent.getCurrentChips() : BigDecimal.ZERO);
+                }
+
                 List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agent.getId());
                 LocalDate lastSettlement = settlements.isEmpty() ? null : settlements.get(0).getToDate();
                 Map<String, Object> m = new LinkedHashMap<>();
@@ -164,6 +175,7 @@ public class AgentService {
                 m.put("activePlayerCount", activePlayerCount);
                 m.put("gameCount", gameCount);
                 m.put("totalRake", totalRake);
+                m.put("totalChips", totalChips);
                 m.put("freeCreditTotal", freeCreditTotal);
                 m.put("flaggedPlayers", flaggedPlayers);
                 m.put("lastSettlementDate", lastSettlement != null ? lastSettlement.toString() : null);
