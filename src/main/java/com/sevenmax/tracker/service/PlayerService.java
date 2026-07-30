@@ -158,7 +158,7 @@ public class PlayerService {
     }
 
     @Transactional
-    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername, boolean noChipChange) {
+    public Player updateCredit(Long id, BigDecimal delta, String notes, String createdByUsername) {
         Player player = getPlayer(id);
         BigDecimal newCredit = (player.getCreditTotal() != null ? player.getCreditTotal() : BigDecimal.ZERO).add(delta);
         if (newCredit.compareTo(BigDecimal.ZERO) < 0) {
@@ -189,7 +189,7 @@ public class PlayerService {
             tx.setNotes("Manual Credit" + (notes != null ? " - " + notes : ""));
             tx.setTransactionDate(LocalDate.now());
             tx.setCreatedByUsername(createdByUsername);
-            tx.setPendingConfirmation(!noChipChange);
+            tx.setPendingConfirmation(false);
             tx.setSourceRef("SCREEN:CREDIT");
             transactionRepository.save(tx);
         }
