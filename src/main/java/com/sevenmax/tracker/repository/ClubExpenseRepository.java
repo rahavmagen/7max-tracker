@@ -17,4 +17,7 @@ public interface ClubExpenseRepository extends JpaRepository<ClubExpense, Long> 
 
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM ClubExpense e WHERE e.settled = true AND e.paidBy = 'ADMIN'")
     BigDecimal sumSettledAdminClub();
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM ClubExpense e WHERE e.settled = true AND e.paidBy = 'CLUB'")
+    BigDecimal sumSettledClubPaid();
 }

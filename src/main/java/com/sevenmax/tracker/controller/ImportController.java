@@ -89,12 +89,14 @@ public class ImportController {
                     java.math.BigDecimal generalExpenses = adminExpenseRepository.sumExcludingAdminUsername("Wheel");
                     java.math.BigDecimal promotionsTotal = transactionRepository.sumByTypeName("PROMOTION");
                     java.math.BigDecimal settledAdminClub = clubExpenseRepository.sumSettledAdminClub();
+                    java.math.BigDecimal settledClubPaid = clubExpenseRepository.sumSettledClubPaid();
                     summary.setWillExpense(wheelExpenses != null ? wheelExpenses : java.math.BigDecimal.ZERO);
-                    // generalExpenses = non-Wheel admin expenses + write-offs + settled admin club
+                    // generalExpenses = non-Wheel admin expenses + write-offs + settled club expenses (admin- or bank-paid)
                     summary.setGeneralExpenses(
                         (generalExpenses != null ? generalExpenses : java.math.BigDecimal.ZERO)
                         .add(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO)
                         .add(settledAdminClub != null ? settledAdminClub : java.math.BigDecimal.ZERO)
+                        .add(settledClubPaid != null ? settledClubPaid : java.math.BigDecimal.ZERO)
                     );
                     summary.setPromotionsTotal(promotionsTotal != null ? promotionsTotal : java.math.BigDecimal.ZERO);
                     java.math.BigDecimal chipPromoTotal = transactionRepository.sumByTypeName("CHIP_PROMO");
