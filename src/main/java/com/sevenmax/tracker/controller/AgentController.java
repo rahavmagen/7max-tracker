@@ -237,12 +237,16 @@ public class AgentController {
         return ResponseEntity.ok(Map.of("success", true));
     }
 
-    /** Admin only: trigger settlement */
+    /** Admin only: trigger settlement. Optional body { amount } overrides the computed agent
+     *  share (e.g. corrected in the settle popup) as the amount recorded as the expense. */
     @PostMapping("/{id}/settle")
-    public ResponseEntity<?> settle(@PathVariable Long id, Authentication auth) {
+    public ResponseEntity<?> settle(@PathVariable Long id,
+            @RequestBody(required = false) Map<String, Object> body, Authentication auth) {
         if (!isAdmin(auth)) return ResponseEntity.status(403).build();
         try {
-            AgentSettlement settlement = agentService.settleAgent(id);
+            java.math.BigDecimal overrideAmount = (body != null && body.get("amount") != null)
+                ? new java.math.BigDecimal(body.get("amount").toString()) : null;
+            AgentSettlement settlement = agentService.settleAgent(id, overrideAmount);
             return ResponseEntity.ok(Map.of(
                 "settlementId", settlement.getId(),
                 "agentShare", settlement.getAgentShare(),

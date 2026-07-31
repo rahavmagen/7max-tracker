@@ -256,9 +256,12 @@ public class AgentService {
             .collect(Collectors.toList());
     }
 
-    /** Create a settlement: mark all unsettled results, create AgentSettlement + AdminExpense */
+    /** Create a settlement: mark all unsettled results, create AgentSettlement + AdminExpense.
+     *  overrideAmount, if provided, replaces the computed agentShare as the recorded expense -
+     *  this is the figure an admin corrected in the settle popup, independent of how much of it
+     *  actually got paid out in this particular transfer. */
     @Transactional
-    public AgentSettlement settleAgent(Long agentId) {
+    public AgentSettlement settleAgent(Long agentId, BigDecimal overrideAmount) {
         Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
         if (!Boolean.TRUE.equals(agent.getIsAgent())) {
@@ -271,9 +274,10 @@ public class AgentService {
         BigDecimal totalRake = unsettled.stream()
             .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal agentShare = unsettled.stream()
+        BigDecimal computedAgentShare = unsettled.stream()
             .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal agentShare = overrideAmount != null ? overrideAmount : computedAgentShare;
         LocalDate fromDate = unsettled.stream()
             .map(gr -> gr.getSession().getStartTime().toLocalDate())
             .min(LocalDate::compareTo).orElse(LocalDate.now());
