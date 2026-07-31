@@ -27,4 +27,13 @@ public interface AdminExpenseRepository extends JpaRepository<AdminExpense, Long
 
     @Query("SELECT COALESCE(SUM(e.amount), 0) FROM AdminExpense e WHERE e.expenseDate >= :from AND e.expenseDate <= :to")
     BigDecimal sumExpensesBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM AdminExpense e WHERE e.adminUsername <> 'Wheel' AND (e.expenseType IS NULL OR e.expenseType <> 'AGENT') AND e.expenseDate >= :from AND e.expenseDate <= :to")
+    BigDecimal sumGeneralExpensesBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM AdminExpense e WHERE e.adminUsername = :adminUsername AND e.expenseDate >= :from AND e.expenseDate <= :to")
+    BigDecimal sumByAdminUsernameBetween(@Param("adminUsername") String adminUsername, @Param("from") LocalDate from, @Param("to") LocalDate to);
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM AdminExpense e WHERE e.expenseType = :expenseType AND e.expenseDate >= :from AND e.expenseDate <= :to")
+    BigDecimal sumByExpenseTypeBetween(@Param("expenseType") String expenseType, @Param("from") LocalDate from, @Param("to") LocalDate to);
 }

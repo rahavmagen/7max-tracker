@@ -71,6 +71,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = :type", nativeQuery = true)
     BigDecimal sumByTypeName(@Param("type") String type);
 
+    @Query(value = "SELECT COALESCE(SUM(t.amount), 0) FROM transactions t WHERE t.type = :type AND t.transaction_date >= :from AND t.transaction_date <= :to", nativeQuery = true)
+    BigDecimal sumByTypeNameBetween(@Param("type") String type, @Param("from") java.time.LocalDate from, @Param("to") java.time.LocalDate to);
+
     @Query("SELECT t FROM Transaction t WHERE t.type IN :types ORDER BY t.createdAt DESC")
     List<Transaction> findByTypeIn(@Param("types") List<Transaction.Type> types);
 

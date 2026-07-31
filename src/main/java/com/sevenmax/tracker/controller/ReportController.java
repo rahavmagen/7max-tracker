@@ -5,6 +5,7 @@ import com.sevenmax.tracker.entity.GameSession;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Report;
 import com.sevenmax.tracker.repository.AdminExpenseRepository;
+import com.sevenmax.tracker.repository.ClubExpenseRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.GameSessionRepository;
 import com.sevenmax.tracker.repository.ImportSummaryRepository;
@@ -53,6 +54,7 @@ public class ReportController {
     private final TransactionRepository transactionRepository;
     private final PlayerRepository playerRepository;
     private final AdminExpenseRepository adminExpenseRepository;
+    private final ClubExpenseRepository clubExpenseRepository;
     private final MissingNameNotificationService missingNameNotificationService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
@@ -224,6 +226,32 @@ public class ReportController {
             m.put("totalRake", r[6]);
             result.add(m);
         }
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/admin/pnl-expenses")
+    public ResponseEntity<Map<String, Object>> pnlExpenses(
+            @RequestParam String dateFrom,
+            @RequestParam String dateTo,
+            Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        LocalDate from = LocalDate.parse(dateFrom);
+        LocalDate to = LocalDate.parse(dateTo);
+
+        BigDecimal generalExpenses = adminExpenseRepository.sumGeneralExpensesBetween(from, to);
+        BigDecimal wheelExpenses = adminExpenseRepository.sumByAdminUsernameBetween("Wheel", from, to);
+        BigDecimal agentSettlements = adminExpenseRepository.sumByExpenseTypeBetween("AGENT", from, to);
+        BigDecimal rakeback = transactionRepository.sumByTypeNameBetween("CHIP_PROMO", from, to);
+        BigDecimal writeOffs = transactionRepository.sumByTypeNameBetween("PROMOTION", from, to);
+        BigDecimal clubExpenses = clubExpenseRepository.sumSettledBetween(from, to);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("generalExpenses", generalExpenses);
+        result.put("wheelExpenses", wheelExpenses);
+        result.put("rakeback", rakeback);
+        result.put("agentSettlements", agentSettlements);
+        result.put("writeOffs", writeOffs);
+        result.put("clubExpenses", clubExpenses);
         return ResponseEntity.ok(result);
     }
 
