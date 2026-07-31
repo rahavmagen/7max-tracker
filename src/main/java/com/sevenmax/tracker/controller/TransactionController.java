@@ -89,17 +89,19 @@ public class TransactionController {
 
     @GetMapping("/promotions")
     public ResponseEntity<?> getPromotions() {
-        List<Transaction.Type> types = List.of(Transaction.Type.CHIP_PROMO, Transaction.Type.PROMOTION);
+        List<Transaction.Type> types = List.of(Transaction.Type.CHIP_PROMO, Transaction.Type.PROMOTION, Transaction.Type.PLAYER_GIFT);
         List<Map<String, Object>> entries = transactionRepository.findByTypeIn(types).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
         BigDecimal writeOffTotal = transactionRepository.sumByTypeName("PROMOTION");
         BigDecimal chipPromoTotal = transactionRepository.sumByTypeName("CHIP_PROMO");
-        return ResponseEntity.ok(Map.of(
-                "entries", entries,
-                "writeOffTotal", writeOffTotal != null ? writeOffTotal : BigDecimal.ZERO,
-                "chipPromoTotal", chipPromoTotal != null ? chipPromoTotal : BigDecimal.ZERO
-        ));
+        BigDecimal playerGiftTotal = transactionRepository.sumByTypeName("PLAYER_GIFT");
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        result.put("entries", entries);
+        result.put("writeOffTotal", writeOffTotal != null ? writeOffTotal : BigDecimal.ZERO);
+        result.put("chipPromoTotal", chipPromoTotal != null ? chipPromoTotal : BigDecimal.ZERO);
+        result.put("playerGiftTotal", playerGiftTotal != null ? playerGiftTotal : BigDecimal.ZERO);
+        return ResponseEntity.ok(result);
     }
 
     private Map<String, Object> toDto(Transaction tx) {

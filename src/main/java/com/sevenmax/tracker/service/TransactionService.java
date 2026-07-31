@@ -22,8 +22,8 @@ public class TransactionService {
         Player player = transaction.getPlayer();
         Transaction.Type type = transaction.getType();
 
-        // CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT: no balance change
-        if (type != Transaction.Type.CHIP_PROMO && type != Transaction.Type.PROMOTION && type != Transaction.Type.EXPENSE_REPAYMENT) {
+        // CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT, PLAYER_GIFT: no balance change
+        if (type != Transaction.Type.CHIP_PROMO && type != Transaction.Type.PROMOTION && type != Transaction.Type.EXPENSE_REPAYMENT && type != Transaction.Type.PLAYER_GIFT) {
             boolean isCredit = type == Transaction.Type.DEPOSIT
                     || type == Transaction.Type.PAYMENT
                     || type == Transaction.Type.KASHCASH_DEPOSIT;
@@ -40,8 +40,8 @@ public class TransactionService {
         Transaction tx = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transaction not found"));
 
-        // CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT: no balance effect, just update amount/notes
-        if (tx.getType() != Transaction.Type.CHIP_PROMO && tx.getType() != Transaction.Type.PROMOTION && tx.getType() != Transaction.Type.EXPENSE_REPAYMENT) {
+        // CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT, PLAYER_GIFT: no balance effect, just update amount/notes
+        if (tx.getType() != Transaction.Type.CHIP_PROMO && tx.getType() != Transaction.Type.PROMOTION && tx.getType() != Transaction.Type.EXPENSE_REPAYMENT && tx.getType() != Transaction.Type.PLAYER_GIFT) {
             BigDecimal diff = newAmount.subtract(tx.getAmount());
             boolean adds = tx.getType() == Transaction.Type.DEPOSIT
                     || tx.getType() == Transaction.Type.PAYMENT

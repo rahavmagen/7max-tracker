@@ -244,6 +244,7 @@ public class ReportController {
         BigDecimal rakeback = transactionRepository.sumByTypeNameBetween("CHIP_PROMO", from, to);
         BigDecimal writeOffs = transactionRepository.sumByTypeNameBetween("PROMOTION", from, to);
         BigDecimal clubExpenses = clubExpenseRepository.sumSettledBetween(from, to);
+        BigDecimal playerGifts = transactionRepository.sumByTypeNameBetween("PLAYER_GIFT", from, to);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("generalExpenses", generalExpenses);
@@ -252,6 +253,7 @@ public class ReportController {
         result.put("agentSettlements", agentSettlements);
         result.put("writeOffs", writeOffs);
         result.put("clubExpenses", clubExpenses);
+        result.put("playerGifts", playerGifts);
         return ResponseEntity.ok(result);
     }
 
