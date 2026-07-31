@@ -115,6 +115,7 @@ public class TransactionController {
         m.put("method", tx.getMethod());
         m.put("notes", tx.getNotes());
         m.put("transactionDate", tx.getTransactionDate() != null ? tx.getTransactionDate().toString() : null);
+        m.put("createdAt", tx.getCreatedAt() != null ? tx.getCreatedAt().toString() : null);
         m.put("sourceRef", tx.getSourceRef());
         return m;
     }

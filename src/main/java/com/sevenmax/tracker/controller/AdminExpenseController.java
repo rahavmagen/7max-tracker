@@ -60,6 +60,7 @@ public class AdminExpenseController {
                 m.put("amount", e.getAmount());
                 m.put("notes", e.getNotes());
                 m.put("expenseDate", e.getExpenseDate() != null ? e.getExpenseDate().toString() : null);
+                m.put("createdAt", e.getCreatedAt() != null ? e.getCreatedAt().toString() : null);
                 m.put("createdBy", e.getCreatedBy());
                 m.put("sourceRef", e.getSourceRef());
                 m.put("expenseType", e.getExpenseType() != null ? e.getExpenseType() : "ADMIN");
@@ -79,6 +80,7 @@ public class AdminExpenseController {
                 m.put("amount", ce.getAmount());
                 m.put("notes", ce.getDescription());
                 m.put("expenseDate", ce.getExpenseDate() != null ? ce.getExpenseDate().toString() : null);
+                m.put("createdAt", ce.getCreatedAt() != null ? ce.getCreatedAt().toString() : null);
                 m.put("createdBy", ce.getCreatedBy());
                 m.put("sourceRef", "CLUB_EXPENSE");
                 grouped.get(key).add(m);
@@ -117,6 +119,7 @@ public class AdminExpenseController {
                 m.put("amount", e.getAmount());
                 m.put("notes", e.getNotes());
                 m.put("expenseDate", e.getExpenseDate() != null ? e.getExpenseDate().toString() : null);
+                m.put("createdAt", e.getCreatedAt() != null ? e.getCreatedAt().toString() : null);
                 m.put("settledAt", e.getSettledAt() != null ? e.getSettledAt().toString() : null);
                 m.put("settledBy", e.getSettledBy());
                 m.put("paidFromAdminUsername", e.getPaidFromAdminUsername());
@@ -135,6 +138,7 @@ public class AdminExpenseController {
             m.put("amount", ce.getAmount());
             m.put("notes", ce.getDescription());
             m.put("expenseDate", ce.getExpenseDate() != null ? ce.getExpenseDate().toString() : null);
+            m.put("createdAt", ce.getCreatedAt() != null ? ce.getCreatedAt().toString() : null);
             m.put("settledAt", ce.getSettledAt() != null ? ce.getSettledAt().toString() : null);
             m.put("settledBy", ce.getSettledBy());
             m.put("paidFromAdminUsername", ce.getPaidFromAdminUsername());

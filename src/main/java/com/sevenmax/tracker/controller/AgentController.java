@@ -260,6 +260,26 @@ public class AgentController {
         }
     }
 
+    /** Admin only: manually record an agent-rake expense for an arbitrary amount, not tied to
+     *  unsettled game results (e.g. a correction). Body: { amount, notes } */
+    @PostMapping("/{id}/rake-expense")
+    public ResponseEntity<?> addRakeExpense(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        try {
+            Object amt = body.get("amount");
+            if (amt == null) return ResponseEntity.badRequest().body(Map.of("error", "amount is required"));
+            java.math.BigDecimal amount = new java.math.BigDecimal(amt.toString());
+            if (amount.signum() <= 0) return ResponseEntity.badRequest().body(Map.of("error", "Amount must be positive"));
+            String notes = body.get("notes") != null ? body.get("notes").toString() : null;
+            var expense = agentService.addManualRakeExpense(id, amount, notes, auth != null ? auth.getName() : "system");
+            return ResponseEntity.ok(Map.of("id", expense.getId(), "amount", expense.getAmount()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     private boolean isAdminOrOwner(Authentication auth, Long agentId) {
         if (auth == null) return false;
         User user = userRepository.findByUsername(auth.getName()).orElse(null);

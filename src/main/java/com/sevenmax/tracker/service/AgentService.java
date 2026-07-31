@@ -313,6 +313,31 @@ public class AgentService {
         return settlement;
     }
 
+    /** Manually record an agent-rake Club Expense for an arbitrary amount, independent of any
+     *  unsettled game results - for corrections/one-off amounts that don't come from settleAgent's
+     *  per-game accrual. Does not touch GameResult/AgentSettlement, so it has no effect on what
+     *  settleAgent later computes as pending. */
+    @Transactional
+    public AdminExpense addManualRakeExpense(Long agentId, BigDecimal amount, String notes, String createdBy) {
+        Player agent = playerRepository.findById(agentId)
+            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        if (!Boolean.TRUE.equals(agent.getIsAgent())) {
+            throw new IllegalArgumentException("Player " + agentId + " is not an agent");
+        }
+        if (amount == null || amount.signum() <= 0) {
+            throw new IllegalArgumentException("Amount must be positive");
+        }
+
+        AdminExpense expense = new AdminExpense();
+        expense.setAdminUsername(agent.getUsername());
+        expense.setAmount(amount);
+        expense.setNotes(notes != null && !notes.isBlank() ? notes : "Manual agent rake");
+        expense.setExpenseDate(LocalDate.now());
+        expense.setCreatedBy(createdBy != null ? createdBy : "system");
+        expense.setExpenseType("AGENT");
+        return adminExpenseRepository.save(expense);
+    }
+
     private static final Set<GameSession.GameType> TOURNAMENT_TYPES = Set.of(
         GameSession.GameType.MTT, GameSession.GameType.SNG, GameSession.GameType.AoF, GameSession.GameType.SPIN_GOLD
     );
