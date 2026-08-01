@@ -87,6 +87,10 @@ public class Player {
 
     private LocalDate rakebackSince; // start date for rakeback eligibility
 
+    // Whether this player is allowed to see their own rakeback % on their own page. Admins can
+    // always see it regardless of this flag - it only gates the player's own view of themselves.
+    private Boolean seeRakeback = false;
+
     @Column(name = "agent_id", insertable = false, updatable = false)
     private Long agentId;
 

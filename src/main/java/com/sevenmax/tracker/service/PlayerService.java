@@ -56,7 +56,12 @@ public class PlayerService {
 
     private void createUserForPlayer(Player player) {
         if (player.getUsername() == null || player.getUsername().isBlank()) return;
-        if (userRepository.existsByUsername(player.getUsername())) return;
+        // A player should never end up with two login accounts. Checking by player_id catches the
+        // case that broke before: this exact player already has a login, just under a username
+        // that now differs in casing/spelling from the current one. The case-insensitive username
+        // check additionally guards against colliding with a *different* player's login.
+        if (player.getId() != null && userRepository.findByPlayerId(player.getId()).isPresent()) return;
+        if (userRepository.findByUsernameIgnoreCase(player.getUsername()).isPresent()) return;
         String rawPassword = (player.getPhone() != null && !player.getPhone().isBlank())
                 ? player.getPhone().replaceAll("[^0-9]", "")
                 : "123456";
@@ -94,6 +99,9 @@ public class PlayerService {
         // Rakeback fields
         player.setRakebackPercentage(updated.getRakebackPercentage());
         player.setRakebackSince(updated.getRakebackSince());
+        if (updated.getSeeRakeback() != null) {
+            player.setSeeRakeback(updated.getSeeRakeback());
+        }
         Player saved = playerRepository.save(player);
         // If phone changed, update password for users who never logged in
         String newPhone = updated.getPhone();
