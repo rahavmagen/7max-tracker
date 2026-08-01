@@ -4,6 +4,7 @@ import com.sevenmax.tracker.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -12,6 +13,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
     Optional<User> findByPlayerId(Long playerId);
     boolean existsByPlayerId(Long playerId);
+    List<User> findAllByPlayerId(Long playerId);
 
     @Modifying
     @Query("UPDATE User u SET u.player = null WHERE u.player IS NOT NULL")

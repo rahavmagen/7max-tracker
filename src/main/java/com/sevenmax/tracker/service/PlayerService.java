@@ -60,7 +60,7 @@ public class PlayerService {
         // case that broke before: this exact player already has a login, just under a username
         // that now differs in casing/spelling from the current one. The case-insensitive username
         // check additionally guards against colliding with a *different* player's login.
-        if (player.getId() != null && userRepository.findByPlayerId(player.getId()).isPresent()) return;
+        if (player.getId() != null && userRepository.existsByPlayerId(player.getId())) return;
         if (userRepository.findByUsernameIgnoreCase(player.getUsername()).isPresent()) return;
         String rawPassword = (player.getPhone() != null && !player.getPhone().isBlank())
                 ? player.getPhone().replaceAll("[^0-9]", "")
@@ -130,7 +130,7 @@ public class PlayerService {
         Player player = getPlayer(id);
         player.setUsername(newUsername);
         playerRepository.save(player);
-        userRepository.findByPlayerId(id).ifPresent(u -> {
+        userRepository.findAllByPlayerId(id).forEach(u -> {
             u.setUsername(newUsername);
             userRepository.save(u);
         });
@@ -258,7 +258,7 @@ public class PlayerService {
         transactionRepository.deleteAll(transactionRepository.findByPlayerIdOrderByTransactionDateDesc(id));
         gameResultRepository.deleteAll(gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(id));
         playerTransferRepository.deleteAll(playerTransferRepository.findByFromPlayerIdOrToPlayerId(id, id));
-        userRepository.findByPlayerId(id).ifPresent(userRepository::delete);
+        userRepository.deleteAll(userRepository.findAllByPlayerId(id));
         playerRepository.delete(player);
         log.info("Deleted player id={} username={}", id, player.getUsername());
     }

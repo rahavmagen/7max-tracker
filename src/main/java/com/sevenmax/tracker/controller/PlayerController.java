@@ -167,10 +167,12 @@ public class PlayerController {
     public ResponseEntity<Map<String, Object>> getLoginStats(@PathVariable Long id, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         Map<String, Object> m = new java.util.HashMap<>();
-        userRepository.findByPlayerId(id).ifPresent(u -> {
-            m.put("loginCount", u.getLoginCount() != null ? u.getLoginCount() : 0);
-            m.put("lastLoginAt", u.getLastLoginAt() != null ? u.getLastLoginAt().toString() : null);
-        });
+        userRepository.findAllByPlayerId(id).stream()
+                .max(java.util.Comparator.comparing(u -> u.getLastLoginAt(), java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())))
+                .ifPresent(u -> {
+                    m.put("loginCount", u.getLoginCount() != null ? u.getLoginCount() : 0);
+                    m.put("lastLoginAt", u.getLastLoginAt() != null ? u.getLastLoginAt().toString() : null);
+                });
         return ResponseEntity.ok(m);
     }
 
