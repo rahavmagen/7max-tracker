@@ -3,6 +3,7 @@ package com.sevenmax.tracker.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.repository.PlayerRepository;
+import com.sevenmax.tracker.repository.GameResultRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,15 +35,21 @@ public class MissingNameNotificationService {
     private String fromEmail;
 
     private final PlayerRepository playerRepository;
+    private final GameResultRepository gameResultRepository;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
-    /** Players with no name who have chips (i.e. played) — email the list if any are found. */
+    /**
+     * Players with no name who have ACTUALLY PLAYED (>= 1 game result) — email the list if any are found.
+     * Previously this used "has chips", which wrongly flagged agent players who hold agent-given chips
+     * but never played (e.g. m11223344).
+     */
     public void checkAndNotify() {
+        java.util.Set<Long> playedIds = new java.util.HashSet<>(gameResultRepository.findPlayerIdsWithGameResults());
         List<Player> flagged = playerRepository.findAll().stream()
             .filter(p -> p.getFullName() == null || p.getFullName().trim().isEmpty())
-            .filter(p -> p.getCurrentChips() != null && p.getCurrentChips().compareTo(BigDecimal.ZERO) > 0)
+            .filter(p -> playedIds.contains(p.getId()))
             .collect(Collectors.toList());
 
         if (flagged.isEmpty()) return;
@@ -68,7 +75,7 @@ public class MissingNameNotificationService {
                     p.getUsername(),
                     p.getPhone() != null ? p.getPhone() : "-",
                     p.getClubPlayerId() != null ? p.getClubPlayerId() : "-",
-                    p.getCurrentChips().toPlainString(),
+                    p.getCurrentChips() != null ? p.getCurrentChips().toPlainString() : "0",
                     p.getBalance() != null ? p.getBalance().toPlainString() : "0"));
             }
             Map<String, Object> body = new HashMap<>();
