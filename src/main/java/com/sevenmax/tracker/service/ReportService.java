@@ -603,6 +603,15 @@ public class ReportService {
             } catch (Exception e) {
                 txDate = LocalDate.now();
             }
+            // Full timestamp, converted from the XLS's ClubGG time (UTC-5) to Israel time - used
+            // only as the wheel-expense record's displayed time, not for the day-matching above
+            // (matching logic is unchanged to avoid affecting which games it pairs against).
+            LocalDateTime tradeDateTime;
+            try {
+                tradeDateTime = fromClubGG(LocalDateTime.parse(dateStr.trim().substring(0, 19).replace(" ", "T")));
+            } catch (Exception e) {
+                tradeDateTime = null;
+            }
 
             // Wheel expense: "Send Chips" negative in column G, AND amount matches the player's
             // cost in the nightly MTT (9 PM main event, starts between 20:20 and 21:40 on txDate
@@ -809,7 +818,8 @@ public class ReportService {
             if (isWheelExpense) {
                 tx.setType(Transaction.Type.WHEEL_EXPENSE);
                 tx.setNotes("Trade Record: Wheel Expense (promotion refund)");
-                log.info("Trade Record wheel expense: player={} amount={} date={}", player.getUsername(), amount, txDate);
+                if (tradeDateTime != null) tx.setCreatedAt(tradeDateTime); // show the game's actual (Israel) time, not import time
+                log.info("Trade Record wheel expense: player={} amount={} date={} israelTime={}", player.getUsername(), amount, txDate, tradeDateTime);
             } else {
                 tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.PAYMENT);
                 // "Send Chips" = player got chips; "Claim Chips" = club took chips back
@@ -1696,6 +1706,7 @@ public class ReportService {
             String playerName = tx.getPlayer() != null ? tx.getPlayer().getUsername() : "?";
             exp.setNotes("Wheel - " + playerName);
             exp.setExpenseDate(tx.getTransactionDate());
+            if (tx.getCreatedAt() != null) exp.setCreatedAt(tx.getCreatedAt()); // mirror the game's actual (Israel) time
             exp.setCreatedBy("Import");
             exp.setSourceRef(expRef);
             adminExpenseRepository.save(exp);
