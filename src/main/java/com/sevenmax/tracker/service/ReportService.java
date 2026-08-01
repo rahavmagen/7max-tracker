@@ -827,7 +827,6 @@ public class ReportService {
             if (isWheelExpense) {
                 tx.setType(Transaction.Type.WHEEL_EXPENSE);
                 tx.setNotes("Trade Record: Wheel Expense (promotion refund)");
-                if (tradeDateTime != null) tx.setCreatedAt(tradeDateTime); // show the game's actual (Israel) time, not import time
                 log.info("Trade Record wheel expense: player={} amount={} date={} israelTime={}", player.getUsername(), amount, txDate, tradeDateTime);
             } else {
                 tx.setType(tradeType.equals("Send Chips") ? Transaction.Type.CREDIT : Transaction.Type.PAYMENT);
@@ -837,6 +836,7 @@ public class ReportService {
             }
             tx.setAmount(amount);
             tx.setTransactionDate(txDate);
+            if (tradeDateTime != null) tx.setCreatedAt(tradeDateTime); // show the actual (Israel) trade time, not import time
             tx.setSourceRef(sourceRef);
             tx.setCreatedByUsername("Import");
             tx.setReportId(reportId);
