@@ -503,7 +503,9 @@ public class ReportService {
             }
         }
 
-        // Pass 2: link each member (Player row) to its agent.
+        // Pass 2: link each member (Player row) to its agent, and demote anyone whose Club
+        // Overview role is now plain "Player" but is still flagged isAgent=true here - the
+        // demotion happened upstream at the club (ClubGG), so mirror it locally too.
         for (int r = 3; r <= sheet.getLastRowNum(); r++) {
             Row row = sheet.getRow(r);
             if (row == null) continue;
@@ -512,17 +514,8 @@ public class ReportService {
             String role = getCellValue(row, 6);
             if (role != null && !"Player".equalsIgnoreCase(role.trim())) continue;
 
-            // Prefer the Super Agent (cols B/C) so an entire sub-agent tree rolls up to the top
-            // agent the club settles with; fall back to the direct Agent (cols D/E) for flat agents.
-            String superAgentId   = getCellValue(row, 1);
-            String superAgentNick = getCellValue(row, 2);
-            boolean hasSuper = superAgentId != null && !superAgentId.isBlank() && !"-".equals(superAgentId.trim());
-            String agentClubId    = hasSuper ? superAgentId : getCellValue(row, 3);
-            String agentNickname  = hasSuper ? superAgentNick : getCellValue(row, 4);
             String playerClubId   = getCellValue(row, 7);
             String playerNickname = getCellValue(row, 8);
-
-            if (agentClubId == null || agentClubId.isBlank() || "-".equals(agentClubId.trim())) continue;
             if (playerClubId == null || playerClubId.isBlank()) continue;
 
             // Find the player (member)
@@ -530,6 +523,22 @@ public class ReportService {
                     .or(() -> playerNickname != null ? findPlayerByUsername(playerNickname) : java.util.Optional.empty())
                     .orElse(null);
             if (player == null) continue;
+
+            if (Boolean.TRUE.equals(player.getIsAgent())) {
+                player.setIsAgent(false);
+                playerRepository.save(player);
+                log.info("Agent demoted (role is now 'Player' in report): {}", player.getUsername());
+            }
+
+            // Prefer the Super Agent (cols B/C) so an entire sub-agent tree rolls up to the top
+            // agent the club settles with; fall back to the direct Agent (cols D/E) for flat agents.
+            String superAgentId   = getCellValue(row, 1);
+            String superAgentNick = getCellValue(row, 2);
+            boolean hasSuper = superAgentId != null && !superAgentId.isBlank() && !"-".equals(superAgentId.trim());
+            String agentClubId    = hasSuper ? superAgentId : getCellValue(row, 3);
+            String agentNickname  = hasSuper ? superAgentNick : getCellValue(row, 4);
+
+            if (agentClubId == null || agentClubId.isBlank() || "-".equals(agentClubId.trim())) continue;
 
             // Find the agent player — try by clubPlayerId first, then by username
             Player agent = playerRepository.findByClubPlayerIdSafe(agentClubId).stream().findFirst()
