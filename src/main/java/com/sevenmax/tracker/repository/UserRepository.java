@@ -11,6 +11,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsernameIgnoreCase(String username);
     boolean existsByUsername(String username);
     Optional<User> findByPlayerId(Long playerId);
+    boolean existsByPlayerId(Long playerId);
 
     @Modifying
     @Query("UPDATE User u SET u.player = null WHERE u.player IS NOT NULL")

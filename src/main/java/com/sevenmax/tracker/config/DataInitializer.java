@@ -45,7 +45,7 @@ public class DataInitializer implements ApplicationRunner {
             // A player should never end up with two login accounts. Check by player_id first (catches
             // a login that already exists under a since-changed username casing/spelling), then
             // case-insensitively by username (guards against colliding with a different player's login).
-            if (player.getId() != null && userRepository.findByPlayerId(player.getId()).isPresent()) continue;
+            if (player.getId() != null && userRepository.existsByPlayerId(player.getId())) continue;
             if (userRepository.findByUsernameIgnoreCase(username).isPresent()) continue;
 
             // Default password: phone digits only, or "123456" if no phone
