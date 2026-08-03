@@ -38,6 +38,7 @@ public class ReportService {
     private final AdminExpenseRepository adminExpenseRepository;
     private final XlsMatchingService xlsMatchingService;
     private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
+    private final com.sevenmax.tracker.repository.UserRepository userRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
@@ -156,9 +157,9 @@ public class ReportService {
                     }
                     boolean wasStale = Boolean.TRUE.equals(player.getChipsStale());
                     if (isLatestReport) {
-                        // Nickname change: the club ID is stable, so a different nick = the player renamed.
-                        // Update the shown name and record the change — unless another player already has that name.
-                        if (nickname != null && !nickname.isBlank() && !nickname.equals(player.getUsername())) {
+                        // Nickname change: the club ID is stable, so a genuinely different nick = the player renamed.
+                        // Ignore case-only changes (they're not real renames and would desync the login User).
+                        if (nickname != null && !nickname.isBlank() && !nickname.equalsIgnoreCase(player.getUsername())) {
                             Player clash = findPlayerByUsername(nickname).orElse(null);
                             if (clash != null && !clash.getId().equals(player.getId())) {
                                 log.warn("Skip rename '{}' -> '{}' (clubId={}): name already used by playerId={}",
@@ -172,6 +173,14 @@ public class ReportService {
                                 playerNameHistoryRepository.save(h);
                                 log.info("Player renamed '{}' -> '{}' (clubId={})", player.getUsername(), nickname, player.getClubPlayerId());
                                 player.setUsername(nickname);
+                                // Keep the linked login account in sync so admin ops (reset password, role) still
+                                // find the user by name — unless another user already holds the new name.
+                                final Long pid = player.getId();
+                                userRepository.findByPlayerId(pid).ifPresent(u -> {
+                                    boolean taken = userRepository.findByUsernameIgnoreCase(nickname)
+                                        .map(other -> !other.getId().equals(u.getId())).orElse(false);
+                                    if (!taken) { u.setUsername(nickname); userRepository.save(u); }
+                                });
                             }
                         }
                         player.setCurrentChips(newChips);

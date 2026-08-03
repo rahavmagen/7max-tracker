@@ -51,7 +51,7 @@ public class AuthService {
     }
 
     public void changePassword(String username, String oldPassword, String newPassword) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
@@ -68,7 +68,7 @@ public class AuthService {
     }
 
     public void changeRole(String targetUsername, String newRole) {
-        User user = userRepository.findByUsername(targetUsername)
+        User user = userRepository.findByUsernameIgnoreCase(targetUsername)
                 .orElseThrow(() -> new RuntimeException("User not found: " + targetUsername));
         user.setRole(User.Role.valueOf(newRole));
         userRepository.save(user);
@@ -78,7 +78,7 @@ public class AuthService {
         if (newPassword == null || newPassword.length() < 4) {
             throw new RuntimeException("Password must be at least 4 characters");
         }
-        User user = userRepository.findByUsername(targetUsername)
+        User user = userRepository.findByUsernameIgnoreCase(targetUsername)
                 .orElseThrow(() -> new RuntimeException("User not found: " + targetUsername));
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         user.setMustChangePassword(true);
