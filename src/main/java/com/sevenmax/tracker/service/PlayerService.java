@@ -49,6 +49,14 @@ public class PlayerService {
     }
 
     public Player createPlayer(Player player) {
+        // club_player_id has a UNIQUE index. Postgres allows many NULLs but only one ''.
+        // A blank ClubGG Player ID from the Add-Player form must become NULL, otherwise the
+        // second player added without a club ID collides with the first (misreported to the
+        // UI as "username might already exist").
+        if (player.getClubPlayerId() != null && player.getClubPlayerId().isBlank()) {
+            player.setClubPlayerId(null);
+        }
+        if (player.getUsername() != null) player.setUsername(player.getUsername().trim());
         Player saved = playerRepository.save(player);
         createUserForPlayer(saved);
         return saved;
