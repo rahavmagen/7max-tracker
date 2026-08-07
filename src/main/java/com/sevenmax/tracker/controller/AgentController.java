@@ -146,14 +146,26 @@ public class AgentController {
         return ResponseEntity.ok(agentService.getLedgerHistory());
     }
 
-    /** Admin/agent: the most common last-settlement (התחשבנות) date, used as the page's default "from" */
+    /** Admin/agent: the system-wide תאריך התחשבנות אחרון, used as the page's default "from" */
     @GetMapping("/last-settlement-date")
     public ResponseEntity<?> lastSettlementDate(Authentication auth) {
         if (!isAdmin(auth)) return ResponseEntity.status(403).build();
-        LocalDate d = agentService.lastSettlementDate();
+        LocalDate d = agentService.getLastSettlementDate();
         java.util.Map<String, Object> body = new java.util.HashMap<>();
         body.put("date", d != null ? d.toString() : null);
         return ResponseEntity.ok(body);
+    }
+
+    /** Admin only: manually set the system-wide תאריך התחשבנות אחרון. Body: { date: "yyyy-MM-dd" } */
+    @PutMapping("/last-settlement-date")
+    public ResponseEntity<?> setLastSettlementDate(@RequestBody java.util.Map<String, Object> body, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        if (body.get("date") == null) return ResponseEntity.badRequest().body(java.util.Map.of("error", "date is required"));
+        LocalDate date = LocalDate.parse(body.get("date").toString());
+        agentService.setLastSettlementDate(date, auth != null ? auth.getName() : null);
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+        result.put("date", date.toString());
+        return ResponseEntity.ok(result);
     }
 
     /** Admin only: acknowledge ("Done") reconciliation flags for the given player ids */

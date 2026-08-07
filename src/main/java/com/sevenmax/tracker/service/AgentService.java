@@ -21,6 +21,7 @@ public class AgentService {
     private final AdminExpenseRepository adminExpenseRepository;
     private final TransactionRepository transactionRepository;
     private final AgentLedgerEntryRepository agentLedgerEntryRepository;
+    private final LastSettlementDateRepository lastSettlementDateRepository;
 
     /** Free-chip credit for one agent player, with the transaction-history fallback.
      *  Base: freeCredit = currentChips − lifetime game P&L − already-booked credit.
@@ -442,7 +443,7 @@ public class AgentService {
 
         // When no explicit from is given (e.g. the agent portal), accrue since the last התחשבנות so games
         // already captured in the starting balance are not double-counted.
-        final LocalDate accrualFrom = from != null ? from : lastSettlementDate();
+        final LocalDate accrualFrom = from != null ? from : getLastSettlementDate();
 
         List<GameResult> results = gameResultRepository.findAllByAgentId(agentId).stream()
             .filter(gr -> !gr.getPlayer().getId().equals(agentId))
@@ -513,7 +514,7 @@ public class AgentService {
      */
     @Transactional(readOnly = true)
     public Map<String, Object> getTotalAgentBalance(LocalDate from, LocalDate to) {
-        LocalDate f = from != null ? from : lastSettlementDate();
+        LocalDate f = from != null ? from : getLastSettlementDate();
         BigDecimal total = playerRepository.findAll().stream()
             .filter(p -> Boolean.TRUE.equals(p.getIsAgent()) && !Boolean.TRUE.equals(p.getClubManaged()))
             .map(a -> (BigDecimal) getAgentBalance(a.getId(), f, to).get("currentBalance"))
@@ -554,13 +555,33 @@ public class AgentService {
         agentLedgerEntryRepository.deleteById(entryId);
     }
 
+    /** The admin-set global תאריך התחשבנות אחרון, if one has been recorded - the authoritative
+     *  default "from" date for agent balances and the P&L Expected Rakeback estimate. Falls back
+     *  to the heuristic guess (from agents' payment history) only if never explicitly set. */
+    @Transactional(readOnly = true)
+    public LocalDate getLastSettlementDate() {
+        return lastSettlementDateRepository.findById(1L)
+            .map(LastSettlementDate::getDate)
+            .orElseGet(this::computeHeuristicLastSettlementDate);
+    }
+
+    @Transactional
+    public LastSettlementDate setLastSettlementDate(LocalDate date, String updatedBy) {
+        if (date == null) throw new IllegalArgumentException("date is required");
+        LastSettlementDate row = lastSettlementDateRepository.findById(1L).orElseGet(LastSettlementDate::new);
+        row.setId(1L);
+        row.setDate(date);
+        row.setUpdatedBy(updatedBy);
+        row.setUpdatedAt(java.time.LocalDateTime.now());
+        return lastSettlementDateRepository.save(row);
+    }
+
     /**
-     * The most recent התחשבנות (settlement) date: take each agent's latest PAYMENT date, then return the
+     * Heuristic fallback (pre-manual-setting era): take each agent's latest PAYMENT date, then return the
      * date shared by the most agents (tie → the more recent). התחשבנות is usually done for several agents
      * on the same day, so that shared date marks the start of the current open period. null if no payments.
      */
-    @Transactional(readOnly = true)
-    public LocalDate lastSettlementDate() {
+    private LocalDate computeHeuristicLastSettlementDate() {
         Map<Long, LocalDate> latestPerAgent = new HashMap<>();
         // Ledger entries: a PAYMENT or a starting-balance OPENING both mark a התחשבנות checkpoint.
         for (AgentLedgerEntry e : agentLedgerEntryRepository.findAll()) {

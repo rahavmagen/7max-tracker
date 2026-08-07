@@ -57,6 +57,7 @@ public class ReportController {
     private final ClubExpenseRepository clubExpenseRepository;
     private final MissingNameNotificationService missingNameNotificationService;
     private final com.sevenmax.tracker.service.InactiveOutreachService inactiveOutreachService;
+    private final com.sevenmax.tracker.service.AgentService agentService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
 
@@ -729,6 +730,97 @@ public class ReportController {
         String updatedBy = auth != null ? auth.getName() : null;
         return ResponseEntity.ok(inactiveOutreachService.saveConfig(
                 recentDays, lookbackDays, minSessions, gameType, cooldownDays, updatedBy));
+    }
+
+    /** Estimate of rakeback owed since the last תאריך התחשבנות אחרון - to players with rakeback set,
+     *  and to (non-club-managed) agents. This is a projection, not a record of what was actually
+     *  paid - it just applies each player's/agent's rake% to the rake generated since the checkpoint. */
+    @GetMapping("/expected-rakeback")
+    public ResponseEntity<?> getExpectedRakeback(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        LocalDate lastSettlement = agentService.getLastSettlementDate();
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("lastSettlementDate", lastSettlement != null ? lastSettlement.toString() : null);
+        if (lastSettlement == null) {
+            result.put("daysSince", null);
+            result.put("playersExpectedRakeback", BigDecimal.ZERO);
+            result.put("agentsExpectedRakeback", BigDecimal.ZERO);
+            result.put("totalExpectedRakeback", BigDecimal.ZERO);
+            result.put("playersBreakdown", List.of());
+            result.put("agentsBreakdown", List.of());
+            return ResponseEntity.ok(result);
+        }
+        result.put("daysSince", java.time.temporal.ChronoUnit.DAYS.between(lastSettlement, LocalDate.now()));
+
+        Map<Long, BigDecimal> rakeByPlayer = new HashMap<>();
+        for (Object[] r : gameResultRepository.getRakePerPlayerSince(lastSettlement.atStartOfDay())) {
+            rakeByPlayer.put(((Number) r[0]).longValue(), new BigDecimal(r[1].toString()));
+        }
+
+        List<Player> allPlayers = playerRepository.findAll();
+
+        BigDecimal playersExpected = BigDecimal.ZERO;
+        List<Map<String, Object>> playersBreakdown = new ArrayList<>();
+        for (Player p : allPlayers) {
+            if (p.getRakebackPercentage() == null || p.getRakebackPercentage().compareTo(BigDecimal.ZERO) == 0) continue;
+            LocalDate effectiveFrom = lastSettlement;
+            if (p.getRakebackSince() != null && p.getRakebackSince().isAfter(lastSettlement)) {
+                effectiveFrom = p.getRakebackSince();
+            }
+            BigDecimal rake;
+            if (effectiveFrom.equals(lastSettlement)) {
+                rake = rakeByPlayer.getOrDefault(p.getId(), BigDecimal.ZERO);
+            } else if (effectiveFrom.isAfter(LocalDate.now())) {
+                rake = BigDecimal.ZERO;
+            } else {
+                // Rare edge case: rakeback only started after the checkpoint - narrow the window for this player only.
+                final LocalDate windowStart = effectiveFrom;
+                rake = gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(p.getId()).stream()
+                        .filter(gr -> !gr.getSession().getStartTime().toLocalDate().isBefore(windowStart))
+                        .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+            }
+            if (rake.compareTo(BigDecimal.ZERO) == 0) continue;
+            BigDecimal amount = p.getRakebackPercentage().multiply(rake).setScale(2, java.math.RoundingMode.HALF_UP);
+            playersExpected = playersExpected.add(amount);
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("playerId", p.getId());
+            row.put("username", p.getUsername());
+            row.put("fullName", p.getFullName());
+            row.put("rake", rake);
+            row.put("rakebackPercentage", p.getRakebackPercentage());
+            row.put("amount", amount);
+            playersBreakdown.add(row);
+        }
+        playersExpected = playersExpected.setScale(2, java.math.RoundingMode.HALF_UP);
+        playersBreakdown.sort((a, b) -> ((BigDecimal) b.get("amount")).compareTo((BigDecimal) a.get("amount")));
+
+        BigDecimal agentsExpected = BigDecimal.ZERO;
+        List<Map<String, Object>> agentsBreakdown = new ArrayList<>();
+        for (Player agent : allPlayers) {
+            if (!Boolean.TRUE.equals(agent.getIsAgent()) || Boolean.TRUE.equals(agent.getClubManaged())) continue;
+            Map<String, Object> balance = agentService.getAgentBalance(agent.getId(), lastSettlement, null);
+            BigDecimal amount = (BigDecimal) balance.get("rakebackSince");
+            if (amount == null || amount.compareTo(BigDecimal.ZERO) == 0) continue;
+            agentsExpected = agentsExpected.add(amount);
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("agentId", agent.getId());
+            row.put("username", agent.getUsername());
+            row.put("fullName", agent.getFullName());
+            row.put("rake", balance.get("totalRake"));
+            row.put("rakePercentage", agent.getAgentRakePercentage());
+            row.put("amount", amount);
+            agentsBreakdown.add(row);
+        }
+        agentsExpected = agentsExpected.setScale(2, java.math.RoundingMode.HALF_UP);
+        agentsBreakdown.sort((a, b) -> ((BigDecimal) b.get("amount")).compareTo((BigDecimal) a.get("amount")));
+
+        result.put("playersExpectedRakeback", playersExpected);
+        result.put("agentsExpectedRakeback", agentsExpected);
+        result.put("totalExpectedRakeback", playersExpected.add(agentsExpected));
+        result.put("playersBreakdown", playersBreakdown);
+        result.put("agentsBreakdown", agentsBreakdown);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/admin/rakeback")
