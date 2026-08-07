@@ -3,6 +3,7 @@ package com.sevenmax.tracker.repository;
 import com.sevenmax.tracker.entity.PlayerOutreach;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,4 +16,7 @@ public interface PlayerOutreachRepository extends JpaRepository<PlayerOutreach, 
     List<PlayerOutreach> findByPlayerIdInOrderByHandledAtDesc(Collection<Long> playerIds);
 
     List<PlayerOutreach> findByPlayerIdOrderByHandledAtDesc(Long playerId);
+
+    /** Full contact history across all players, newest first, for the audit-log view. */
+    List<PlayerOutreach> findByHandledAtBetweenOrderByHandledAtDesc(LocalDateTime from, LocalDateTime to);
 }

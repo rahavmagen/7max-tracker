@@ -665,9 +665,21 @@ public class ReportController {
             @RequestParam(defaultValue = "30") int lookbackDays,
             @RequestParam(defaultValue = "1") int minSessions,
             @RequestParam(defaultValue = "7") int cooldownDays,
-            @RequestParam(required = false) String gameType) {
+            @RequestParam(required = false) String gameType,
+            @RequestParam(required = false) String assignedTo) {
         return ResponseEntity.ok(
-                inactiveOutreachService.computeInactive(recentDays, lookbackDays, minSessions, gameType, cooldownDays));
+                inactiveOutreachService.computeInactive(recentDays, lookbackDays, minSessions, gameType, cooldownDays, assignedTo));
+    }
+
+    /** Admin only: assign (or clear, if adminUsername is null/blank) the re-engagement owner for a player. */
+    @PutMapping("/inactive-players/{playerId}/assign")
+    public ResponseEntity<?> assignInactivePlayer(@PathVariable Long playerId,
+                                                  @RequestBody(required = false) Map<String, Object> body,
+                                                  Authentication auth) {
+        String adminUsername = body != null && body.get("adminUsername") != null ? body.get("adminUsername").toString() : null;
+        String assignedBy = auth != null ? auth.getName() : null;
+        inactiveOutreachService.assign(playerId, adminUsername, assignedBy);
+        return ResponseEntity.ok(Map.of("ok", true));
     }
 
     /** Record that an admin contacted an inactive player (starts a fresh cooldown). */
@@ -679,6 +691,26 @@ public class ReportController {
         String handledBy = auth != null ? auth.getName() : null;
         inactiveOutreachService.handle(playerId, note, handledBy);
         return ResponseEntity.ok(Map.of("ok", true));
+    }
+
+    /** Admin only: send the real weekly-nudge WhatsApp message to a single test number, instead of
+     *  the full configured recipient list. Body: { phone }. */
+    @PostMapping("/inactive-players/test-whatsapp")
+    public ResponseEntity<?> sendTestWhatsApp(@RequestBody Map<String, Object> body) {
+        String phone = body.get("phone") != null ? body.get("phone").toString() : null;
+        if (phone == null || phone.isBlank()) return ResponseEntity.badRequest().body(Map.of("error", "phone is required"));
+        boolean ok = inactiveOutreachService.sendTestNudge(phone.trim());
+        return ok ? ResponseEntity.ok(Map.of("sent", true)) : ResponseEntity.status(502).body(Map.of("sent", false, "error", "WhatsApp send failed"));
+    }
+
+    /** Full outreach history across all players (audit log), optionally bounded by date range. */
+    @GetMapping("/inactive-players/history")
+    public ResponseEntity<?> getInactiveOutreachHistory(
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String to) {
+        java.time.LocalDate fromDate = from != null && !from.isBlank() ? java.time.LocalDate.parse(from) : null;
+        java.time.LocalDate toDate = to != null && !to.isBlank() ? java.time.LocalDate.parse(to) : null;
+        return ResponseEntity.ok(inactiveOutreachService.getHistory(fromDate, toDate));
     }
 
     /** The saved weekly criteria for the automatic run. */
