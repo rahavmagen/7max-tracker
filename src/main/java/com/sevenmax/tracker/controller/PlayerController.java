@@ -58,6 +58,27 @@ public class PlayerController {
         return ResponseEntity.ok(result);
     }
 
+    /** Inactive players (no games in the last `days`, default 30) whose balance sits outside
+     *  [-5, +5] - either they owe the club, or the club owes them. */
+    @GetMapping("/inactive-balance")
+    public ResponseEntity<List<Map<String, Object>>> getInactivePlayersBalance(
+            @RequestParam(required = false) Integer days, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        int lookbackDays = days != null ? days : 30;
+        LocalDateTime cutoff = LocalDateTime.now().minusDays(lookbackDays);
+        List<Object[]> rows = gameResultRepository.findInactivePlayersWithBalanceOutsideRange(cutoff, new BigDecimal("5"));
+        List<Map<String, Object>> result = rows.stream().map(r -> {
+            Map<String, Object> m = new java.util.LinkedHashMap<>();
+            m.put("id", r[0]);
+            m.put("username", r[1]);
+            m.put("fullName", r[2]);
+            m.put("balance", r[3]);
+            m.put("lastPlayed", r[4] != null ? r[4].toString() : null);
+            return m;
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/stale")
     public ResponseEntity<List<Map<String, String>>> getStalePlayers() {
         List<Map<String, String>> stale = playerRepository.findAll().stream()

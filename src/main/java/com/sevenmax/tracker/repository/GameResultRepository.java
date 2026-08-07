@@ -18,6 +18,26 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
     @Query("SELECT DISTINCT g.player FROM GameResult g WHERE g.session.startTime >= :since")
     List<com.sevenmax.tracker.entity.Player> findActivePlayers(@Param("since") LocalDateTime since);
 
+    /** Players who haven't played since :cutoff (or never played) whose balance sits outside
+     *  [-:threshold, +:threshold] - either owed to the club or owed to the player. Excludes
+     *  agents themselves and players attached to an agent - their balance isn't collectible the
+     *  same way and is tracked separately on the Agents page. */
+    @Query(value =
+        "SELECT p.id, p.username, p.full_name, p.balance, MAX(gs.start_time) " +
+        "FROM players p " +
+        "LEFT JOIN game_results gr ON gr.player_id = p.id " +
+        "LEFT JOIN game_sessions gs ON gr.session_id = gs.id " +
+        "WHERE COALESCE(p.is_agent, false) = false AND p.agent_id IS NULL " +
+        "GROUP BY p.id, p.username, p.full_name, p.balance " +
+        "HAVING (MAX(gs.start_time) IS NULL OR MAX(gs.start_time) < :cutoff) " +
+        "AND (p.balance < -:threshold OR p.balance > :threshold) " +
+        "ORDER BY p.balance DESC",
+        nativeQuery = true)
+    List<Object[]> findInactivePlayersWithBalanceOutsideRange(
+        @Param("cutoff") LocalDateTime cutoff,
+        @Param("threshold") java.math.BigDecimal threshold
+    );
+
     @Query("SELECT COALESCE(SUM(g.resultAmount), 0) FROM GameResult g WHERE g.player.id = :playerId")
     BigDecimal sumResultByPlayerId(Long playerId);
 
