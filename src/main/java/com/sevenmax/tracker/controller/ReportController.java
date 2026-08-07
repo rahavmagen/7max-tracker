@@ -56,6 +56,7 @@ public class ReportController {
     private final AdminExpenseRepository adminExpenseRepository;
     private final ClubExpenseRepository clubExpenseRepository;
     private final MissingNameNotificationService missingNameNotificationService;
+    private final com.sevenmax.tracker.service.InactiveOutreachService inactiveOutreachService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
 
@@ -663,26 +664,39 @@ public class ReportController {
             @RequestParam(defaultValue = "7") int recentDays,
             @RequestParam(defaultValue = "30") int lookbackDays,
             @RequestParam(defaultValue = "1") int minSessions,
-            @RequestParam(required = false) String gameType,
-            Authentication auth) {
-        if (isPlayer(auth)) return ResponseEntity.status(403).build();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime recentStart = now.minusDays(recentDays);
-        LocalDateTime refEnd = recentStart;
-        LocalDateTime refStart = recentStart.minusDays(lookbackDays);
-        String gt = (gameType == null || gameType.isBlank()) ? null : gameType;
-        List<Object[]> rows = gameResultRepository.getInactivePlayers(refStart, refEnd, recentStart, minSessions, gt);
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Object[] r : rows) {
-            Map<String, Object> m = new LinkedHashMap<>();
-            m.put("playerId", r[0]);
-            m.put("username", r[1]);
-            m.put("fullName", r[2]);
-            m.put("sessionCount", r[3]);
-            m.put("lastPlayed", r[4] != null ? r[4].toString() : null);
-            result.add(m);
-        }
-        return ResponseEntity.ok(result);
+            @RequestParam(defaultValue = "7") int cooldownDays,
+            @RequestParam(required = false) String gameType) {
+        return ResponseEntity.ok(
+                inactiveOutreachService.computeInactive(recentDays, lookbackDays, minSessions, gameType, cooldownDays));
+    }
+
+    /** Record that an admin contacted an inactive player (starts a fresh cooldown). */
+    @PostMapping("/inactive-players/{playerId}/handle")
+    public ResponseEntity<?> handleInactivePlayer(@PathVariable Long playerId,
+                                                  @RequestBody(required = false) Map<String, Object> body,
+                                                  Authentication auth) {
+        String note = body != null && body.get("note") != null ? body.get("note").toString() : null;
+        String handledBy = auth != null ? auth.getName() : null;
+        inactiveOutreachService.handle(playerId, note, handledBy);
+        return ResponseEntity.ok(Map.of("ok", true));
+    }
+
+    /** The saved weekly criteria for the automatic run. */
+    @GetMapping("/inactive-report-config")
+    public ResponseEntity<?> getInactiveReportConfig() {
+        return ResponseEntity.ok(inactiveOutreachService.getConfig());
+    }
+
+    @PutMapping("/inactive-report-config")
+    public ResponseEntity<?> saveInactiveReportConfig(@RequestBody Map<String, Object> body, Authentication auth) {
+        int recentDays = body.get("recentDays") != null ? Integer.parseInt(body.get("recentDays").toString()) : 7;
+        int lookbackDays = body.get("lookbackDays") != null ? Integer.parseInt(body.get("lookbackDays").toString()) : 30;
+        int minSessions = body.get("minSessions") != null ? Integer.parseInt(body.get("minSessions").toString()) : 10;
+        int cooldownDays = body.get("cooldownDays") != null ? Integer.parseInt(body.get("cooldownDays").toString()) : 7;
+        String gameType = body.get("gameType") != null ? body.get("gameType").toString() : null;
+        String updatedBy = auth != null ? auth.getName() : null;
+        return ResponseEntity.ok(inactiveOutreachService.saveConfig(
+                recentDays, lookbackDays, minSessions, gameType, cooldownDays, updatedBy));
     }
 
     @GetMapping("/admin/rakeback")
