@@ -115,6 +115,21 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.updatePlayer(id, player));
     }
 
+    /** Enroll/unenroll a player in a backing "program" (horse). For now only SATELLITE backing exists. */
+    @PatchMapping("/{id}/horse")
+    public ResponseEntity<?> setHorse(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        String program = body.get("program") != null ? body.get("program").toString() : "SATELLITE";
+        boolean enabled = body.get("enabled") == null || Boolean.parseBoolean(body.get("enabled").toString());
+        java.time.LocalDate since = (body.get("since") != null && !body.get("since").toString().isBlank())
+                ? java.time.LocalDate.parse(body.get("since").toString()) : java.time.LocalDate.now();
+        try {
+            return ResponseEntity.ok(playerService.setHorse(id, program, since, enabled));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}/username")
     public ResponseEntity<?> renameUsername(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();

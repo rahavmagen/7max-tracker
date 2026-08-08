@@ -57,6 +57,7 @@ public class ReportController {
     private final ClubExpenseRepository clubExpenseRepository;
     private final MissingNameNotificationService missingNameNotificationService;
     private final com.sevenmax.tracker.service.InactiveOutreachService inactiveOutreachService;
+    private final com.sevenmax.tracker.service.SatelliteBackingService satelliteBackingService;
     private final com.sevenmax.tracker.service.AgentService agentService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
@@ -718,6 +719,13 @@ public class ReportController {
     @GetMapping("/inactive-report-config")
     public ResponseEntity<?> getInactiveReportConfig() {
         return ResponseEntity.ok(inactiveOutreachService.getConfig());
+    }
+
+    /** Read-only satellite-backing P&L report for all satellite-backed players over a date range. */
+    @GetMapping("/satellite-backing")
+    public ResponseEntity<?> satelliteBacking(@RequestParam String from, @RequestParam String to, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(satelliteBackingService.report(LocalDate.parse(from), LocalDate.parse(to)));
     }
 
     @PutMapping("/inactive-report-config")

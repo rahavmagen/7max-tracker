@@ -110,6 +110,11 @@ public class PlayerService {
         if (updated.getSeeRakeback() != null) {
             player.setSeeRakeback(updated.getSeeRakeback());
         }
+        // Satellite backing (PROTOTYPE)
+        if (updated.getSatelliteBacked() != null) {
+            player.setSatelliteBacked(updated.getSatelliteBacked());
+        }
+        player.setSatelliteBackedSince(updated.getSatelliteBackedSince());
         Player saved = playerRepository.save(player);
         // If phone changed, update password for users who never logged in
         String newPhone = updated.getPhone();
@@ -127,6 +132,19 @@ public class PlayerService {
             });
         }
         return saved;
+    }
+
+    /** Enroll/unenroll a player in a backing program ("horse"). Only SATELLITE backing exists for now. */
+    @Transactional
+    public Player setHorse(Long id, String program, LocalDate since, boolean enabled) {
+        Player p = getPlayer(id);
+        if ("SATELLITE".equalsIgnoreCase(program)) {
+            p.setSatelliteBacked(enabled);
+            p.setSatelliteBackedSince(enabled ? since : null);
+        } else {
+            throw new RuntimeException("Unknown backing program: " + program);
+        }
+        return playerRepository.save(p);
     }
 
     @Transactional

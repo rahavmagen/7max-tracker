@@ -91,6 +91,12 @@ public class Player {
     // always see it regardless of this flag - it only gates the player's own view of themselves.
     private Boolean seeRakeback = false;
 
+    // Satellite backing: club fronts the buy-in for satellite MTTs, absorbs losses, and splits
+    // profit 50/50 (PROTOTYPE - not yet wired into the real balance calc).
+    private Boolean satelliteBacked = false;
+
+    private LocalDate satelliteBackedSince; // start date this agreement applies from
+
     @Column(name = "agent_id", insertable = false, updatable = false)
     private Long agentId;
 
