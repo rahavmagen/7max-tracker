@@ -97,6 +97,17 @@ public class Player {
 
     private LocalDate satelliteBackedSince; // start date this agreement applies from
 
+    // Tournament Horses: club stakes the player's results in a chosen set of game types (a
+    // running credit/loss ledger recorded via HorseTransaction). The player owes nothing while
+    // their cumulative winnings haven't yet covered what the club has fronted; once they have,
+    // the surplus splits 50/50.
+    private Boolean tournamentHorseBacked = false;
+
+    private LocalDate tournamentHorseBackedSince;
+
+    // Comma-separated GameSession.GameType names counted toward this horse's win/loss (e.g. "MTT,SNG").
+    private String tournamentHorseGameTypes;
+
     @Column(name = "agent_id", insertable = false, updatable = false)
     private Long agentId;
 

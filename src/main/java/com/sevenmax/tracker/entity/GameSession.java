@@ -35,6 +35,6 @@ public class GameSession {
     private Report report;
 
     public enum GameType {
-        NLH, PLO, PLO5, PLO6, SNG, MTT, AoF, SPIN_GOLD
+        NLH, PLO, PLO4, PLO5, PLO6, SNG, MTT, AoF, SPIN_GOLD
     }
 }

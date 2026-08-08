@@ -6,6 +6,7 @@ import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import com.sevenmax.tracker.service.PlayerService;
+import com.sevenmax.tracker.service.TournamentHorseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,6 +30,7 @@ public class PlayerController {
     private final GameResultRepository gameResultRepository;
     private final UserRepository userRepository;
     private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
+    private final TournamentHorseService tournamentHorseService;
 
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers(Authentication auth) {
@@ -115,7 +117,9 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.updatePlayer(id, player));
     }
 
-    /** Enroll/unenroll a player in a backing "program" (horse). For now only SATELLITE backing exists. */
+    /** Enroll/unenroll a player in a backing "program" (horse): SATELLITE or TOURNAMENT.
+     *  TOURNAMENT also takes gameTypes: a comma-separated list of GameSession.GameType names
+     *  counted toward that horse's win/loss. */
     @PatchMapping("/{id}/horse")
     public ResponseEntity<?> setHorse(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
@@ -123,11 +127,32 @@ public class PlayerController {
         boolean enabled = body.get("enabled") == null || Boolean.parseBoolean(body.get("enabled").toString());
         java.time.LocalDate since = (body.get("since") != null && !body.get("since").toString().isBlank())
                 ? java.time.LocalDate.parse(body.get("since").toString()) : java.time.LocalDate.now();
+        String gameTypes = body.get("gameTypes") != null ? body.get("gameTypes").toString() : null;
         try {
-            return ResponseEntity.ok(playerService.setHorse(id, program, since, enabled));
+            return ResponseEntity.ok(playerService.setHorse(id, program, since, enabled, gameTypes));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
+    }
+
+    /** Record a credit/loss ledger entry for a Tournament Horse (like a write-off, but tied to
+     *  that horse's running deficit). Body: { amount, notes, date }. */
+    @PostMapping("/{id}/horse-transaction")
+    public ResponseEntity<?> addHorseTransaction(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        if (body.get("amount") == null) return ResponseEntity.badRequest().body(Map.of("error", "amount is required"));
+        BigDecimal amount = new BigDecimal(body.get("amount").toString());
+        String notes = body.get("notes") != null ? body.get("notes").toString() : null;
+        java.time.LocalDate date = (body.get("date") != null && !body.get("date").toString().isBlank())
+                ? java.time.LocalDate.parse(body.get("date").toString()) : null;
+        String createdBy = auth != null ? auth.getName() : null;
+        return ResponseEntity.ok(tournamentHorseService.addTransaction(id, amount, notes, date, createdBy));
+    }
+
+    @GetMapping("/{id}/horse-transactions")
+    public ResponseEntity<?> getHorseTransactions(@PathVariable Long id, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(tournamentHorseService.getTransactions(id));
     }
 
     @PatchMapping("/{id}/username")

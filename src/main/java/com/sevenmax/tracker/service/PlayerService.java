@@ -136,11 +136,15 @@ public class PlayerService {
 
     /** Enroll/unenroll a player in a backing program ("horse"). Only SATELLITE backing exists for now. */
     @Transactional
-    public Player setHorse(Long id, String program, LocalDate since, boolean enabled) {
+    public Player setHorse(Long id, String program, LocalDate since, boolean enabled, String gameTypes) {
         Player p = getPlayer(id);
         if ("SATELLITE".equalsIgnoreCase(program)) {
             p.setSatelliteBacked(enabled);
             p.setSatelliteBackedSince(enabled ? since : null);
+        } else if ("TOURNAMENT".equalsIgnoreCase(program)) {
+            p.setTournamentHorseBacked(enabled);
+            p.setTournamentHorseBackedSince(enabled ? since : null);
+            p.setTournamentHorseGameTypes(enabled ? gameTypes : null);
         } else {
             throw new RuntimeException("Unknown backing program: " + program);
         }

@@ -59,6 +59,7 @@ public class ReportController {
     private final com.sevenmax.tracker.service.InactiveOutreachService inactiveOutreachService;
     private final com.sevenmax.tracker.service.SatelliteBackingService satelliteBackingService;
     private final com.sevenmax.tracker.service.AgentService agentService;
+    private final com.sevenmax.tracker.service.TournamentHorseService tournamentHorseService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
 
@@ -726,6 +727,14 @@ public class ReportController {
     public ResponseEntity<?> satelliteBacking(@RequestParam String from, @RequestParam String to, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(satelliteBackingService.report(LocalDate.parse(from), LocalDate.parse(to)));
+    }
+
+    /** Read-only status report for all Tournament Horses: winnings vs. fronted, and the
+     *  player/club split once the deficit is cleared. */
+    @GetMapping("/tournament-horses")
+    public ResponseEntity<?> tournamentHorses(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(tournamentHorseService.report());
     }
 
     @PutMapping("/inactive-report-config")
