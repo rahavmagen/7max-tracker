@@ -41,15 +41,18 @@ public class MissingNameNotificationService {
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     /**
-     * Players with no name who have ACTUALLY PLAYED (>= 1 game result) — email the list if any are found.
-     * Previously this used "has chips", which wrongly flagged agent players who hold agent-given chips
-     * but never played (e.g. m11223344).
+     * Players with no name who have ACTUALLY PLAYED (>= 1 game result) and currently hold chips —
+     * email the list if any are found. Previously this used "has chips" alone (no play-history
+     * check), which wrongly flagged agent players who hold agent-given chips but never played
+     * (e.g. m11223344); the play-history filter was added, but a zero-chip player who played in
+     * the past and has since cashed out has nothing left to reconcile, so they're excluded too.
      */
     public void checkAndNotify() {
         java.util.Set<Long> playedIds = new java.util.HashSet<>(gameResultRepository.findPlayerIdsWithGameResults());
         List<Player> flagged = playerRepository.findAll().stream()
             .filter(p -> p.getFullName() == null || p.getFullName().trim().isEmpty())
             .filter(p -> playedIds.contains(p.getId()))
+            .filter(p -> p.getCurrentChips() != null && p.getCurrentChips().compareTo(BigDecimal.ZERO) != 0)
             .collect(Collectors.toList());
 
         if (flagged.isEmpty()) return;

@@ -194,8 +194,22 @@ public class InactiveOutreachService {
         return configRepository.save(c);
     }
 
-    /** Weekly job: compute with the saved criteria and WhatsApp the admins if anyone needs a call. */
+    /** Weekly job: compute with the saved criteria and WhatsApp the admins if anyone needs a call.
+     *  Guards against firing twice on the same day (e.g. a deploy's rolling restart briefly
+     *  overlapping old and new instances right around the Sunday 10:00 trigger). */
+    @Transactional
     public void runWeekly() {
+        if (!configRepository.existsById(1L)) {
+            try {
+                configRepository.save(getConfig());
+            } catch (Exception ignored) {
+                // Another instance raced us to create the row - fine, the claim below still decides the winner.
+            }
+        }
+        if (configRepository.claimNudgeForDate(LocalDate.now()) == 0) {
+            log.info("Weekly inactive-players run: already sent today, skipping duplicate fire");
+            return;
+        }
         InactiveReportConfig c = getConfig();
         List<Map<String, Object>> list = computeInactive(
                 c.getRecentDays(), c.getLookbackDays(), c.getMinSessions(), c.getGameType(), c.getCooldownDays(), null);

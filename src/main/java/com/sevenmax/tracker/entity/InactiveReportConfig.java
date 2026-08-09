@@ -3,6 +3,7 @@ package com.sevenmax.tracker.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -37,4 +38,9 @@ public class InactiveReportConfig {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // Guards against sending the weekly nudge twice on the same day - e.g. if a deploy's rolling
+    // restart briefly overlaps old and new instances right around the Sunday 10:00 trigger.
+    @Column(name = "last_nudge_sent_date")
+    private LocalDate lastNudgeSentDate;
 }
