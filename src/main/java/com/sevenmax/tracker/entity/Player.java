@@ -97,6 +97,10 @@ public class Player {
 
     private LocalDate satelliteBackedSince; // start date this agreement applies from
 
+    // Exclusive end date: games on/after this date no longer count. Null = still open-ended.
+    // Lets an admin schedule a horse's removal without losing games played before the cutoff.
+    private LocalDate satelliteBackedUntil;
+
     // Tournament Horses: club stakes the player's results in a chosen set of game types (a
     // running credit/loss ledger recorded via HorseTransaction). The player owes nothing while
     // their cumulative winnings haven't yet covered what the club has fronted; once they have,
@@ -104,6 +108,9 @@ public class Player {
     private Boolean tournamentHorseBacked = false;
 
     private LocalDate tournamentHorseBackedSince;
+
+    // Exclusive end date: games on/after this date no longer count. Null = still open-ended.
+    private LocalDate tournamentHorseBackedUntil;
 
     // Comma-separated GameSession.GameType names counted toward this horse's win/loss (e.g. "MTT,SNG").
     private String tournamentHorseGameTypes;

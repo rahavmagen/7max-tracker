@@ -60,7 +60,13 @@ public class SatelliteBackingService {
         if (player.getSatelliteBackedSince() != null && player.getSatelliteBackedSince().isAfter(from)) {
             effectiveFrom = player.getSatelliteBackedSince();
         }
-        if (effectiveFrom.isAfter(to)) return null;
+        LocalDate effectiveTo = to;
+        if (player.getSatelliteBackedUntil() != null) {
+            // Exclusive end date -> the last countable day is the day before it.
+            LocalDate lastCountedDay = player.getSatelliteBackedUntil().minusDays(1);
+            if (lastCountedDay.isBefore(effectiveTo)) effectiveTo = lastCountedDay;
+        }
+        if (effectiveFrom.isAfter(effectiveTo)) return null;
 
         // The player's own MTT results in range, indexed by session and grouped by day.
         Map<LocalDate, List<GameResult>> byDay = new LinkedHashMap<>();
@@ -68,7 +74,7 @@ public class SatelliteBackingService {
             GameSession s = gr.getSession();
             if (s == null || s.getGameType() != GameSession.GameType.MTT || s.getStartTime() == null) continue;
             LocalDate d = s.getStartTime().toLocalDate();
-            if (d.isBefore(effectiveFrom) || d.isAfter(to)) continue;
+            if (d.isBefore(effectiveFrom) || d.isAfter(effectiveTo)) continue;
             byDay.computeIfAbsent(d, k -> new ArrayList<>()).add(gr);
         }
 
@@ -210,6 +216,7 @@ public class SatelliteBackingService {
         row.put("playerId", player.getId());
         row.put("username", player.getUsername());
         row.put("satelliteBackedSince", player.getSatelliteBackedSince() != null ? player.getSatelliteBackedSince().toString() : null);
+        row.put("satelliteBackedUntil", player.getSatelliteBackedUntil() != null ? player.getSatelliteBackedUntil().toString() : null);
         row.put("satCost", satCost);
         row.put("sharedReturns", sharedReturns);
         row.put("playerShare", playerShare);

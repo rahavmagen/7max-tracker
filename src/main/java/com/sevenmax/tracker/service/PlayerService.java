@@ -134,17 +134,39 @@ public class PlayerService {
         return saved;
     }
 
-    /** Enroll/unenroll a player in a backing program ("horse"). Only SATELLITE backing exists for now. */
+    /** Enroll/unenroll a player in a backing program ("horse"): SATELLITE or TOURNAMENT.
+     *  enabled=false with until=null is an immediate full removal (clears everything). enabled=false
+     *  with until set instead schedules an end date: the horse stays enrolled so games before that
+     *  date keep counting, but no games on/after it will (see TournamentHorseService/SatelliteBackingService). */
     @Transactional
-    public Player setHorse(Long id, String program, LocalDate since, boolean enabled, String gameTypes) {
+    public Player setHorse(Long id, String program, LocalDate since, boolean enabled, String gameTypes, LocalDate until) {
         Player p = getPlayer(id);
         if ("SATELLITE".equalsIgnoreCase(program)) {
-            p.setSatelliteBacked(enabled);
-            p.setSatelliteBackedSince(enabled ? since : null);
+            if (enabled) {
+                p.setSatelliteBacked(true);
+                p.setSatelliteBackedSince(since);
+                p.setSatelliteBackedUntil(until);
+            } else if (until != null) {
+                p.setSatelliteBackedUntil(until);
+            } else {
+                p.setSatelliteBacked(false);
+                p.setSatelliteBackedSince(null);
+                p.setSatelliteBackedUntil(null);
+            }
         } else if ("TOURNAMENT".equalsIgnoreCase(program)) {
-            p.setTournamentHorseBacked(enabled);
-            p.setTournamentHorseBackedSince(enabled ? since : null);
-            p.setTournamentHorseGameTypes(enabled ? gameTypes : null);
+            if (enabled) {
+                p.setTournamentHorseBacked(true);
+                p.setTournamentHorseBackedSince(since);
+                p.setTournamentHorseGameTypes(gameTypes);
+                p.setTournamentHorseBackedUntil(until);
+            } else if (until != null) {
+                p.setTournamentHorseBackedUntil(until);
+            } else {
+                p.setTournamentHorseBacked(false);
+                p.setTournamentHorseBackedSince(null);
+                p.setTournamentHorseGameTypes(null);
+                p.setTournamentHorseBackedUntil(null);
+            }
         } else {
             throw new RuntimeException("Unknown backing program: " + program);
         }

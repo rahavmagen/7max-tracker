@@ -119,7 +119,9 @@ public class PlayerController {
 
     /** Enroll/unenroll a player in a backing "program" (horse): SATELLITE or TOURNAMENT.
      *  TOURNAMENT also takes gameTypes: a comma-separated list of GameSession.GameType names
-     *  counted toward that horse's win/loss. */
+     *  counted toward that horse's win/loss. An optional "until" (exclusive end date) schedules
+     *  removal instead of clearing enrollment immediately - games on/after that date stop counting,
+     *  but the horse and everything before the cutoff stays in the report. */
     @PatchMapping("/{id}/horse")
     public ResponseEntity<?> setHorse(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
@@ -127,9 +129,11 @@ public class PlayerController {
         boolean enabled = body.get("enabled") == null || Boolean.parseBoolean(body.get("enabled").toString());
         java.time.LocalDate since = (body.get("since") != null && !body.get("since").toString().isBlank())
                 ? java.time.LocalDate.parse(body.get("since").toString()) : java.time.LocalDate.now();
+        java.time.LocalDate until = (body.get("until") != null && !body.get("until").toString().isBlank())
+                ? java.time.LocalDate.parse(body.get("until").toString()) : null;
         String gameTypes = body.get("gameTypes") != null ? body.get("gameTypes").toString() : null;
         try {
-            return ResponseEntity.ok(playerService.setHorse(id, program, since, enabled, gameTypes));
+            return ResponseEntity.ok(playerService.setHorse(id, program, since, enabled, gameTypes, until));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

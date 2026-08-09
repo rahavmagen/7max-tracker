@@ -73,9 +73,11 @@ public class TournamentHorseService {
                 : Arrays.stream(horse.getTournamentHorseGameTypes().split(",")).map(String::trim)
                     .filter(s -> !s.isEmpty()).collect(Collectors.toSet());
             LocalDate since = horse.getTournamentHorseBackedSince();
+            LocalDate until = horse.getTournamentHorseBackedUntil();
 
             List<GameResult> countedGames = gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(horse.getId()).stream()
                 .filter(gr -> since == null || !gr.getSession().getStartTime().toLocalDate().isBefore(since))
+                .filter(gr -> until == null || gr.getSession().getStartTime().toLocalDate().isBefore(until))
                 .filter(gr -> gameTypes.contains(gr.getSession().getGameType().name()))
                 .collect(Collectors.toList());
             BigDecimal winnings = countedGames.stream().map(TournamentHorseService::pnlOf).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -97,6 +99,7 @@ public class TournamentHorseService {
             m.put("fullName", horse.getFullName());
             m.put("gameTypes", horse.getTournamentHorseGameTypes());
             m.put("backedSince", since != null ? since.toString() : null);
+            m.put("backedUntil", until != null ? until.toString() : null);
             m.put("winnings", winnings.setScale(2, RoundingMode.HALF_UP));
             m.put("fronted", fronted.setScale(2, RoundingMode.HALF_UP));
             m.put("net", net);
