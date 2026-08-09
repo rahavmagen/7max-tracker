@@ -40,6 +40,64 @@ public class ReportService {
     private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
     private final com.sevenmax.tracker.repository.UserRepository userRepository;
 
+    /** One-time backfill: re-parses the SNG Detail sheet of every already-uploaded report on/after
+     *  `since` (a bug meant SNG games were never imported at all until this was fixed). Reuses
+     *  parseSngDetail as-is, associating new sessions/results with the ORIGINAL historical report -
+     *  it does not touch anything else from those reports (chips, rake from other sheets, etc.). */
+    @Transactional(rollbackFor = Exception.class)
+    public Map<String, Object> backfillSngResults(LocalDate since) {
+        List<Report> reports = reportRepository.findAll().stream()
+            .filter(r -> r.getPeriodEnd() != null && !r.getPeriodEnd().isBefore(since))
+            .sorted(Comparator.comparing(Report::getPeriodEnd))
+            .toList();
+
+        List<Map<String, Object>> perReport = new ArrayList<>();
+        BigDecimal totalRakeAdded = BigDecimal.ZERO;
+        for (Report report : reports) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("reportId", report.getId());
+            row.put("fileName", report.getFileName());
+            row.put("periodEnd", report.getPeriodEnd() != null ? report.getPeriodEnd().toString() : null);
+
+            byte[] bytes = null;
+            if (report.getFileData() != null && report.getFileData().length > 0) {
+                bytes = report.getFileData();
+            } else if (report.getFilePath() != null && new java.io.File(report.getFilePath()).exists()) {
+                try { bytes = Files.readAllBytes(Paths.get(report.getFilePath())); } catch (Exception ignored) {}
+            }
+            if (bytes == null) {
+                row.put("skipped", "no stored file");
+                perReport.add(row);
+                continue;
+            }
+
+            long sessionsBefore = gameSessionRepository.count();
+            try (InputStream is = new java.io.ByteArrayInputStream(bytes);
+                 Workbook workbook = new XSSFWorkbook(is)) {
+                if (workbook.getSheet("SNG Detail") == null) {
+                    row.put("skipped", "no SNG Detail sheet");
+                    perReport.add(row);
+                    continue;
+                }
+                BigDecimal rake = parseSngDetail(workbook, report, new HashMap<>(), new HashMap<>());
+                long sessionsAfter = gameSessionRepository.count();
+                row.put("sessionsAdded", sessionsAfter - sessionsBefore);
+                row.put("rakeAdded", rake);
+                totalRakeAdded = totalRakeAdded.add(rake);
+            } catch (Exception e) {
+                row.put("error", e.getMessage());
+                log.error("SNG backfill failed for report {}: {}", report.getId(), e.getMessage(), e);
+            }
+            perReport.add(row);
+        }
+
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("reportsScanned", reports.size());
+        summary.put("totalRakeAdded", totalRakeAdded);
+        summary.put("perReport", perReport);
+        return summary;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
         byte[] fileBytes = file.getBytes();
@@ -94,6 +152,7 @@ public class ReportService {
             BigDecimal detailScale = computeDetailScaleFactor(workbook);
             totalRake = totalRake.add(parseRingGameDetail(workbook, report, gamePnlMap, nicknameToClubId, detailScale));
             totalRake = totalRake.add(parseMttDetail(workbook, report, gamePnlMap, nicknameToClubId, detailScale));
+            totalRake = totalRake.add(parseSngDetail(workbook, report, gamePnlMap, nicknameToClubId));
             parseMttStatistics(workbook);
 
             // Parse Club Member Balance → map of nickname → [chips, clubId]
@@ -1511,6 +1570,105 @@ public class ReportService {
                     gameSessionRepository.save(s);
                 }
             });
+        }
+        return totalRake;
+    }
+
+    /**
+     * SNG Detail has its own sheet, separate from MTT Detail, with a simpler layout (no
+     * re-entries): Start/End Time, Table Name, Game Info, then one row per player with
+     * [ID, Nickname, Buy-in, Fee, Hands, Prize, Winnings]. parseMttSessionHeader already
+     * detects GameType.SNG from the "Game :" line, so it's reused as-is for the header.
+     */
+    private BigDecimal parseSngDetail(Workbook workbook, Report report, Map<String, BigDecimal> gamePnlMap, Map<String, String> nicknameToClubId) {
+        Sheet sheet = workbook.getSheet("SNG Detail");
+        if (sheet == null) return BigDecimal.ZERO;
+
+        BigDecimal totalRake = BigDecimal.ZERO;
+        GameSession currentSession = null;
+        Map<String, GameSession> sessionMap = new HashMap<>();
+        Map<String, GameResult> resultMap = new HashMap<>();
+        Map<Long, Integer> sessionPositions = new HashMap<>();
+        int lastRow = sheet.getLastRowNum();
+
+        for (int r = 0; r <= lastRow; r++) {
+            Row row = sheet.getRow(r);
+            if (row == null) continue;
+            String firstCell = getCellValue(row, 0);
+            if (firstCell == null || firstCell.isBlank()) continue;
+
+            if (firstCell.startsWith("Start/End Time")) {
+                GameSession candidate = new GameSession();
+                candidate.setReport(report);
+                parseMttSessionHeader(sheet, r, candidate);
+                String sessionKey = candidate.getStartTime() + "|" + candidate.getTableName();
+                currentSession = sessionMap.get(sessionKey);
+                if (currentSession == null) {
+                    currentSession = gameSessionRepository.save(candidate);
+                    sessionMap.put(sessionKey, currentSession);
+                }
+                r += 4;
+                continue;
+            }
+
+            if (firstCell.equals("Total")) continue;
+
+            if (currentSession != null && firstCell.matches("\\d{4}-\\d{4}")) {
+                String clubPlayerId = firstCell;
+                String nickname = getCellValue(row, 1);
+                BigDecimal buyIn = parseBigDecimal(getCellValue(row, 2));
+                BigDecimal fee = parseBigDecimal(getCellValue(row, 3));
+                int hands = parseInteger(getCellValue(row, 4));
+                BigDecimal prize = parseBigDecimal(getCellValue(row, 5));
+                BigDecimal winnings = parseBigDecimal(getCellValue(row, 6));
+                BigDecimal totalBuyIn = buyIn.add(fee);
+
+                Player player = playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst()
+                        .or(() -> findPlayerByUsername(nickname))
+                        .orElseGet(() -> {
+                            Player p = new Player();
+                            p.setClubPlayerId(clubPlayerId);
+                            p.setUsername(nickname);
+                            return playerService.createPlayer(p);
+                        });
+                if (player.getClubPlayerId() == null || player.getClubPlayerId().isBlank()) {
+                    player.setClubPlayerId(clubPlayerId);
+                    playerRepository.save(player);
+                }
+
+                String resultKey = currentSession.getId() + "|" + player.getId();
+                GameResult result = resultMap.get(resultKey);
+                if (result != null) {
+                    result.setBuyIn(result.getBuyIn().add(totalBuyIn));
+                    result.setCashout(result.getCashout().add(winnings));
+                    result.setHandsPlayed(result.getHandsPlayed() + hands);
+                    result.setRakePaid(result.getRakePaid().add(fee));
+                    result.setResultAmount(result.getResultAmount().add(prize));
+                    applyAgentRakeShare(result);
+                    gameResultRepository.save(result);
+                } else {
+                    int place = sessionPositions.merge(currentSession.getId(), 1, Integer::sum);
+                    result = new GameResult();
+                    result.setSession(currentSession);
+                    result.setPlayer(player);
+                    result.setBuyIn(totalBuyIn);
+                    result.setCashout(winnings);
+                    result.setHandsPlayed(hands);
+                    result.setRakePaid(fee);
+                    result.setResultAmount(prize);
+                    result.setTournamentPlace(place);
+                    applyAgentRakeShare(result);
+                    gameResultRepository.save(result);
+                    resultMap.put(resultKey, result);
+                }
+
+                totalRake = totalRake.add(fee);
+
+                if (nickname != null && !nickname.isBlank()) {
+                    gamePnlMap.merge(nickname.toLowerCase(), winnings, BigDecimal::add);
+                    nicknameToClubId.put(nickname.toLowerCase(), clubPlayerId);
+                }
+            }
         }
         return totalRake;
     }

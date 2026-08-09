@@ -449,6 +449,14 @@ public class ReportController {
         }
     }
 
+    /** One-time backfill: re-parses the SNG Detail sheet of every already-uploaded report on/after
+     *  `since` (SNG games were never imported until this bug was fixed). */
+    @PostMapping("/admin/backfill-sng")
+    public ResponseEntity<?> backfillSng(@RequestParam String since, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(reportService.backfillSngResults(LocalDate.parse(since)));
+    }
+
     @PostMapping("/admin/backfill-chips-total")
     public ResponseEntity<Map<String, Object>> backfillChipsTotal(Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
