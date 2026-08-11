@@ -71,6 +71,17 @@ public class AgentService {
     /** All agents with their pending (unsettled) balance, plus games played and total club rake
      *  by their players over an optional date range (null = all time). */
     @Transactional(readOnly = true)
+    /** Every game result that counts toward an agent's page: their sub-players' games PLUS the
+     *  agent's OWN play (deduped by result id). {@code findAllByAgentId} returns only sub-players
+     *  (the agent isn't their own agent), so the agent's own results are merged in — the agent is
+     *  treated like one of their own players (own P&L and own rake both count). */
+    private List<GameResult> agentAndOwnResults(Long agentId) {
+        java.util.LinkedHashMap<Long, GameResult> byId = new java.util.LinkedHashMap<>();
+        for (GameResult gr : gameResultRepository.findAllByAgentId(agentId)) byId.put(gr.getId(), gr);
+        for (GameResult gr : gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(agentId)) byId.put(gr.getId(), gr);
+        return new ArrayList<>(byId.values());
+    }
+
     public List<Map<String, Object>> getAllAgentsSummary(LocalDate from, LocalDate to) {
         List<Player> allPlayers = playerRepository.findAll();
         return allPlayers.stream()
@@ -84,11 +95,10 @@ public class AgentService {
                     .filter(p -> !p.getId().equals(agent.getId()))
                     .count();
 
-                // Games played and total club rake by this agent's players, over the date range.
-                // Exclude the agent's OWN games — only their players count, same as the detail page.
+                // Games played and total club rake by this agent's players AND the agent's own play,
+                // over the date range (the agent is treated like one of their own players).
                 final Long agentId = agent.getId();
-                List<GameResult> results = gameResultRepository.findAllByAgentId(agentId).stream()
-                    .filter(gr -> !gr.getPlayer().getId().equals(agentId))
+                List<GameResult> results = agentAndOwnResults(agentId).stream()
                     .filter(gr -> {
                         LocalDate d = gr.getSession().getStartTime().toLocalDate();
                         if (from != null && d.isBefore(from)) return false;
@@ -150,6 +160,7 @@ public class AgentService {
                 m.put("id", agent.getId());
                 m.put("username", agent.getUsername());
                 m.put("fullName", agent.getFullName());
+                m.put("phone", agent.getPhone());
                 m.put("rakePercentage", agent.getAgentRakePercentage());
                 m.put("clubManaged", Boolean.TRUE.equals(agent.getClubManaged()));
                 // Balance reconciles with the shown columns: starting − agentRake − P&L + payments, over [from,to].
@@ -356,17 +367,19 @@ public class AgentService {
     /** Per-player rake stats for an agent, with optional date filter (all results, settled+unsettled) */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getPlayerStats(Long agentId, LocalDate from, LocalDate to) {
-        playerRepository.findById(agentId)
+        Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
 
-        // All players under this agent (excluding the agent themselves)
-        List<Player> agentPlayers = playerRepository.findAll().stream()
+        // All players under this agent PLUS the agent themselves (as their own player row).
+        List<Player> agentPlayers = new ArrayList<>();
+        agentPlayers.add(agent);
+        playerRepository.findAll().stream()
             .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
             .filter(p -> !p.getId().equals(agentId))
-            .collect(Collectors.toList());
+            .forEach(agentPlayers::add);
 
-        // Game results grouped by player id
-        Map<Long, List<GameResult>> resultsByPlayer = gameResultRepository.findAllByAgentId(agentId).stream()
+        // Game results grouped by player id (sub-players + the agent's own play)
+        Map<Long, List<GameResult>> resultsByPlayer = agentAndOwnResults(agentId).stream()
             .filter(gr -> {
                 LocalDate d = gr.getSession().getStartTime().toLocalDate();
                 if (from != null && d.isBefore(from)) return false;
@@ -384,6 +397,12 @@ public class AgentService {
                 BigDecimal agentShare = rows.stream()
                     .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+                // The agent's own games carry no stored agentRakeShare — compute it from the agent's %
+                // so the self row's commission matches what the balance's Agent Rake includes.
+                if (player.getId().equals(agentId)) {
+                    BigDecimal pct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
+                    agentShare = pct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
+                }
                 BigDecimal periodPnl = rows.stream()
                     .map(AgentService::pnlOf)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -405,6 +424,7 @@ public class AgentService {
                 m.put("playerId", player.getId());
                 m.put("username", player.getUsername());
                 m.put("fullName", player.getFullName());
+                m.put("isSelf", player.getId().equals(agentId));   // the agent's own play row
                 m.put("balance", player.getBalance());
                 m.put("gameCount", rows.size());
                 m.put("totalRake", totalRake);
@@ -445,8 +465,7 @@ public class AgentService {
         // already captured in the starting balance are not double-counted.
         final LocalDate accrualFrom = from != null ? from : getLastSettlementDate();
 
-        List<GameResult> results = gameResultRepository.findAllByAgentId(agentId).stream()
-            .filter(gr -> !gr.getPlayer().getId().equals(agentId))
+        List<GameResult> results = agentAndOwnResults(agentId).stream()
             .filter(gr -> inRange(gr.getSession().getStartTime().toLocalDate(), accrualFrom, to))
             .collect(Collectors.toList());
         BigDecimal totalRake = results.stream()

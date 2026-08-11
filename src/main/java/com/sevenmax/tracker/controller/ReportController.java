@@ -60,6 +60,7 @@ public class ReportController {
     private final com.sevenmax.tracker.service.SatelliteBackingService satelliteBackingService;
     private final com.sevenmax.tracker.service.AgentService agentService;
     private final com.sevenmax.tracker.service.TournamentHorseService tournamentHorseService;
+    private final com.sevenmax.tracker.repository.PlayerRakebackRepository playerRakebackRepository;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
 
@@ -777,43 +778,36 @@ public class ReportController {
         }
         result.put("daysSince", java.time.temporal.ChronoUnit.DAYS.between(lastSettlement, LocalDate.now()));
 
-        Map<Long, BigDecimal> rakeByPlayer = new HashMap<>();
-        for (Object[] r : gameResultRepository.getRakePerPlayerSince(lastSettlement.atStartOfDay())) {
-            rakeByPlayer.put(((Number) r[0]).longValue(), new BigDecimal(r[1].toString()));
-        }
-
         List<Player> allPlayers = playerRepository.findAll();
+        Map<Long, Player> playerById = new HashMap<>();
+        for (Player p : allPlayers) playerById.put(p.getId(), p);
 
+        // Players' expected rakeback = sum of each per-game-type deal's (rake since max(lastSettlement,
+        // deal.startDate)) × %. One breakdown row per deal.
+        LocalDateTime nowDt = LocalDate.now().plusDays(1).atStartOfDay();
         BigDecimal playersExpected = BigDecimal.ZERO;
         List<Map<String, Object>> playersBreakdown = new ArrayList<>();
-        for (Player p : allPlayers) {
-            if (p.getRakebackPercentage() == null || p.getRakebackPercentage().compareTo(BigDecimal.ZERO) == 0) continue;
-            LocalDate effectiveFrom = lastSettlement;
-            if (p.getRakebackSince() != null && p.getRakebackSince().isAfter(lastSettlement)) {
-                effectiveFrom = p.getRakebackSince();
-            }
-            BigDecimal rake;
-            if (effectiveFrom.equals(lastSettlement)) {
-                rake = rakeByPlayer.getOrDefault(p.getId(), BigDecimal.ZERO);
-            } else if (effectiveFrom.isAfter(LocalDate.now())) {
-                rake = BigDecimal.ZERO;
-            } else {
-                // Rare edge case: rakeback only started after the checkpoint - narrow the window for this player only.
-                final LocalDate windowStart = effectiveFrom;
-                rake = gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(p.getId()).stream()
-                        .filter(gr -> !gr.getSession().getStartTime().toLocalDate().isBefore(windowStart))
-                        .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-            }
-            if (rake.compareTo(BigDecimal.ZERO) == 0) continue;
-            BigDecimal amount = p.getRakebackPercentage().multiply(rake).setScale(2, java.math.RoundingMode.HALF_UP);
+        for (com.sevenmax.tracker.entity.PlayerRakeback deal : playerRakebackRepository.findAll()) {
+            if (deal.getPercentage() == null || deal.getPercentage().signum() == 0) continue;
+            LocalDate effectiveFrom = (deal.getStartDate() != null && deal.getStartDate().isAfter(lastSettlement))
+                    ? deal.getStartDate() : lastSettlement;
+            if (effectiveFrom.isAfter(LocalDate.now())) continue;
+            BigDecimal rake = gameResultRepository.getRakePerPlayerBetweenByGameTypes(
+                    effectiveFrom.atStartOfDay(), nowDt, List.of(deal.getGameType())).stream()
+                    .filter(r -> ((Number) r[0]).longValue() == deal.getPlayerId())
+                    .map(r -> new BigDecimal(r[1].toString()))
+                    .findFirst().orElse(BigDecimal.ZERO);
+            if (rake.signum() == 0) continue;
+            BigDecimal amount = deal.getPercentage().multiply(rake).setScale(2, java.math.RoundingMode.HALF_UP);
             playersExpected = playersExpected.add(amount);
+            Player p = playerById.get(deal.getPlayerId());
             Map<String, Object> row = new LinkedHashMap<>();
-            row.put("playerId", p.getId());
-            row.put("username", p.getUsername());
-            row.put("fullName", p.getFullName());
+            row.put("playerId", deal.getPlayerId());
+            row.put("username", p != null ? p.getUsername() : "");
+            row.put("fullName", p != null ? p.getFullName() : "");
+            row.put("gameType", deal.getGameType());
             row.put("rake", rake);
-            row.put("rakebackPercentage", p.getRakebackPercentage());
+            row.put("rakebackPercentage", deal.getPercentage());
             row.put("amount", amount);
             playersBreakdown.add(row);
         }
@@ -848,72 +842,47 @@ public class ReportController {
         return ResponseEntity.ok(result);
     }
 
+    /** Deal-driven rakeback report: one row per (player, game-type) rakeback deal. No game selection —
+     *  each deal knows its game type. Per deal, effectiveFrom = max(dateFrom, deal.startDate). */
     @GetMapping("/admin/rakeback")
     public ResponseEntity<List<Map<String, Object>>> rakebackReport(
             @RequestParam String dateFrom,
             @RequestParam String dateTo,
-            @RequestParam(required = false) String gameTypes,
             Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         LocalDate fromDate = LocalDate.parse(dateFrom);
         LocalDate toDate = LocalDate.parse(dateTo);
-
-        // Empty/missing selection means no rakeback at all (not "all games") - every
-        // player's rake map stays empty, so totalRakePaid/rakebackAmount come out 0.
-        List<String> gameTypeList = gameTypes == null ? List.of() : java.util.Arrays.stream(gameTypes.split(","))
-                .map(String::trim).filter(s -> !s.isEmpty()).collect(java.util.stream.Collectors.toList());
-
-        // Build rake map for the full requested period
-        LocalDateTime fromDt = fromDate.atStartOfDay();
         LocalDateTime toDt = toDate.plusDays(1).atStartOfDay();
-        Map<Long, BigDecimal> rakeMap = new HashMap<>();
-        if (!gameTypeList.isEmpty()) {
-            for (Object[] r : gameResultRepository.getRakePerPlayerBetweenByGameTypes(fromDt, toDt, gameTypeList)) {
-                rakeMap.put(((Number) r[0]).longValue(), new BigDecimal(r[1].toString()));
-            }
-        }
 
-        // Build per-player effective rake (respecting rakebackSince)
+        Map<Long, Player> playerById = new HashMap<>();
+        for (Player p : playerRepository.findAll()) playerById.put(p.getId(), p);
+
         List<Map<String, Object>> result = new ArrayList<>();
-        for (Player p : playerRepository.findAll()) {
-            if (p.getRakebackPercentage() == null || p.getRakebackPercentage().compareTo(BigDecimal.ZERO) == 0) continue;
-
-            // Effective start = MAX(dateFrom, rakebackSince)
-            LocalDate effectiveFrom = fromDate;
-            if (p.getRakebackSince() != null && p.getRakebackSince().isAfter(fromDate)) {
-                effectiveFrom = p.getRakebackSince();
-            }
-
-            // If rakebackSince is after dateTo, skip
+        for (com.sevenmax.tracker.entity.PlayerRakeback deal : playerRakebackRepository.findAll()) {
+            if (deal.getPercentage() == null || deal.getPercentage().signum() == 0) continue;
+            // Effective start = MAX(dateFrom, deal.startDate); skip if it starts after the window.
+            LocalDate effectiveFrom = (deal.getStartDate() != null && deal.getStartDate().isAfter(fromDate))
+                    ? deal.getStartDate() : fromDate;
             if (effectiveFrom.isAfter(toDate)) continue;
 
-            BigDecimal totalRakePaid;
-            if (effectiveFrom.equals(fromDate)) {
-                // Use the already-fetched full-period rake
-                totalRakePaid = rakeMap.getOrDefault(p.getId(), BigDecimal.ZERO);
-            } else if (gameTypeList.isEmpty()) {
-                totalRakePaid = BigDecimal.ZERO;
-            } else {
-                // Re-query from effectiveFrom
-                List<Object[]> rows = gameResultRepository.getRakePerPlayerBetweenByGameTypes(
-                        effectiveFrom.atStartOfDay(), toDt, gameTypeList);
-                totalRakePaid = rows.stream()
-                        .filter(r -> ((Number) r[0]).longValue() == p.getId())
-                        .map(r -> new BigDecimal(r[1].toString()))
-                        .findFirst().orElse(BigDecimal.ZERO);
-            }
+            BigDecimal rake = gameResultRepository.getRakePerPlayerBetweenByGameTypes(
+                    effectiveFrom.atStartOfDay(), toDt, List.of(deal.getGameType())).stream()
+                    .filter(r -> ((Number) r[0]).longValue() == deal.getPlayerId())
+                    .map(r -> new BigDecimal(r[1].toString()))
+                    .findFirst().orElse(BigDecimal.ZERO);
 
-            BigDecimal rakebackAmount = totalRakePaid.multiply(p.getRakebackPercentage())
-                    .setScale(2, java.math.RoundingMode.HALF_UP);
+            BigDecimal rakebackAmount = rake.multiply(deal.getPercentage()).setScale(2, java.math.RoundingMode.HALF_UP);
+            Player p = playerById.get(deal.getPlayerId());
 
             Map<String, Object> m = new LinkedHashMap<>();
-            m.put("playerId", p.getId());
-            m.put("username", p.getUsername());
-            m.put("fullName", p.getFullName());
-            m.put("rakebackPercentage", p.getRakebackPercentage());
-            m.put("rakebackSince", p.getRakebackSince() != null ? p.getRakebackSince().toString() : null);
+            m.put("playerId", deal.getPlayerId());
+            m.put("username", p != null ? p.getUsername() : "");
+            m.put("fullName", p != null ? p.getFullName() : "");
+            m.put("gameType", deal.getGameType());
+            m.put("rakebackPercentage", deal.getPercentage());
+            m.put("startDate", deal.getStartDate() != null ? deal.getStartDate().toString() : null);
             m.put("effectiveFrom", effectiveFrom.toString());
-            m.put("totalRakePaid", totalRakePaid);
+            m.put("totalRakePaid", rake);
             m.put("rakebackAmount", rakebackAmount);
             result.add(m);
         }

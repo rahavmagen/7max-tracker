@@ -31,6 +31,7 @@ public class PlayerController {
     private final UserRepository userRepository;
     private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
     private final TournamentHorseService tournamentHorseService;
+    private final com.sevenmax.tracker.repository.PlayerRakebackRepository playerRakebackRepository;
 
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers(Authentication auth) {
@@ -157,6 +158,52 @@ public class PlayerController {
     public ResponseEntity<?> getHorseTransactions(@PathVariable Long id, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(tournamentHorseService.getTransactions(id));
+    }
+
+    /** Per-game-type rakeback deals for a player. */
+    @GetMapping("/{id}/rakeback")
+    public ResponseEntity<?> getRakebackDeals(@PathVariable Long id, Authentication auth) {
+        if (isPlayer(auth) && !id.equals(getPlayerId(auth))) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(playerRakebackRepository.findByPlayerIdOrderByGameTypeAsc(id));
+    }
+
+    /** Add a rakeback deal: { gameType, percentage (fraction, e.g. 0.30), startDate }. */
+    @PostMapping("/{id}/rakeback")
+    public ResponseEntity<?> addRakebackDeal(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        if (body.get("gameType") == null || body.get("gameType").toString().isBlank())
+            return ResponseEntity.badRequest().body(Map.of("error", "gameType is required"));
+        if (body.get("percentage") == null)
+            return ResponseEntity.badRequest().body(Map.of("error", "percentage is required"));
+        com.sevenmax.tracker.entity.PlayerRakeback d = new com.sevenmax.tracker.entity.PlayerRakeback();
+        d.setPlayerId(id);
+        d.setGameType(body.get("gameType").toString());
+        d.setPercentage(new BigDecimal(body.get("percentage").toString()));
+        d.setStartDate((body.get("startDate") != null && !body.get("startDate").toString().isBlank())
+                ? java.time.LocalDate.parse(body.get("startDate").toString()) : java.time.LocalDate.now());
+        return ResponseEntity.ok(playerRakebackRepository.save(d));
+    }
+
+    /** Edit an existing rakeback deal: { gameType?, percentage?, startDate? }. */
+    @PutMapping("/{id}/rakeback/{dealId}")
+    public ResponseEntity<?> updateRakebackDeal(@PathVariable Long id, @PathVariable Long dealId,
+                                                @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        com.sevenmax.tracker.entity.PlayerRakeback d = playerRakebackRepository.findById(dealId).orElse(null);
+        if (d == null || !d.getPlayerId().equals(id)) return ResponseEntity.badRequest().body(Map.of("error", "deal not found"));
+        if (body.get("gameType") != null && !body.get("gameType").toString().isBlank()) d.setGameType(body.get("gameType").toString());
+        if (body.get("percentage") != null) d.setPercentage(new BigDecimal(body.get("percentage").toString()));
+        if (body.get("startDate") != null && !body.get("startDate").toString().isBlank())
+            d.setStartDate(java.time.LocalDate.parse(body.get("startDate").toString()));
+        return ResponseEntity.ok(playerRakebackRepository.save(d));
+    }
+
+    @DeleteMapping("/{id}/rakeback/{dealId}")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> deleteRakebackDeal(@PathVariable Long id, @PathVariable Long dealId, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        playerRakebackRepository.deleteByIdAndPlayerId(dealId, id);
+        return ResponseEntity.ok(Map.of("ok", true));
     }
 
     @PatchMapping("/{id}/username")
