@@ -181,6 +181,8 @@ public class AgentService {
                 m.put("periodPnl", periodPnl);
                 m.put("agentRake", agentRake);
                 m.put("openingBalance", startBal);
+                m.put("openingDate", openingE != null && openingE.getEffectiveDate() != null ? openingE.getEffectiveDate().toString() : null);
+                m.put("settledThisWeek", Boolean.TRUE.equals(agent.getAgentSettledThisWeek()));
                 m.put("payments", pmts);
                 m.put("currentBalance", currentBal);
                 m.put("playerCount", playerCount);
@@ -194,6 +196,25 @@ public class AgentService {
                 return m;
             })
             .collect(Collectors.toList());
+    }
+
+    /** Mark/unmark that an agent's weekly התחשבנות was handled. */
+    @Transactional
+    public void setSettledThisWeek(Long agentId, boolean value) {
+        Player agent = playerRepository.findById(agentId)
+            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        agent.setAgentSettledThisWeek(value);
+        playerRepository.save(agent);
+    }
+
+    /** Clear the "settled this week" flag on every agent (the "uncheck all" button). */
+    @Transactional
+    public void clearAllSettledThisWeek() {
+        List<Player> agents = playerRepository.findAll().stream()
+            .filter(p -> Boolean.TRUE.equals(p.getIsAgent()) && Boolean.TRUE.equals(p.getAgentSettledThisWeek()))
+            .collect(Collectors.toList());
+        for (Player a : agents) a.setAgentSettledThisWeek(false);
+        playerRepository.saveAll(agents);
     }
 
     /** Pending balance + settlement history for one agent */

@@ -147,6 +147,23 @@ public class AgentController {
     }
 
     /** Admin/agent: the system-wide תאריך התחשבנות אחרון, used as the page's default "from" */
+    /** Mark/unmark an agent as handled this week (בוצע התחשבנות). Body: { value: true/false }. */
+    @PatchMapping("/{id}/settled-week")
+    public ResponseEntity<?> setSettledWeek(@PathVariable Long id, @RequestBody java.util.Map<String, Object> body, Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        boolean value = body.get("value") == null || Boolean.parseBoolean(body.get("value").toString());
+        agentService.setSettledThisWeek(id, value);
+        return ResponseEntity.ok(java.util.Map.of("ok", true, "settledThisWeek", value));
+    }
+
+    /** Clear the "settled this week" flag on all agents (uncheck all). */
+    @PostMapping("/uncheck-settled-week")
+    public ResponseEntity<?> uncheckAllSettledWeek(Authentication auth) {
+        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
+        agentService.clearAllSettledThisWeek();
+        return ResponseEntity.ok(java.util.Map.of("ok", true));
+    }
+
     @GetMapping("/last-settlement-date")
     public ResponseEntity<?> lastSettlementDate(Authentication auth) {
         if (!isAdmin(auth)) return ResponseEntity.status(403).build();

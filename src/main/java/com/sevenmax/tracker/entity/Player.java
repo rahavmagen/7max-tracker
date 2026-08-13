@@ -69,6 +69,10 @@ public class Player {
     // receive manual credit, and their players are skipped by agent free-chip auto-booking.
     private Boolean clubManaged = false;
 
+    // "בוצע התחשבנות" — admin marks that this agent's weekly settlement was handled. Manual flag,
+    // cleared in bulk via the "uncheck all" button when starting a new week.
+    private Boolean agentSettledThisWeek = false;
+
     // Agent free chips CAUGHT from the reports: sum of day-over-day chip grants (chip balance rose
     // beyond play). This is the actual free credit the agent gave, computed by computeAgentGrantedCredit.
     @Column(precision = 14, scale = 2)
