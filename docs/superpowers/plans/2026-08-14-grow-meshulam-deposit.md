@@ -677,6 +677,141 @@ git commit -m "Add GrowService webhook handling with idempotent-claim crediting 
 
 ---
 
+### Task 4b: Fix `TransactionService` missing `GROW_DEPOSIT` in its credit list (critical — found during Task 4 review)
+
+**Not in the original plan.** The Task 4 code-quality review caught this by checking git history precedent: when `KASHCASH_DEPOSIT` was introduced, a dedicated follow-up commit (`3db3852 feat: treat KASHCASH_DEPOSIT as credit in balance calculation`) was required to add it to `TransactionService`'s credit-list — this plan never had an equivalent step for `GROW_DEPOSIT`. Without this fix, every Grow deposit processed by `GrowService.handleWebhook` (Task 4) would **debit** the player's balance by the deposit amount instead of crediting it, since `TransactionService.addTransaction`/`updateTransaction` treat any type not in an explicit `isCredit`/`adds` allowlist as a debit.
+
+**Files:**
+- Modify: `c:/projects/tracker/src/main/java/com/sevenmax/tracker/service/TransactionService.java:27-29` and `:46-48`
+- Create: `c:/projects/tracker/src/test/java/com/sevenmax/tracker/service/TransactionServiceTest.java` (none exists yet)
+
+- [ ] **Step 1: Write the failing test**
+
+```java
+package com.sevenmax.tracker.service;
+
+import com.sevenmax.tracker.entity.Player;
+import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.repository.PlayerRepository;
+import com.sevenmax.tracker.repository.TransactionRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+class TransactionServiceTest {
+
+    @Mock TransactionRepository transactionRepository;
+    @Mock PlayerRepository playerRepository;
+
+    TransactionService transactionService;
+
+    @BeforeEach
+    void setUp() {
+        transactionService = new TransactionService(transactionRepository, playerRepository);
+    }
+
+    private Player player(BigDecimal startingBalance) {
+        Player p = new Player();
+        p.setId(1L);
+        p.setBalance(startingBalance);
+        return p;
+    }
+
+    @Test
+    void addTransaction_growDeposit_creditsBalance() {
+        Player p = player(new BigDecimal("100.00"));
+        Transaction tx = new Transaction();
+        tx.setPlayer(p);
+        tx.setType(Transaction.Type.GROW_DEPOSIT);
+        tx.setAmount(new BigDecimal("50.00"));
+        when(transactionRepository.save(tx)).thenReturn(tx);
+
+        transactionService.addTransaction(tx);
+
+        assertThat(p.getBalance()).isEqualByComparingTo("150.00");
+    }
+
+    @Test
+    void addTransaction_kashcashDeposit_stillCreditsBalance() {
+        // Regression guard: confirms this test would have caught the GROW_DEPOSIT gap
+        // by proving the existing KASHCASH_DEPOSIT case is (and stays) a credit.
+        Player p = player(new BigDecimal("100.00"));
+        Transaction tx = new Transaction();
+        tx.setPlayer(p);
+        tx.setType(Transaction.Type.KASHCASH_DEPOSIT);
+        tx.setAmount(new BigDecimal("50.00"));
+        when(transactionRepository.save(tx)).thenReturn(tx);
+
+        transactionService.addTransaction(tx);
+
+        assertThat(p.getBalance()).isEqualByComparingTo("150.00");
+    }
+}
+```
+
+- [ ] **Step 2: Run to verify it fails**
+
+Run: `cd /c/projects/tracker && ./mvnw -q test -Dtest=TransactionServiceTest`
+Expected: FAIL — `addTransaction_growDeposit_creditsBalance` fails because balance ends up at `50.00` (debited) instead of `150.00` (credited); `addTransaction_kashcashDeposit_stillCreditsBalance` passes (proving the test correctly distinguishes the two cases, not just universally broken)
+
+- [ ] **Step 3: Fix `TransactionService`**
+
+Current (line 27-29):
+```java
+            boolean isCredit = type == Transaction.Type.DEPOSIT
+                    || type == Transaction.Type.PAYMENT
+                    || type == Transaction.Type.KASHCASH_DEPOSIT;
+```
+New:
+```java
+            boolean isCredit = type == Transaction.Type.DEPOSIT
+                    || type == Transaction.Type.PAYMENT
+                    || type == Transaction.Type.KASHCASH_DEPOSIT
+                    || type == Transaction.Type.GROW_DEPOSIT;
+```
+
+Current (line 46-48):
+```java
+            boolean adds = tx.getType() == Transaction.Type.DEPOSIT
+                    || tx.getType() == Transaction.Type.PAYMENT
+                    || tx.getType() == Transaction.Type.KASHCASH_DEPOSIT;
+```
+New:
+```java
+            boolean adds = tx.getType() == Transaction.Type.DEPOSIT
+                    || tx.getType() == Transaction.Type.PAYMENT
+                    || tx.getType() == Transaction.Type.KASHCASH_DEPOSIT
+                    || tx.getType() == Transaction.Type.GROW_DEPOSIT;
+```
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+Run: `cd /c/projects/tracker && ./mvnw -q test -Dtest=TransactionServiceTest`
+Expected: PASS (2 tests)
+
+- [ ] **Step 5: Compile the whole project**
+
+Run: `cd /c/projects/tracker && ./mvnw -q compile`
+Expected: no output, exit code 0
+
+- [ ] **Step 6: Commit**
+
+```bash
+cd /c/projects/tracker
+git add src/main/java/com/sevenmax/tracker/service/TransactionService.java src/test/java/com/sevenmax/tracker/service/TransactionServiceTest.java
+git commit -m "Fix TransactionService to treat GROW_DEPOSIT as a credit (was silently debiting balances)"
+```
+
+---
+
 ### Task 5: `GrowService` — admin/player query methods
 
 **Files:**
