@@ -18,6 +18,7 @@ No live Grow account exists yet — response field names below are the best-docu
 
 **Files:**
 - Modify: `c:/projects/tracker/src/main/java/com/sevenmax/tracker/entity/Transaction.java:53-59`
+- Modify: `c:/projects/tracker/src/main/java/com/sevenmax/tracker/service/XlsMatchingService.java` — `chipDelta()` has a `default`-less exhaustive switch expression over `Transaction.Type`; adding `GROW_DEPOSIT` to the enum requires a matching `case GROW_DEPOSIT -> tx.getAmount();` there too, mirroring the existing `KASHCASH_DEPOSIT` case (discovered during implementation, confirmed as the only such switch in the codebase)
 
 - [ ] **Step 1: Add `GROW_DEPOSIT` and `GROW` to the enums**
 
