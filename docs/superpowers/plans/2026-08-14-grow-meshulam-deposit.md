@@ -1571,10 +1571,15 @@ git commit -m "Wire up the Grow deposit return route, rename KashCash nav labels
 
 **Files:** none — verification only
 
-- [ ] **Step 1: Run the full backend test suite**
+- [ ] **Step 1: Run the new test class**
 
-Run: `cd /c/projects/tracker && ./mvnw -q test`
-Expected: all tests pass, including the 9 new `GrowServiceTest` cases
+Run: `cd /c/projects/tracker && ./mvnw -q test -Dtest=GrowServiceTest`
+Expected: all 9 tests pass
+
+(`./mvnw test` for the *whole* suite currently fails on a pre-existing, unrelated issue —
+`ApplicationTests.contextLoads` fails to resolve `${kashcash.base-url}` when no profile is
+active, reproducible on the main checkout with no changes from this plan at all. Not something
+to fix here; scope verification to `GrowServiceTest` instead of the full suite.)
 
 - [ ] **Step 2: Boot the backend locally against the local DB**
 
