@@ -40,20 +40,28 @@ public class PlayerController {
     }
 
 @GetMapping("/active")
-    public ResponseEntity<List<Map<String, Object>>> getActivePlayers() {
+    public ResponseEntity<List<Map<String, Object>>> getActivePlayers(
+            @RequestParam(required = false) Integer activeDays) {
         List<com.sevenmax.tracker.entity.Player> all = playerRepository.findAll();
         Map<Long, String> agentNames = all.stream()
             .filter(p -> Boolean.TRUE.equals(p.getIsAgent()))
             .collect(java.util.stream.Collectors.toMap(
                 com.sevenmax.tracker.entity.Player::getId,
                 com.sevenmax.tracker.entity.Player::getUsername));
+        // When activeDays is given (the Players page), keep only players with a game in that window.
+        final Set<Long> activeIds = activeDays != null
+            ? new HashSet<>(gameResultRepository.findPlayerIdsWithGamesSince(LocalDateTime.now().minusDays(activeDays)))
+            : null;
         List<Map<String, Object>> result = all.stream()
+            .filter(p -> activeIds == null || activeIds.contains(p.getId()))
             .map(p -> {
                 Map<String, Object> m = new java.util.HashMap<>();
                 m.put("id", p.getId());
                 m.put("username", p.getUsername());
                 m.put("fullName", p.getFullName() != null ? p.getFullName() : "");
                 m.put("agentUsername", p.getAgentId() != null ? agentNames.getOrDefault(p.getAgentId(), "") : "");
+                // Boolean only (no amount exposed) so the players list can hide chip-less players.
+                m.put("hasChips", p.getCurrentChips() != null && p.getCurrentChips().compareTo(BigDecimal.ZERO) > 0);
                 return m;
             })
             .sorted((a, b) -> a.get("username").toString().compareToIgnoreCase(b.get("username").toString()))

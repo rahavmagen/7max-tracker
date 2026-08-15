@@ -18,6 +18,9 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
     @Query("SELECT DISTINCT g.player FROM GameResult g WHERE g.session.startTime >= :since")
     List<com.sevenmax.tracker.entity.Player> findActivePlayers(@Param("since") LocalDateTime since);
 
+    @Query("SELECT DISTINCT g.player.id FROM GameResult g WHERE g.session.startTime >= :since")
+    List<Long> findPlayerIdsWithGamesSince(@Param("since") LocalDateTime since);
+
     /** Players who haven't played since :cutoff (or never played) whose balance sits outside
      *  [-:threshold, +:threshold] - either owed to the club or owed to the player. Excludes
      *  agents themselves and players attached to an agent - their balance isn't collectible the
