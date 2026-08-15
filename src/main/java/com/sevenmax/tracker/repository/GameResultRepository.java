@@ -82,8 +82,8 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
         @Param("minHands") int minHands
     );
 
-    @Query("SELECT gr FROM GameResult gr WHERE gr.player.agent.id = :agentId AND gr.agentRakeShare IS NOT NULL AND gr.agentSettlement IS NULL")
-    List<GameResult> findUnsettledByAgentId(@Param("agentId") Long agentId);
+    @Query("SELECT gr FROM GameResult gr WHERE gr.player.agent.id = :agentId AND gr.agentRakeShare IS NOT NULL AND gr.agentSettlement IS NULL AND gr.session.startTime >= :from")
+    List<GameResult> findUnsettledByAgentId(@Param("agentId") Long agentId, @Param("from") java.time.LocalDateTime from);
 
     @Query("SELECT gr FROM GameResult gr WHERE gr.player.agent.id = :agentId")
     List<GameResult> findAllByAgentId(@Param("agentId") Long agentId);

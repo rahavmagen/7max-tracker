@@ -24,6 +24,11 @@ public class AgentService {
     private final LastSettlementDateRepository lastSettlementDateRepository;
     private final com.sevenmax.tracker.repository.LiveTicketRepository liveTicketRepository;
 
+    /** Agent-rake expense management started on this date. Games before it are out of scope for
+     *  settlement — their unsettled rake share is not owed and must not pre-fill / be marked settled. */
+    private static final java.time.LocalDateTime EXPENSE_TRACKING_START =
+            java.time.LocalDate.of(2026, 8, 1).atStartOfDay();
+
     /** Unused live-ticket worth owed via an agent (agent + their players) — a non-cash obligation. */
     private BigDecimal ticketWorthForAgent(Long agentId) {
         return liveTicketRepository.findByUsedFalseAndAgentId(agentId).stream()
@@ -719,6 +724,6 @@ public class AgentService {
     }
 
     private List<GameResult> getUnsettledResults(Long agentId) {
-        return gameResultRepository.findUnsettledByAgentId(agentId);
+        return gameResultRepository.findUnsettledByAgentId(agentId, EXPENSE_TRACKING_START);
     }
 }
