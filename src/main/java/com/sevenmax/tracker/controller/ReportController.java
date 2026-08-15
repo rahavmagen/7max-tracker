@@ -179,9 +179,22 @@ public class ReportController {
                 m.put("playerCount", playerCount);
                 m.put("entryCount", entries);
                 m.put("reEntryCount", entries - (int) playerCount);
+                m.put("satToLive", com.sevenmax.tracker.service.AgentService.isSatToLive(s));
                 result.add(m);
             });
         return ResponseEntity.ok(result);
+    }
+
+    /** Mark/unmark a session as a satellite-to-live-event (its P&L is excluded from agent balances). */
+    @PatchMapping("/sessions/{id}/sat-to-live")
+    public ResponseEntity<?> setSatToLive(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        GameSession s = gameSessionRepository.findById(id).orElse(null);
+        if (s == null) return ResponseEntity.badRequest().body(Map.of("error", "session not found"));
+        boolean value = body.get("value") == null || Boolean.parseBoolean(body.get("value").toString());
+        s.setSatToLive(value);
+        gameSessionRepository.save(s);
+        return ResponseEntity.ok(Map.of("ok", true, "satToLive", com.sevenmax.tracker.service.AgentService.isSatToLive(s)));
     }
 
     @GetMapping("/sessions/{id}/results")

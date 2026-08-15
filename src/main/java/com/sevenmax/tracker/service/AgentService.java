@@ -110,9 +110,9 @@ public class AgentService {
                 BigDecimal totalRake = results.stream()
                     .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-                // Players' net P&L over the date range (won = positive), same pnlOf used everywhere.
+                // Players' net P&L over the date range (won = positive). Sat-to-live games excluded.
                 BigDecimal periodPnl = results.stream()
-                    .map(AgentService::pnlOf)
+                    .map(AgentService::countedPnl)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
                 // Active players: distinct players with >= 1 game in range (agent already excluded)
                 long activePlayerCount = results.stream()
@@ -385,6 +385,25 @@ public class AgentService {
         return resultAmount;
     }
 
+    // "Satellite to a live event" (double-up): its P&L must not count toward the agent balance.
+    // Effective = manual flag OR the tournament name contains a live/double-up marker.
+    // "סאט לדאבל אפ" (sat to double-up) / "סאט ללייב". NOT bare "דאבל" — that also matches the
+    // "דאבל בורד בומב פוט" cash game, whose real P&L must still count.
+    private static final String[] SAT_TO_LIVE_MARKERS = { "לדאבל", "דאבל אפ", "לדבלאפ", "ללייב" };
+    public static boolean isSatToLive(GameSession s) {
+        if (s == null) return false;
+        if (Boolean.TRUE.equals(s.getSatToLive())) return true;
+        String n = s.getTableName();
+        if (n == null) return false;
+        for (String m : SAT_TO_LIVE_MARKERS) if (n.contains(m)) return true;
+        return false;
+    }
+
+    /** P&L that counts toward the agent balance — zero for sat-to-live games (paid via live ticket). */
+    private static BigDecimal countedPnl(GameResult gr) {
+        return isSatToLive(gr.getSession()) ? BigDecimal.ZERO : pnlOf(gr);
+    }
+
     /** Per-player rake stats for an agent, with optional date filter (all results, settled+unsettled) */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getPlayerStats(Long agentId, LocalDate from, LocalDate to) {
@@ -425,11 +444,13 @@ public class AgentService {
                     agentShare = pct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
                 }
                 BigDecimal periodPnl = rows.stream()
-                    .map(AgentService::pnlOf)
+                    .map(AgentService::countedPnl)   // sat-to-live P&L excluded
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-                List<Map<String, Object>> games = rows.stream()
+                List<Map<String, Object>> games = new ArrayList<>();
+                rows.stream()
                     .sorted((a, b) -> b.getSession().getStartTime().compareTo(a.getSession().getStartTime()))
-                    .map(gr -> {
+                    .forEach(gr -> {
+                        boolean satLive = isSatToLive(gr.getSession());
                         Map<String, Object> g = new LinkedHashMap<>();
                         g.put("date", gr.getSession().getStartTime().toString());
                         g.put("tableName", gr.getSession().getTableName());
@@ -438,9 +459,19 @@ public class AgentService {
                         g.put("buyIn", gr.getBuyIn());
                         g.put("cashout", gr.getCashout());
                         g.put("rakePaid", gr.getRakePaid());
-                        return g;
-                    })
-                    .collect(Collectors.toList());
+                        g.put("satToLive", satLive);
+                        games.add(g);
+                        // Offsetting row so a sat-to-live win nets to 0 in the agent balance.
+                        if (satLive && pnlOf(gr).signum() != 0) {
+                            Map<String, Object> adj = new LinkedHashMap<>();
+                            adj.put("date", gr.getSession().getStartTime().toString());
+                            adj.put("tableName", "↳ סאט ללייב — לא נספר");
+                            adj.put("gameType", "");
+                            adj.put("pnl", pnlOf(gr).negate());
+                            adj.put("adjustment", true);
+                            games.add(adj);
+                        }
+                    });
                 Map<String, Object> m = new LinkedHashMap<>();
                 m.put("playerId", player.getId());
                 m.put("username", player.getUsername());
@@ -493,7 +524,7 @@ public class AgentService {
             .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
-        BigDecimal playerPnl = results.stream().map(AgentService::pnlOf).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal playerPnl = results.stream().map(AgentService::countedPnl).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal payments = agentLedgerEntryRepository
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()

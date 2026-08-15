@@ -30,6 +30,13 @@ public class GameSession {
 
     private Integer entryCount;
 
+    // Manual override marking this session as a "satellite to a live event" (double-up). The club
+    // fakes these with a dummy target that's cancelled, so their P&L must NOT count toward the
+    // agent balance (the player was already paid via the live ticket). Effective flag also matches
+    // by name — see AgentService.isSatToLive.
+    @Column(name = "sat_to_live")
+    private Boolean satToLive;
+
     @ManyToOne
     @JoinColumn(name = "report_id")
     private Report report;
