@@ -22,6 +22,14 @@ public class AgentService {
     private final TransactionRepository transactionRepository;
     private final AgentLedgerEntryRepository agentLedgerEntryRepository;
     private final LastSettlementDateRepository lastSettlementDateRepository;
+    private final com.sevenmax.tracker.repository.LiveTicketRepository liveTicketRepository;
+
+    /** Unused live-ticket worth owed via an agent (agent + their players) — a non-cash obligation. */
+    private BigDecimal ticketWorthForAgent(Long agentId) {
+        return liveTicketRepository.findByUsedFalseAndAgentId(agentId).stream()
+                .map(t -> t.getWorth() != null ? t.getWorth() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     /** Free-chip credit for one agent player, with the transaction-history fallback.
      *  Base: freeCredit = currentChips − lifetime game P&L − already-booked credit.
@@ -183,6 +191,7 @@ public class AgentService {
                 m.put("openingBalance", startBal);
                 m.put("openingDate", openingE != null && openingE.getEffectiveDate() != null ? openingE.getEffectiveDate().toString() : null);
                 m.put("settledThisWeek", Boolean.TRUE.equals(agent.getAgentSettledThisWeek()));
+                m.put("ticketWorth", ticketWorthForAgent(agentId));
                 m.put("payments", pmts);
                 m.put("currentBalance", currentBal);
                 m.put("playerCount", playerCount);
@@ -482,6 +491,10 @@ public class AgentService {
                 m.put("totalRake", totalRake);
                 m.put("agentShare", agentShare);
                 m.put("periodPnl", periodPnl);
+                // Outstanding live tickets held by THIS player (shown per row in the detail).
+                List<com.sevenmax.tracker.entity.LiveTicket> ptix = liveTicketRepository.findByUsedFalseAndPlayerId(player.getId());
+                m.put("ticketWorth", ptix.stream().map(t -> t.getWorth() != null ? t.getWorth() : BigDecimal.ZERO).reduce(BigDecimal.ZERO, BigDecimal::add));
+                m.put("ticketCount", ptix.size());
                 // Free-chip credit (READ-ONLY — not yet booked), with the transaction-history fallback.
                 m.putAll(computeFreeChipCredit(player));
                 m.put("games", games);
@@ -544,6 +557,7 @@ public class AgentService {
         m.put("totalRake", totalRake);
         m.put("rakebackSince", agentRake);      // agent's rake cut for the range (kept key for the UI)
         m.put("playerPnlSince", playerPnl);
+        m.put("ticketWorth", ticketWorthForAgent(agentId));
         m.put("paymentsSince", payments);
         m.put("currentBalance", currentBalance);
         return m;

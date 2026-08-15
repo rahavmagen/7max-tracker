@@ -61,6 +61,7 @@ public class ReportController {
     private final com.sevenmax.tracker.service.AgentService agentService;
     private final com.sevenmax.tracker.service.TournamentHorseService tournamentHorseService;
     private final com.sevenmax.tracker.repository.PlayerRakebackRepository playerRakebackRepository;
+    private final com.sevenmax.tracker.service.LiveTicketService liveTicketService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
 
@@ -77,6 +78,11 @@ public class ReportController {
                 missingNameNotificationService.checkAndNotify();
             } catch (Exception e) {
                 log.error("Missing-name notification check failed: {}", e.getMessage());
+            }
+            try {
+                liveTicketService.syncAll();   // create owed live tickets for new sat-to-live winners
+            } catch (Exception e) {
+                log.error("Live-ticket sync failed: {}", e.getMessage());
             }
             return ResponseEntity.ok(report);
         } catch (IllegalArgumentException e) {
@@ -97,6 +103,11 @@ public class ReportController {
                 missingNameNotificationService.checkAndNotify();
             } catch (Exception e) {
                 log.error("Missing-name notification check failed: {}", e.getMessage());
+            }
+            try {
+                liveTicketService.syncAll();   // create owed live tickets for new sat-to-live winners
+            } catch (Exception e) {
+                log.error("Live-ticket sync failed: {}", e.getMessage());
             }
             return ResponseEntity.ok(report);
         } catch (IllegalArgumentException e) {
@@ -194,6 +205,10 @@ public class ReportController {
         boolean value = body.get("value") == null || Boolean.parseBoolean(body.get("value").toString());
         s.setSatToLive(value);
         gameSessionRepository.save(s);
+        // Turning it on: create the owed live tickets for this game's agent-side winners.
+        if (com.sevenmax.tracker.service.AgentService.isSatToLive(s)) {
+            try { liveTicketService.syncSession(s.getId()); } catch (Exception e) { log.error("Live-ticket sync failed: {}", e.getMessage()); }
+        }
         return ResponseEntity.ok(Map.of("ok", true, "satToLive", com.sevenmax.tracker.service.AgentService.isSatToLive(s)));
     }
 

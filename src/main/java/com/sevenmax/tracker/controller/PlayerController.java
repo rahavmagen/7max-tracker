@@ -32,6 +32,7 @@ public class PlayerController {
     private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
     private final TournamentHorseService tournamentHorseService;
     private final com.sevenmax.tracker.repository.PlayerRakebackRepository playerRakebackRepository;
+    private final com.sevenmax.tracker.service.LiveTicketService liveTicketService;
 
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers(Authentication auth) {
@@ -112,6 +113,15 @@ public class PlayerController {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayer(id));
+    }
+
+    /** A player's outstanding live tickets (own dashboard); admins/agents may view too. */
+    @GetMapping("/{id}/live-tickets")
+    public ResponseEntity<?> getPlayerLiveTickets(@PathVariable Long id, Authentication auth) {
+        if (isPlayer(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
+            return ResponseEntity.status(403).build();
+        }
+        return ResponseEntity.ok(liveTicketService.listForPlayer(id));
     }
 
     @PostMapping

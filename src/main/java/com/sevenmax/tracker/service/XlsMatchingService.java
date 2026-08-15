@@ -47,6 +47,7 @@ public class XlsMatchingService {
             case TICKET_GRANT       -> tx.getAmount().negate(); // face value deducted from player
             case KASHCASH_DEPOSIT   -> tx.getAmount();           // player deposits via KashCash
             case PLAYER_GIFT        -> tx.getAmount();           // club sends chips to player
+            case LIVE_TICKET_WON, LIVE_TICKET_USED -> BigDecimal.ZERO; // informational, no chip effect
         };
     }
 }
