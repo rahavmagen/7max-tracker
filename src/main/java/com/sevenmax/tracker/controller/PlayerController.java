@@ -107,6 +107,18 @@ public class PlayerController {
         return ResponseEntity.ok(stale);
     }
 
+    /** playerId -> ISO timestamp of their most recent game, for players who have ever played. */
+    @GetMapping("/last-played")
+    public ResponseEntity<Map<Long, String>> getLastPlayed() {
+        Map<Long, String> result = new java.util.HashMap<>();
+        for (Object[] row : gameResultRepository.findLastPlayedByPlayer()) {
+            Long playerId = ((Number) row[0]).longValue();
+            Object lastPlayed = row[1];
+            if (lastPlayed != null) result.put(playerId, lastPlayed.toString());
+        }
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayer(@PathVariable Long id, Authentication auth) {
         if (isPlayer(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {

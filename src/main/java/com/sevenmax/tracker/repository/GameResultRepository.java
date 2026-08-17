@@ -15,6 +15,10 @@ public interface GameResultRepository extends JpaRepository<GameResult, Long> {
     @Query("SELECT DISTINCT g.player.id FROM GameResult g")
     List<Long> findPlayerIdsWithGameResults();
 
+    @Query(value = "SELECT gr.player_id, MAX(gs.start_time) FROM game_results gr " +
+        "JOIN game_sessions gs ON gr.session_id = gs.id GROUP BY gr.player_id", nativeQuery = true)
+    List<Object[]> findLastPlayedByPlayer();
+
     @Query("SELECT DISTINCT g.player FROM GameResult g WHERE g.session.startTime >= :since")
     List<com.sevenmax.tracker.entity.Player> findActivePlayers(@Param("since") LocalDateTime since);
 
