@@ -598,17 +598,26 @@ public class ReportService {
                 log.info("Agent demoted (role is now 'Player' in report): {}", player.getUsername());
             }
 
-            // Link to the direct Agent (cols D/E) — the immediate agent the player actually plays
-            // under. Super Agent (cols B/C) is intentionally not used here; rolling sub-agents up to
-            // their super agent is a separate, not-yet-built process.
+            // Link to the direct Agent (cols D/E) when the player has one - that's the immediate
+            // agent they actually play under. Many players only have a Super Agent (cols B/C) with
+            // no intermediate direct agent at all, so fall back to that rather than leaving them
+            // unassigned. (Rolling an agent who DOES have a direct agent up to their own super
+            // agent is a separate, not-yet-built process - direct always wins when both exist.)
             String agentClubId    = getCellValue(row, 3);
             String agentNickname  = getCellValue(row, 4);
+            boolean hasDirect = agentClubId != null && !agentClubId.isBlank() && !"-".equals(agentClubId.trim());
+            if (!hasDirect) {
+                agentClubId   = getCellValue(row, 1);
+                agentNickname = getCellValue(row, 2);
+            }
 
             if (agentClubId == null || agentClubId.isBlank() || "-".equals(agentClubId.trim())) continue;
 
             // Find the agent player — try by clubPlayerId first, then by username
-            Player agent = playerRepository.findByClubPlayerIdSafe(agentClubId).stream().findFirst()
-                    .or(() -> agentNickname != null ? findPlayerByUsername(agentNickname) : java.util.Optional.empty())
+            String finalAgentClubId = agentClubId;
+            String finalAgentNickname = agentNickname;
+            Player agent = playerRepository.findByClubPlayerIdSafe(finalAgentClubId).stream().findFirst()
+                    .or(() -> finalAgentNickname != null ? findPlayerByUsername(finalAgentNickname) : java.util.Optional.empty())
                     .orElse(null);
 
             if (agent == null || !Boolean.TRUE.equals(agent.getIsAgent())) continue;
