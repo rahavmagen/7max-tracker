@@ -598,13 +598,11 @@ public class ReportService {
                 log.info("Agent demoted (role is now 'Player' in report): {}", player.getUsername());
             }
 
-            // Prefer the Super Agent (cols B/C) so an entire sub-agent tree rolls up to the top
-            // agent the club settles with; fall back to the direct Agent (cols D/E) for flat agents.
-            String superAgentId   = getCellValue(row, 1);
-            String superAgentNick = getCellValue(row, 2);
-            boolean hasSuper = superAgentId != null && !superAgentId.isBlank() && !"-".equals(superAgentId.trim());
-            String agentClubId    = hasSuper ? superAgentId : getCellValue(row, 3);
-            String agentNickname  = hasSuper ? superAgentNick : getCellValue(row, 4);
+            // Link to the direct Agent (cols D/E) — the immediate agent the player actually plays
+            // under. Super Agent (cols B/C) is intentionally not used here; rolling sub-agents up to
+            // their super agent is a separate, not-yet-built process.
+            String agentClubId    = getCellValue(row, 3);
+            String agentNickname  = getCellValue(row, 4);
 
             if (agentClubId == null || agentClubId.isBlank() || "-".equals(agentClubId.trim())) continue;
 
