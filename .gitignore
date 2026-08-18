@@ -36,3 +36,6 @@ build/
 application-local.properties
 
 .worktrees/
+
+# Runtime logs (local only)
+logs/
