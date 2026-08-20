@@ -383,6 +383,18 @@ public class PlayerController {
                 .orElse(false);
     }
 
+    /** Whether the current player has played a game in the last 30 days. Drives whether a player
+     *  may view the club's player-names list (only active players may). Admins ignore this. */
+    @GetMapping("/me/activity")
+    public ResponseEntity<Map<String, Object>> myActivity(Authentication auth) {
+        Long pid = getPlayerId(auth);
+        if (pid == null || pid < 0) return ResponseEntity.ok(Map.of("active", false));
+        boolean active = gameResultRepository
+                .findPlayerIdsWithGamesSince(LocalDateTime.now().minusDays(30))
+                .contains(pid);
+        return ResponseEntity.ok(Map.of("active", active));
+    }
+
     private boolean isPlayer(Authentication auth) {
         return auth != null && auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_PLAYER"));
