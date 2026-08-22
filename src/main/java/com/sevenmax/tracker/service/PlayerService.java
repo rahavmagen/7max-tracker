@@ -134,6 +134,23 @@ public class PlayerService {
         return saved;
     }
 
+    /** Player self-service update of only their editable join details: name, phone, club id.
+     *  Coerces a blank club id to null (avoids the unique-index-on-empty-string collision) and
+     *  rejects a club id already taken by another player. Never touches balance/agent/rakeback. */
+    public Player updateSelfDetails(Long id, String fullName, String phone, String clubPlayerId) {
+        Player player = getPlayer(id);
+        String cid = (clubPlayerId == null || clubPlayerId.isBlank()) ? null : clubPlayerId.trim();
+        if (cid != null) {
+            boolean takenByOther = playerRepository.findByClubPlayerIdSafe(cid).stream()
+                    .anyMatch(p -> !p.getId().equals(id));
+            if (takenByOther) throw new IllegalArgumentException("CLUB_ID_TAKEN");
+        }
+        player.setFullName(fullName != null && !fullName.isBlank() ? fullName.trim() : null);
+        player.setPhone(phone != null && !phone.isBlank() ? phone.trim() : null);
+        player.setClubPlayerId(cid);
+        return playerRepository.save(player);
+    }
+
     /** Enroll/unenroll a player in a backing program ("horse"): SATELLITE or TOURNAMENT.
      *  enabled=false with until=null is an immediate full removal (clears everything). enabled=false
      *  with until set instead schedules an end date: the horse stays enrolled so games before that

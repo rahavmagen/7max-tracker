@@ -148,6 +148,20 @@ public class PlayerController {
         return ResponseEntity.ok(playerService.updatePlayer(id, player));
     }
 
+    /** Player self-service: edit own join details (name, phone, club id). Owner or admin only. */
+    @PatchMapping("/{id}/self-details")
+    public ResponseEntity<?> updateSelfDetails(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        if (isPlayer(auth) && !id.equals(getPlayerId(auth))) return ResponseEntity.status(403).build();
+        try {
+            String fullName = body.get("fullName") != null ? body.get("fullName").toString() : null;
+            String phone = body.get("phone") != null ? body.get("phone").toString() : null;
+            String clubPlayerId = body.get("clubPlayerId") != null ? body.get("clubPlayerId").toString() : null;
+            return ResponseEntity.ok(playerService.updateSelfDetails(id, fullName, phone, clubPlayerId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     /** Enroll/unenroll a player in a backing "program" (horse): SATELLITE or TOURNAMENT.
      *  TOURNAMENT also takes gameTypes: a comma-separated list of GameSession.GameType names
      *  counted toward that horse's win/loss. An optional "until" (exclusive end date) schedules
