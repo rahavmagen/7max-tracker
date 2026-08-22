@@ -51,12 +51,12 @@ public class Transaction {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum Type {
-        DEPOSIT, WITHDRAWAL, CREDIT, PAYMENT, WHEEL_EXPENSE, CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT, TICKET_GRANT, KASHCASH_DEPOSIT, PLAYER_GIFT,
+        DEPOSIT, WITHDRAWAL, CREDIT, PAYMENT, WHEEL_EXPENSE, CHIP_PROMO, PROMOTION, EXPENSE_REPAYMENT, TICKET_GRANT, KASHCASH_DEPOSIT, GROW_DEPOSIT, PLAYER_GIFT,
         // Informational (amount 0, never affect the money balance): agent-side sat-to-live tickets.
         LIVE_TICKET_WON, LIVE_TICKET_USED
     }
 
     public enum Method {
-        BIT, PAYBOX, KASHCASH, CASH, BANK_TRANSFER, OTHER, ADJUSTMENT
+        BIT, PAYBOX, KASHCASH, GROW, CASH, BANK_TRANSFER, OTHER, ADJUSTMENT
     }
 }

@@ -26,7 +26,8 @@ public class TransactionService {
         if (type != Transaction.Type.CHIP_PROMO && type != Transaction.Type.PROMOTION && type != Transaction.Type.EXPENSE_REPAYMENT && type != Transaction.Type.PLAYER_GIFT) {
             boolean isCredit = type == Transaction.Type.DEPOSIT
                     || type == Transaction.Type.PAYMENT
-                    || type == Transaction.Type.KASHCASH_DEPOSIT;
+                    || type == Transaction.Type.KASHCASH_DEPOSIT
+                    || type == Transaction.Type.GROW_DEPOSIT;
             BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
             player.setBalance(player.getBalance().add(delta));
             playerRepository.save(player);
@@ -45,7 +46,8 @@ public class TransactionService {
             BigDecimal diff = newAmount.subtract(tx.getAmount());
             boolean adds = tx.getType() == Transaction.Type.DEPOSIT
                     || tx.getType() == Transaction.Type.PAYMENT
-                    || tx.getType() == Transaction.Type.KASHCASH_DEPOSIT;
+                    || tx.getType() == Transaction.Type.KASHCASH_DEPOSIT
+                    || tx.getType() == Transaction.Type.GROW_DEPOSIT;
             Player player = tx.getPlayer();
             player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
             playerRepository.save(player);

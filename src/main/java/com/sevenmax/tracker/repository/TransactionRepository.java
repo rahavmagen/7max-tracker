@@ -88,4 +88,16 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("SELECT t FROM Transaction t WHERE t.type = com.sevenmax.tracker.entity.Transaction.Type.KASHCASH_DEPOSIT AND t.player.id = :playerId ORDER BY t.createdAt DESC")
     List<Transaction> findKashcashDepositsByPlayerId(@Param("playerId") Long playerId);
+
+    @Query("SELECT t FROM Transaction t WHERE t.type = com.sevenmax.tracker.entity.Transaction.Type.GROW_DEPOSIT AND t.chipsConfirmed = false ORDER BY t.createdAt DESC")
+    List<Transaction> findPendingGrowDeposits();
+
+    @Query("SELECT t FROM Transaction t WHERE t.type = com.sevenmax.tracker.entity.Transaction.Type.GROW_DEPOSIT ORDER BY t.createdAt DESC")
+    List<Transaction> findAllGrowDeposits();
+
+    @Query("SELECT t FROM Transaction t WHERE t.type = com.sevenmax.tracker.entity.Transaction.Type.GROW_DEPOSIT AND t.createdAt >= :from AND t.createdAt < :to ORDER BY t.createdAt DESC")
+    List<Transaction> findGrowDepositsBetween(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
+
+    @Query("SELECT t FROM Transaction t WHERE t.type = com.sevenmax.tracker.entity.Transaction.Type.GROW_DEPOSIT AND t.player.id = :playerId ORDER BY t.createdAt DESC")
+    List<Transaction> findGrowDepositsByPlayerId(@Param("playerId") Long playerId);
 }

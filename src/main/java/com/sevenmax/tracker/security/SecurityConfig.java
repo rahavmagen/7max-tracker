@@ -30,7 +30,7 @@ public class SecurityConfig {
             .csrf(c -> c.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(a -> a
-                .requestMatchers("/api/auth/login", "/api/auth/change-password", "/api/reports/upload-auto", "/api/kashcash/webhook").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/change-password", "/api/reports/upload-auto", "/api/kashcash/webhook", "/api/grow/webhook").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/join").permitAll()
                 .requestMatchers("/api/auth/admin/change-role").hasRole("ADMIN")
                 .requestMatchers("/api/auth/admin/**").hasAnyRole("ADMIN", "MANAGER")
