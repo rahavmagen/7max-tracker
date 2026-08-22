@@ -80,12 +80,17 @@ public class GrowDepositService {
         try {
             Map<String, Object> body = new HashMap<>();
             body.put("amount", amount);
-            body.put("fullName", player.getFullName() != null && !player.getFullName().isBlank()
-                    ? player.getFullName() : player.getUsername());
+            // Grow requires a full name of at least two words - many players have no fullName on
+            // file, and their username is often a single token (or has symbols/digits), so fall
+            // back to a fixed two-word placeholder rather than the username.
+            String fullName = player.getFullName() != null && !player.getFullName().isBlank()
+                    ? player.getFullName() : null;
+            body.put("fullName", isTwoValidNameWords(fullName) ? fullName : "Club Guest");
             body.put("phone", phone);
-            // Grow rejects an empty email even though it's optional - players have no email on file,
-            // so send a valid-format placeholder. sendingMode=none means Grow never actually emails it.
-            body.put("email", player.getUsername() + "@deposit.7max.club");
+            // Grow rejects an empty/malformed email even though it's optional, and players have no
+            // email on file - send a fixed valid-format placeholder. sendingMode=none means Grow
+            // never actually emails it, so it doesn't need to be player-specific.
+            body.put("email", "deposit@7max.club");
 
             String bodyJson = MAPPER.writeValueAsString(body);
             log.info("Grow create-link REQUEST → POST {} body={}", makeWebhookUrl, bodyJson);
@@ -139,6 +144,13 @@ public class GrowDepositService {
         String d = raw.replaceAll("[^0-9]", "");
         if (d.startsWith("972")) d = "0" + d.substring(3);
         return d.matches("05\\d{8}") ? d : null;
+    }
+
+    /** Grow requires a full name of at least two words, each at least 2 letters long. */
+    static boolean isTwoValidNameWords(String name) {
+        if (name == null) return false;
+        String[] words = name.trim().split("\\s+");
+        return words.length >= 2 && Arrays.stream(words).allMatch(w -> w.length() >= 2);
     }
 
     // ── Webhook (direct from Grow, not through Make) ────────────────────────────
