@@ -70,12 +70,19 @@ public class GrowDepositService {
     public Map<String, Object> initiateDeposit(Long playerId, BigDecimal amount) {
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new RuntimeException("Player not found: " + playerId));
+        // Grow requires a valid mobile on the payment link; a missing/malformed one is rejected with
+        // error 427 (invalid pageFieldSettings[phone][value]). Fail fast with a clear, actionable code
+        // so the player sees "your phone is missing/invalid" instead of a generic "payment rejected".
+        String phone = normalizeIsraeliMobile(player.getPhone());
+        if (phone == null) {
+            throw new IllegalArgumentException("INVALID_PHONE");
+        }
         try {
             Map<String, Object> body = new HashMap<>();
             body.put("amount", amount);
             body.put("fullName", player.getFullName() != null && !player.getFullName().isBlank()
                     ? player.getFullName() : player.getUsername());
-            body.put("phone", player.getPhone());
+            body.put("phone", phone);
             // Grow rejects an empty email even though it's optional - players have no email on file,
             // so send a valid-format placeholder. sendingMode=none means Grow never actually emails it.
             body.put("email", player.getUsername() + "@deposit.7max.club");
@@ -92,6 +99,9 @@ public class GrowDepositService {
             log.info("Grow create-link RESPONSE ← HTTP {} body={}", resp.statusCode(), resp.body());
 
             if (resp.statusCode() != 200) {
+                // Make/Grow rejects a bad phone with a 4xx that names the phone field (error 427).
+                String bodyLc = resp.body() == null ? "" : resp.body().toLowerCase();
+                if (bodyLc.contains("phone")) throw new IllegalArgumentException("INVALID_PHONE");
                 throw new RuntimeException("Grow link creation failed HTTP " + resp.statusCode() + ": " + resp.body());
             }
 
@@ -121,6 +131,14 @@ public class GrowDepositService {
 
     private static String trim(JsonNode json, String field) {
         return json.has(field) && !json.get(field).isNull() ? json.get(field).asText().trim() : "";
+    }
+
+    /** Normalize to a plain Israeli mobile (05XXXXXXXX) if valid, else null. Accepts +972, spaces, dashes. */
+    static String normalizeIsraeliMobile(String raw) {
+        if (raw == null) return null;
+        String d = raw.replaceAll("[^0-9]", "");
+        if (d.startsWith("972")) d = "0" + d.substring(3);
+        return d.matches("05\\d{8}") ? d : null;
     }
 
     // ── Webhook (direct from Grow, not through Make) ────────────────────────────
