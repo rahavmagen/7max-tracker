@@ -114,6 +114,7 @@ public class LiveTicketService {
             m.put("id", t.getId());
             m.put("playerId", t.getPlayerId());
             m.put("player", p != null ? p.getUsername() : "");
+            m.put("playerFullName", p != null ? p.getFullName() : "");
             m.put("agent", agent != null ? agent.getUsername() : "");
             m.put("eventName", t.getEventName());
             m.put("worth", t.getWorth());
