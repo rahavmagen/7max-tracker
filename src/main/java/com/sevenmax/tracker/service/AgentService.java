@@ -90,22 +90,86 @@ public class AgentService {
      *  treated like one of their own players (own P&L and own rake both count). */
     private List<GameResult> agentAndOwnResults(Long agentId) {
         java.util.LinkedHashMap<Long, GameResult> byId = new java.util.LinkedHashMap<>();
-        for (GameResult gr : gameResultRepository.findAllByAgentId(agentId)) byId.put(gr.getId(), gr);
-        for (GameResult gr : gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(agentId)) byId.put(gr.getId(), gr);
+        // Roll up the whole subtree: a super agent absorbs every sub-agent's players and own play.
+        // For a plain agent (no sub-agents) the subtree is just themselves, so this is a no-op.
+        for (Long aid : subtreeAgentIds(agentId)) {
+            for (GameResult gr : gameResultRepository.findAllByAgentId(aid)) byId.put(gr.getId(), gr);
+            for (GameResult gr : gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(aid)) byId.put(gr.getId(), gr);
+        }
         return new ArrayList<>(byId.values());
+    }
+
+    // ── Super-agent hierarchy ────────────────────────────────────────────────
+    // An agent can sit under a "super agent" (its own `agent` points at another agent). The club
+    // settles directly with the super agent, so only super/top-level agents are shown and every
+    // sub-agent's players + own play roll up into the super agent's book.
+
+    /** The top-level (super) agent a player rolls up to: walk up while the parent is itself an agent. */
+    private Player resolveTopAgent(Player p, Map<Long, Player> byId) {
+        Player cur = p;
+        java.util.Set<Long> seen = new java.util.HashSet<>();
+        while (cur != null && seen.add(cur.getId())) {
+            Long parentId = cur.getAgentId();
+            Player parent = parentId != null ? byId.get(parentId) : null;
+            if (parent != null && Boolean.TRUE.equals(parent.getIsAgent())) cur = parent;
+            else break;
+        }
+        return cur;
+    }
+
+    /** An agent shown on the list: it's an agent and is NOT under another agent. */
+    private boolean isTopLevelAgent(Player p, Map<Long, Player> byId) {
+        if (!Boolean.TRUE.equals(p.getIsAgent())) return false;
+        Player top = resolveTopAgent(p, byId);
+        return top != null && top.getId().equals(p.getId());
+    }
+
+    /** Whether a player belongs to a (super) agent's book: their top-level agent is this agent. */
+    private boolean inAgentBook(Player p, Long topAgentId, Map<Long, Player> byId) {
+        if (p.getId().equals(topAgentId)) return false;
+        Player top = resolveTopAgent(p, byId);
+        return top != null && topAgentId.equals(top.getId());
+    }
+
+    /** Agent IDs in a (super) agent's subtree: itself + every descendant sub-agent. */
+    private List<Long> subtreeAgentIds(Long topAgentId) {
+        List<Player> all = playerRepository.findAll();
+        Map<Long, Player> byId = all.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
+        List<Long> ids = new ArrayList<>();
+        for (Player p : all) {
+            if (Boolean.TRUE.equals(p.getIsAgent())) {
+                Player top = resolveTopAgent(p, byId);
+                if (top != null && topAgentId.equals(top.getId())) ids.add(p.getId());
+            }
+        }
+        if (!ids.contains(topAgentId)) ids.add(topAgentId);
+        return ids;
+    }
+
+    /** The rake commission a (super) agent earns on one unsettled result. A player directly under
+     *  this agent keeps their stored share (unchanged for existing agents); a player under a
+     *  sub-agent is charged at the SUPER agent's % on the whole book. */
+    private BigDecimal shareForTop(GameResult gr, Player topAgent, BigDecimal topPct) {
+        Player pl = gr.getPlayer();
+        if (pl != null && pl.getAgent() != null && topAgent.getId().equals(pl.getAgent().getId())) {
+            return gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO;
+        }
+        BigDecimal rake = gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO;
+        return topPct.multiply(rake).setScale(2, java.math.RoundingMode.HALF_UP);
     }
 
     public List<Map<String, Object>> getAllAgentsSummary(LocalDate from, LocalDate to) {
         List<Player> allPlayers = playerRepository.findAll();
+        Map<Long, Player> byId = allPlayers.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
         return allPlayers.stream()
-            .filter(p -> Boolean.TRUE.equals(p.getIsAgent()))
+            .filter(p -> isTopLevelAgent(p, byId))
             .map(agent -> {
+                BigDecimal agentPct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
                 BigDecimal pending = getUnsettledResults(agent.getId()).stream()
-                    .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
+                    .map(gr -> shareForTop(gr, agent, agentPct))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
                 long playerCount = allPlayers.stream()
-                    .filter(p -> p.getAgent() != null && agent.getId().equals(p.getAgent().getId()))
-                    .filter(p -> !p.getId().equals(agent.getId()))
+                    .filter(p -> inAgentBook(p, agent.getId(), byId))
                     .count();
 
                 // Games played and total club rake by this agent's players AND the agent's own play,
@@ -138,8 +202,7 @@ public class AgentService {
                 // Free-chip credit per player (with the transaction fallback), summed for this agent.
                 // Also collect any players that STILL don't reconcile — surfaced on the main screen.
                 List<Player> agentPlayers = allPlayers.stream()
-                    .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
-                    .filter(p -> !p.getId().equals(agentId))
+                    .filter(p -> inAgentBook(p, agentId, byId))
                     .collect(Collectors.toList());
                 boolean clubManaged = Boolean.TRUE.equals(agent.getClubManaged());
                 BigDecimal freeCreditTotal = BigDecimal.ZERO;
@@ -240,9 +303,10 @@ public class AgentService {
             throw new IllegalArgumentException("Player " + agentId + " is not an agent");
         }
 
+        BigDecimal agentPct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
         List<GameResult> unsettled = getUnsettledResults(agentId);
         BigDecimal pending = unsettled.stream()
-            .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
+            .map(gr -> shareForTop(gr, agent, agentPct))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agentId);
@@ -257,9 +321,10 @@ public class AgentService {
             return h;
         }).collect(Collectors.toList());
 
-        List<Map<String, Object>> playersList = playerRepository.findAll().stream()
-            .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
-            .filter(p -> !p.getId().equals(agentId))
+        List<Player> allForBook = playerRepository.findAll();
+        Map<Long, Player> bookById = allForBook.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
+        List<Map<String, Object>> playersList = allForBook.stream()
+            .filter(p -> inAgentBook(p, agentId, bookById))
             .map(p -> {
                 Map<String, Object> pm = new LinkedHashMap<>();
                 pm.put("id", p.getId());
@@ -321,8 +386,9 @@ public class AgentService {
         BigDecimal totalRake = unsettled.stream()
             .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal agentPct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
         BigDecimal computedAgentShare = unsettled.stream()
-            .map(gr -> gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO)
+            .map(gr -> shareForTop(gr, agent, agentPct))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal agentShare = overrideAmount != null ? overrideAmount : computedAgentShare;
         LocalDate fromDate = unsettled.stream()
@@ -424,12 +490,13 @@ public class AgentService {
         Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
 
-        // All players under this agent PLUS the agent themselves (as their own player row).
+        // Everyone in this (super) agent's book PLUS the agent themselves (as their own player row).
+        List<Player> allForStats = playerRepository.findAll();
+        Map<Long, Player> statsById = allForStats.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
         List<Player> agentPlayers = new ArrayList<>();
         agentPlayers.add(agent);
-        playerRepository.findAll().stream()
-            .filter(p -> p.getAgent() != null && agentId.equals(p.getAgent().getId()))
-            .filter(p -> !p.getId().equals(agentId))
+        allForStats.stream()
+            .filter(p -> inAgentBook(p, agentId, statsById))
             .forEach(agentPlayers::add);
 
         // Game results grouped by player id (sub-players + the agent's own play)
@@ -724,6 +791,14 @@ public class AgentService {
     }
 
     private List<GameResult> getUnsettledResults(Long agentId) {
-        return gameResultRepository.findUnsettledByAgentId(agentId, EXPENSE_TRACKING_START);
+        // Include every sub-agent's unsettled results so settling with the super agent clears the
+        // whole book. For a plain agent the subtree is just itself, so this equals the old query.
+        java.util.LinkedHashMap<Long, GameResult> byId = new java.util.LinkedHashMap<>();
+        for (Long aid : subtreeAgentIds(agentId)) {
+            for (GameResult gr : gameResultRepository.findUnsettledByAgentId(aid, EXPENSE_TRACKING_START)) {
+                byId.put(gr.getId(), gr);
+            }
+        }
+        return new ArrayList<>(byId.values());
     }
 }
