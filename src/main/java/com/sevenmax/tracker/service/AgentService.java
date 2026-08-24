@@ -198,6 +198,10 @@ public class AgentService {
                 BigDecimal periodPnl = results.stream()
                     .map(AgentService::countedPnl)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+                // What the app (GG) shows: raw P&L including sat-to-live wins — for comparison.
+                BigDecimal appPnl = results.stream()
+                    .map(AgentService::pnlOf)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
                 // Active players: distinct players with >= 1 game in range (agent already excluded)
                 long activePlayerCount = results.stream()
                     .map(gr -> gr.getPlayer().getId())
@@ -262,6 +266,7 @@ public class AgentService {
 
                 m.put("pendingBalance", pending);
                 m.put("periodPnl", periodPnl);
+                m.put("appPnl", appPnl);   // GG's view (sat-to-live counted) — for reconciliation
                 m.put("agentRake", agentRake);
                 m.put("openingBalance", startBal);
                 m.put("openingDate", openingE != null && openingE.getEffectiveDate() != null ? openingE.getEffectiveDate().toString() : null);
@@ -534,7 +539,11 @@ public class AgentService {
                     agentShare = pct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
                 }
                 BigDecimal periodPnl = rows.stream()
-                    .map(AgentService::countedPnl)   // sat-to-live P&L excluded
+                    .map(AgentService::countedPnl)   // sat-to-live P&L excluded (our real number)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                // What the app (GG) shows: raw P&L including the sat-to-live win — for comparison.
+                BigDecimal appPnl = rows.stream()
+                    .map(AgentService::pnlOf)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
                 List<Map<String, Object>> games = new ArrayList<>();
                 rows.stream()
@@ -572,6 +581,7 @@ public class AgentService {
                 m.put("totalRake", totalRake);
                 m.put("agentShare", agentShare);
                 m.put("periodPnl", periodPnl);
+                m.put("appPnl", appPnl);   // GG's view (sat-to-live counted) — for reconciliation
                 // Outstanding live tickets held by THIS player (shown per row in the detail).
                 List<com.sevenmax.tracker.entity.LiveTicket> ptix = liveTicketRepository.findByUsedFalseAndPlayerId(player.getId());
                 BigDecimal pTicketWorth = ptix.stream().map(t -> t.getWorth() != null ? t.getWorth() : BigDecimal.ZERO).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -623,6 +633,7 @@ public class AgentService {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
         BigDecimal playerPnl = results.stream().map(AgentService::countedPnl).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal appPnl = results.stream().map(AgentService::pnlOf).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal payments = agentLedgerEntryRepository
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
@@ -642,6 +653,7 @@ public class AgentService {
         m.put("totalRake", totalRake);
         m.put("rakebackSince", agentRake);      // agent's rake cut for the range (kept key for the UI)
         m.put("playerPnlSince", playerPnl);
+        m.put("appPnl", appPnl);   // GG's view (sat-to-live counted) — for reconciliation
         m.put("ticketWorth", ticketWorthForAgent(agentId));
         m.put("ticketCost", ticketCostForAgent(agentId));
         m.put("ticketProfit", ticketWorthForAgent(agentId).subtract(ticketCostForAgent(agentId)));
