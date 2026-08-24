@@ -9,6 +9,8 @@ public interface LiveTicketRepository extends JpaRepository<LiveTicket, Long> {
 
     boolean existsByPlayerIdAndSessionId(Long playerId, Long sessionId);
 
+    java.util.Optional<LiveTicket> findByPlayerIdAndSessionId(Long playerId, Long sessionId);
+
     List<LiveTicket> findByUsedFalseOrderByWonDateDesc();
 
     /** Unused tickets for an agent or any of their players (the agent's outstanding ticket liability). */

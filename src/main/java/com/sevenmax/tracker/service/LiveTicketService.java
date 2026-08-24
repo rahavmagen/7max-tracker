@@ -68,7 +68,15 @@ public class LiveTicketService {
             if (agentId == null) continue;                               // agent-side only
             Player agent = playerRepository.findById(agentId).orElse(null);
             if (agent != null && Boolean.TRUE.equals(agent.getClubManaged())) continue; // club handles these directly
-            if (liveTicketRepository.existsByPlayerIdAndSessionId(p.getId(), s.getId())) continue;
+            LiveTicket existing = liveTicketRepository.findByPlayerIdAndSessionId(p.getId(), s.getId()).orElse(null);
+            if (existing != null) {
+                // Backfill the sat cost on tickets created before the cost field existed.
+                if (existing.getCost() == null && gr.getBuyIn() != null) {
+                    existing.setCost(gr.getBuyIn());
+                    liveTicketRepository.save(existing);
+                }
+                continue;
+            }
 
             LiveTicket t = new LiveTicket();
             t.setPlayerId(p.getId());
@@ -76,6 +84,7 @@ public class LiveTicketService {
             t.setSessionId(s.getId());
             t.setEventName(s.getTableName());
             t.setWorth(worth);
+            t.setCost(gr.getBuyIn());       // the sat buy-in they paid; profit = worth − cost
             t.setWonDate(wonDate);
             t.setUsed(false);
             liveTicketRepository.save(t);

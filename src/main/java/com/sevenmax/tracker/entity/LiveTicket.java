@@ -34,7 +34,10 @@ public class LiveTicket {
     private String eventName;
 
     @Column(precision = 12, scale = 2)
-    private BigDecimal worth;   // the winner's result_amount (seat value)
+    private BigDecimal worth;   // the winner's result_amount (seat value, e.g. 900)
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal cost;    // the sat buy-in they paid (e.g. 190). Profit = worth − cost.
 
     @Column(name = "won_date")
     private LocalDate wonDate;
