@@ -629,6 +629,41 @@ public class ReportService {
                 log.info("Agent assigned: player={} agent={}", player.getUsername(), agent.getUsername());
             }
         }
+
+        // Pass 3: link each sub-agent (an "Agent" row that itself sits under someone) to its parent,
+        // so the club settles the whole book with the top-level super agent — the Agents page rolls
+        // every sub-agent's players + own play up into that super agent. Direct agent (cols D/E) wins
+        // when present; otherwise the super agent (cols B/C). Super Agent rows are left top-level.
+        for (int r = 3; r <= sheet.getLastRowNum(); r++) {
+            Row row = sheet.getRow(r);
+            if (row == null) continue;
+            String role = getCellValue(row, 6);
+            if (role == null || !"Agent".equalsIgnoreCase(role.trim())) continue; // only "Agent" rows
+
+            String subId = getCellValue(row, 7), subNick = getCellValue(row, 8);
+            Player sub = playerRepository.findByClubPlayerIdSafe(subId).stream().findFirst()
+                    .or(() -> subNick != null ? findPlayerByUsername(subNick) : java.util.Optional.empty())
+                    .orElse(null);
+            if (sub == null) continue;
+
+            // On an "Agent" row, cols D/E are the agent itself — its parent is the Super Agent (cols B/C).
+            String parentClubId = getCellValue(row, 1);   // super agent (col B)
+            String parentNick   = getCellValue(row, 2);   // super agent (col C)
+            if (parentClubId == null || parentClubId.isBlank() || "-".equals(parentClubId.trim())) continue;
+
+            final String fParentId = parentClubId, fParentNick = parentNick;
+            Player parent = playerRepository.findByClubPlayerIdSafe(fParentId).stream().findFirst()
+                    .or(() -> fParentNick != null ? findPlayerByUsername(fParentNick) : java.util.Optional.empty())
+                    .orElse(null);
+            if (parent == null || !Boolean.TRUE.equals(parent.getIsAgent())) continue;
+            if (parent.getId().equals(sub.getId())) continue; // never self-parent
+
+            if (sub.getAgent() == null || !parent.getId().equals(sub.getAgent().getId())) {
+                sub.setAgent(parent);
+                playerRepository.save(sub);
+                log.info("Sub-agent linked under super agent: {} -> {}", sub.getUsername(), parent.getUsername());
+            }
+        }
     }
 
     private void parseTradeRecord(Workbook workbook, Report report) {
