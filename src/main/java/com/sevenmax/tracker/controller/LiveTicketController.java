@@ -27,6 +27,13 @@ public class LiveTicketController {
         return ResponseEntity.ok(liveTicketService.listUnused());
     }
 
+    /** Full history — every live ticket (used and unused). */
+    @GetMapping("/history")
+    public ResponseEntity<?> history(Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(liveTicketService.listAll());
+    }
+
     /** Mark a ticket used (logs an informational "used" transaction). */
     @PostMapping("/{id}/use")
     public ResponseEntity<?> use(@PathVariable Long id, Authentication auth) {

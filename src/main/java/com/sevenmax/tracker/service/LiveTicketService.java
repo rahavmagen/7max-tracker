@@ -133,6 +133,37 @@ public class LiveTicketService {
         return out;
     }
 
+    /** Full history — every ticket (used and unused), newest first, with status. */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> listAll() {
+        Map<Long, Player> byId = new LinkedHashMap<>();
+        for (Player p : playerRepository.findAll()) byId.put(p.getId(), p);
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (LiveTicket t : liveTicketRepository.findAllByOrderByWonDateDesc()) {
+            Player p = byId.get(t.getPlayerId());
+            Player agent = t.getAgentId() != null ? byId.get(t.getAgentId()) : null;
+            if (agent != null && Boolean.TRUE.equals(agent.getClubManaged())) continue; // club-managed handled directly
+            BigDecimal worth = t.getWorth() != null ? t.getWorth() : BigDecimal.ZERO;
+            BigDecimal cost = t.getCost() != null ? t.getCost() : BigDecimal.ZERO;
+            Map<String, Object> m = new LinkedHashMap<>();
+            m.put("id", t.getId());
+            m.put("playerId", t.getPlayerId());
+            m.put("player", p != null ? p.getUsername() : "");
+            m.put("playerFullName", p != null ? p.getFullName() : "");
+            m.put("agent", agent != null ? agent.getUsername() : "");
+            m.put("eventName", t.getEventName());
+            m.put("worth", worth);
+            m.put("cost", cost);
+            m.put("profit", worth.subtract(cost));
+            m.put("wonDate", t.getWonDate() != null ? t.getWonDate().toString() : null);
+            m.put("used", Boolean.TRUE.equals(t.getUsed()));
+            m.put("usedDate", t.getUsedDate() != null ? t.getUsedDate().toString() : null);
+            m.put("usedBy", t.getUsedBy());
+            out.add(m);
+        }
+        return out;
+    }
+
     /** A single player's outstanding (unused) tickets — for their own dashboard. */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> listForPlayer(Long playerId) {

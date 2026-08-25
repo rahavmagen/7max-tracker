@@ -13,6 +13,9 @@ public interface LiveTicketRepository extends JpaRepository<LiveTicket, Long> {
 
     List<LiveTicket> findByUsedFalseOrderByWonDateDesc();
 
+    /** Every ticket, used and unused, newest won first — for the history view. */
+    List<LiveTicket> findAllByOrderByWonDateDesc();
+
     /** Unused tickets for an agent or any of their players (the agent's outstanding ticket liability). */
     List<LiveTicket> findByUsedFalseAndAgentId(Long agentId);
 
