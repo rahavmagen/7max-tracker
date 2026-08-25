@@ -493,9 +493,16 @@ public class AgentService {
         return false;
     }
 
-    /** P&L that counts toward the agent balance — zero for sat-to-live games (paid via live ticket). */
+    /** True for a sat-to-live game the player actually WON (result > 0) — they got a live ticket. */
+    private static boolean isSatToLiveWin(GameResult gr) {
+        return isSatToLive(gr.getSession()) && gr.getResultAmount() != null && gr.getResultAmount().signum() > 0;
+    }
+
+    /** P&L that counts toward the agent balance. Only a sat-to-live WIN is excluded (paid via a live
+     *  ticket instead of cash). A player who did NOT win still paid the sat buy-in — that's a real
+     *  loss and is counted normally. */
     private static BigDecimal countedPnl(GameResult gr) {
-        return isSatToLive(gr.getSession()) ? BigDecimal.ZERO : pnlOf(gr);
+        return isSatToLiveWin(gr) ? BigDecimal.ZERO : pnlOf(gr);
     }
 
     /** Per-player rake stats for an agent, with optional date filter (all results, settled+unsettled) */
@@ -550,6 +557,7 @@ public class AgentService {
                     .sorted((a, b) -> b.getSession().getStartTime().compareTo(a.getSession().getStartTime()))
                     .forEach(gr -> {
                         boolean satLive = isSatToLive(gr.getSession());
+                        boolean satLiveWin = isSatToLiveWin(gr);
                         Map<String, Object> g = new LinkedHashMap<>();
                         g.put("date", gr.getSession().getStartTime().toString());
                         g.put("tableName", gr.getSession().getTableName());
@@ -560,8 +568,8 @@ public class AgentService {
                         g.put("rakePaid", gr.getRakePaid());
                         g.put("satToLive", satLive);
                         games.add(g);
-                        // Offsetting row so a sat-to-live win nets to 0 in the agent balance.
-                        if (satLive && pnlOf(gr).signum() != 0) {
+                        // Offsetting row so a sat-to-live WIN nets to 0 (a loss counts normally).
+                        if (satLiveWin && pnlOf(gr).signum() != 0) {
                             Map<String, Object> adj = new LinkedHashMap<>();
                             adj.put("date", gr.getSession().getStartTime().toString());
                             adj.put("tableName", "↳ סאט ללייב — לא נספר");
