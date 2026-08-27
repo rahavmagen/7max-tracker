@@ -28,6 +28,7 @@ public class JwtUtil {
             claims.put("playerId", player.getId());
         }
         claims.put("isAgent", player != null && Boolean.TRUE.equals(player.getIsAgent()));
+        claims.put("isWorker", player != null && Boolean.TRUE.equals(player.getIsWorker()));
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claims(claims)

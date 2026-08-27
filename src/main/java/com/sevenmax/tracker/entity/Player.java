@@ -64,6 +64,9 @@ public class Player {
     // Agent system
     private Boolean isAgent = false;
 
+    // "Worker" profile: a player who also gets the Wheel screen (staff who operate the wheel).
+    private Boolean isWorker = false;
+
     // Club-managed agent: the club handles this agent's players directly (like normal players).
     // Such agents are excluded from the "credit given by agents" total, their players may still
     // receive manual credit, and their players are skipped by agent free-chip auto-booking.

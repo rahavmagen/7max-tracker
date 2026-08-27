@@ -36,6 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 Object playerIdObj = claims.get("playerId");
                 Long playerId = playerIdObj != null ? ((Number) playerIdObj).longValue() : null;
                 Boolean isAgent = claims.get("isAgent", Boolean.class);
+                Boolean isWorker = claims.get("isWorker", Boolean.class);
 
                 var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
                 var auth = new UsernamePasswordAuthenticationToken(username, null, authorities);
@@ -44,6 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 details.put("role", role);
                 if (playerId != null) details.put("playerId", playerId);
                 details.put("isAgent", Boolean.TRUE.equals(isAgent));
+                details.put("isWorker", Boolean.TRUE.equals(isWorker));
                 auth.setDetails(details);
 
                 SecurityContextHolder.getContext().setAuthentication(auth);

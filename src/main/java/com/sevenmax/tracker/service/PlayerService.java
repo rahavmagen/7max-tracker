@@ -98,6 +98,9 @@ public class PlayerService {
         if (updated.getIsAgent() != null) {
             player.setIsAgent(updated.getIsAgent());
         }
+        if (updated.getIsWorker() != null) {
+            player.setIsWorker(updated.getIsWorker());
+        }
         if (updated.getAgentRakePercentage() != null) {
             player.setAgentRakePercentage(updated.getAgentRakePercentage());
         } else if (Boolean.FALSE.equals(updated.getIsAgent())) {

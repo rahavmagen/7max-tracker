@@ -290,7 +290,7 @@ public class PlayerController {
 
     @PostMapping("/{id}/wheel-expense")
     public ResponseEntity<?> addWheelExpense(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
-        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        if (isPlayer(auth) && !isWorker(auth)) return ResponseEntity.status(403).build(); // workers may operate the wheel
         BigDecimal amount = new BigDecimal(body.get("amount").toString());
         String notes = body.get("notes") != null ? body.get("notes").toString() : null;
         return ResponseEntity.ok(playerService.addWheelExpense(id, amount, notes, auth.getName()));
@@ -412,6 +412,12 @@ public class PlayerController {
     private boolean isPlayer(Authentication auth) {
         return auth != null && auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_PLAYER"));
+    }
+
+    /** A "worker" is a player flagged to also operate the Wheel. */
+    private boolean isWorker(Authentication auth) {
+        return auth != null && auth.getDetails() instanceof Map<?, ?> details
+                && Boolean.TRUE.equals(details.get("isWorker"));
     }
 
     @SuppressWarnings("unchecked")

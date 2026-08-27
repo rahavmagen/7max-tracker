@@ -47,6 +47,7 @@ public class AuthService {
             result.put("playerId", player.getId());
         }
         result.put("isAgent", player != null && Boolean.TRUE.equals(player.getIsAgent()));
+        result.put("isWorker", player != null && Boolean.TRUE.equals(player.getIsWorker()));
         return result;
     }
 
