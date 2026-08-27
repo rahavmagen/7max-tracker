@@ -87,10 +87,14 @@ public class GrowDepositService {
                     ? player.getFullName() : null;
             body.put("fullName", isTwoValidNameWords(fullName) ? fullName : "Club Guest");
             body.put("phone", phone);
-            // Grow rejects an empty/malformed email even though it's optional, and players have no
-            // email on file - send a fixed valid-format placeholder. sendingMode=none means Grow
-            // never actually emails it, so it doesn't need to be player-specific.
-            body.put("email", "deposit@7max.club");
+            // Grow requires a valid email format (it rejects a malformed one), but sendingMode=none
+            // means it never actually emails it. Put the player's USERNAME as the local part so it
+            // shows on Grow's confirmation and identifies who paid. Sanitize to a valid local-part
+            // (usernames can contain spaces/symbols, e.g. "432 hz"), falling back to player<id>.
+            String emailLocal = player.getUsername() != null
+                    ? player.getUsername().replaceAll("[^A-Za-z0-9._+-]", "") : "";
+            if (emailLocal.isBlank()) emailLocal = "player" + player.getId();
+            body.put("email", emailLocal + "@7max.club");
 
             String bodyJson = MAPPER.writeValueAsString(body);
             log.info("Grow create-link REQUEST → POST {} body={}", makeWebhookUrl, bodyJson);
