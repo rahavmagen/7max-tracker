@@ -2,6 +2,7 @@ package com.sevenmax.tracker.service;
 
 import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.repository.UserRepository;
+import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final PlayerRepository playerRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
@@ -71,8 +73,16 @@ public class AuthService {
     public void changeRole(String targetUsername, String newRole) {
         User user = userRepository.findByUsernameIgnoreCase(targetUsername)
                 .orElseThrow(() -> new RuntimeException("User not found: " + targetUsername));
-        user.setRole(User.Role.valueOf(newRole));
+        // "WORKER" isn't a real role — it's a PLAYER with the worker flag (also gets the Wheel). Map it
+        // here so it shows as a role in the picker while keeping the normal player access & restrictions.
+        boolean worker = "WORKER".equalsIgnoreCase(newRole);
+        user.setRole(worker ? User.Role.PLAYER : User.Role.valueOf(newRole));
         userRepository.save(user);
+        var player = user.getPlayer();
+        if (player != null && (worker || "PLAYER".equalsIgnoreCase(newRole))) {
+            player.setIsWorker(worker);
+            playerRepository.save(player);
+        }
     }
 
     public void adminResetPassword(String targetUsername, String newPassword) {
