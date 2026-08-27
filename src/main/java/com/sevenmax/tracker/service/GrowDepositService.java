@@ -91,8 +91,9 @@ public class GrowDepositService {
             // means it never actually emails it. Put the player's USERNAME as the local part so it
             // shows on Grow's confirmation and identifies who paid. Sanitize to a valid local-part
             // (usernames can contain spaces/symbols, e.g. "432 hz"), falling back to player<id>.
-            String emailLocal = player.getUsername() != null
-                    ? player.getUsername().replaceAll("[^A-Za-z0-9._+-]", "") : "";
+            String emailLocal = player.getUsername() == null ? "" : player.getUsername()
+                    .replaceAll("[^A-Za-z0-9._-]+", "-")   // runs of invalid chars (space, ?, Hebrew…) -> one dash
+                    .replaceAll("^[.-]+|[.-]+$", "");        // trim leading/trailing dots/dashes
             if (emailLocal.isBlank()) emailLocal = "player" + player.getId();
             body.put("email", emailLocal + "@7max.club");
 
