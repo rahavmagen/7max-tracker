@@ -79,4 +79,29 @@ public class WhatsAppService {
         }
         return digits + "@c.us";
     }
+
+    /**
+     * Queries Green API for this instance's authorization state
+     * (authorized / notAuthorized / blocked / sleepMode / starting / ...).
+     * Throws on any HTTP or parsing failure — callers must treat that as "unknown", not "down".
+     */
+    public String checkInstanceState() throws Exception {
+        String url = String.format(
+            "%s/waInstance%s/getStateInstance/%s",
+            apiUrl, instanceId, token
+        );
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .GET()
+            .build();
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new RuntimeException("getStateInstance HTTP " + response.statusCode() + ": " + response.body());
+        }
+        com.fasterxml.jackson.databind.JsonNode json = MAPPER.readTree(response.body());
+        if (!json.has("stateInstance")) {
+            throw new RuntimeException("getStateInstance response missing stateInstance field: " + response.body());
+        }
+        return json.get("stateInstance").asText();
+    }
 }
