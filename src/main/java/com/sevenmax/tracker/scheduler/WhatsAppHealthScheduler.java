@@ -37,36 +37,40 @@ public class WhatsAppHealthScheduler {
 
     @Scheduled(fixedRate = 30 * 60 * 1000)
     public void checkHealth() {
-        String currentState;
         try {
-            currentState = whatsAppService.checkInstanceState();
+            String currentState;
+            try {
+                currentState = whatsAppService.checkInstanceState();
+            } catch (Exception e) {
+                log.warn("WhatsApp health check failed (treating as transient, not down): {}", e.getMessage());
+                return;
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+            HealthAction action = evaluator.evaluate(previousState, currentState, lastAlertAt, now);
+
+            switch (action) {
+                case ALERT_DOWN -> {
+                    log.error("WhatsApp (Green API) is DOWN — state: {}", currentState);
+                    sendAlert("WhatsApp (Green API) is down — state: " + currentState);
+                    lastAlertAt = now;
+                }
+                case ALERT_REMINDER -> {
+                    log.warn("WhatsApp (Green API) still down — state: {}", currentState);
+                    sendAlert("WhatsApp (Green API) is still down — state: " + currentState);
+                    lastAlertAt = now;
+                }
+                case ALERT_RECOVERED -> {
+                    log.info("WhatsApp (Green API) recovered — state: {}", currentState);
+                    sendAlert("WhatsApp (Green API) has recovered — state: " + currentState);
+                    lastAlertAt = null;
+                }
+                case NONE -> { /* no state change worth emailing about */ }
+            }
+            previousState = currentState;
         } catch (Exception e) {
-            log.warn("WhatsApp health check failed (treating as transient, not down): {}", e.getMessage());
-            return;
+            log.error("WhatsApp health check tick failed unexpectedly: {}", e.getMessage(), e);
         }
-
-        LocalDateTime now = LocalDateTime.now();
-        HealthAction action = evaluator.evaluate(previousState, currentState, lastAlertAt, now);
-
-        switch (action) {
-            case ALERT_DOWN -> {
-                log.error("WhatsApp (Green API) is DOWN — state: {}", currentState);
-                sendAlert("WhatsApp (Green API) is down — state: " + currentState);
-                lastAlertAt = now;
-            }
-            case ALERT_REMINDER -> {
-                log.warn("WhatsApp (Green API) still down — state: {}", currentState);
-                sendAlert("WhatsApp (Green API) is still down — state: " + currentState);
-                lastAlertAt = now;
-            }
-            case ALERT_RECOVERED -> {
-                log.info("WhatsApp (Green API) recovered — state: {}", currentState);
-                sendAlert("WhatsApp (Green API) has recovered — state: " + currentState);
-                lastAlertAt = null;
-            }
-            case NONE -> { /* no state change worth emailing about */ }
-        }
-        previousState = currentState;
     }
 
     private void sendAlert(String message) {
