@@ -44,7 +44,8 @@ public class LiveTicketService {
         for (GameSession s : gameSessionRepository.findAll()) {
             if (AgentService.isSatToLive(s)) created += syncSessionInternal(s);
         }
-        if (created > 0) log.info("Live-ticket sync created {} ticket(s)", created);
+        int fixed = liveTicketRepository.backfillMissingCosts();   // self-heal any tickets left without a cost
+        if (created > 0 || fixed > 0) log.info("Live-ticket sync: created {} ticket(s), backfilled {} cost(s)", created, fixed);
         return created;
     }
 
