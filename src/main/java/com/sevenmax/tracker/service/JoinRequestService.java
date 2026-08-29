@@ -8,24 +8,31 @@ import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class JoinRequestService {
 
+    @Value("${app.join-request.notification-emails:}")
+    private String notificationEmails;
+
     private final JoinRequestRepository joinRequestRepository;
     private final PlayerRepository playerRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final GmailEmailService gmailEmailService;
 
     public void submit(Map<String, String> body) {
         String username = body.get("username");
@@ -51,6 +58,27 @@ public class JoinRequestService {
         req.setCreatedAt(LocalDateTime.now());
         joinRequestRepository.save(req);
         log.info("JoinRequest submitted for username '{}'", username);
+        sendNewRequestEmail(req);
+    }
+
+    private void sendNewRequestEmail(JoinRequest req) {
+        if (notificationEmails == null || notificationEmails.isBlank()) return;
+        try {
+            List<String> recipients = Arrays.stream(notificationEmails.split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
+            if (recipients.isEmpty()) return;
+
+            String subject = String.format("New join request: %s", req.getUsername());
+            String body = "A new join request was submitted - check the admin site.\n\n"
+                    + "Username: " + req.getUsername() + "\n"
+                    + "Full name: " + req.getFullName() + "\n"
+                    + "Phone: " + req.getPhone() + "\n"
+                    + "Club ID: " + (req.getClubPlayerId() != null ? req.getClubPlayerId() : "-");
+
+            gmailEmailService.send(recipients, subject, body);
+        } catch (Exception e) {
+            log.error("Failed to send new join request email: {}", e.getMessage());
+        }
     }
 
     public List<JoinRequest> getPending() {
