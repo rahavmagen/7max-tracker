@@ -1,6 +1,5 @@
 package com.sevenmax.tracker.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.GameResultRepository;
@@ -10,14 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,17 +21,9 @@ public class MissingNameNotificationService {
     @Value("${app.missing-names.notification-emails:}")
     private String notificationEmails;
 
-    @Value("${resend.api-key:}")
-    private String resendApiKey;
-
-    @Value("${resend.from-email:noreply@7max.club}")
-    private String fromEmail;
-
     private final PlayerRepository playerRepository;
     private final GameResultRepository gameResultRepository;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final GmailEmailService gmailEmailService;
 
     /**
      * Players with no name who have ACTUALLY PLAYED (>= 1 game result) and currently hold chips —
@@ -61,10 +46,6 @@ public class MissingNameNotificationService {
 
     private void sendEmail(List<Player> flagged) {
         if (notificationEmails == null || notificationEmails.isBlank()) return;
-        if (resendApiKey == null || resendApiKey.isBlank()) {
-            log.warn("Resend API key not configured, skipping missing-name email");
-            return;
-        }
         try {
             List<String> recipients = Arrays.stream(notificationEmails.split(","))
                     .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
@@ -81,24 +62,10 @@ public class MissingNameNotificationService {
                     p.getCurrentChips() != null ? p.getCurrentChips().toPlainString() : "0",
                     p.getBalance() != null ? p.getBalance().toPlainString() : "0"));
             }
-            Map<String, Object> body = new HashMap<>();
-            body.put("from", fromEmail);
-            body.put("to", recipients);
-            body.put("subject", subject);
-            body.put("text", text.toString());
 
-            String bodyJson = MAPPER.writeValueAsString(body);
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.resend.com/emails"))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + resendApiKey)
-                    .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
-                    .build();
-            HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());
-            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+            boolean sent = gmailEmailService.send(recipients, subject, text.toString());
+            if (sent) {
                 log.info("Missing-name notification email sent for {} player(s)", flagged.size());
-            } else {
-                log.error("Resend API error HTTP {}: {}", resp.statusCode(), resp.body());
             }
         } catch (Exception e) {
             log.error("Failed to send missing-name notification email: {}", e.getMessage());
