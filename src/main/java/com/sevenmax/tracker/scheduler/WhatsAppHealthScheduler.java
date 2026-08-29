@@ -32,11 +32,15 @@ public class WhatsAppHealthScheduler {
     @Value("${app.whatsapp-health.notification-emails:}")
     private String notificationEmails;
 
+    @Value("${app.whatsapp-health.enabled:false}")
+    private boolean enabled;
+
     private String previousState;
     private LocalDateTime lastAlertAt;
 
     @Scheduled(fixedRate = 30 * 60 * 1000)
     public void checkHealth() {
+        if (!enabled) return;
         try {
             String currentState;
             try {
