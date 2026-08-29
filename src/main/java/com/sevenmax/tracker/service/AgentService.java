@@ -498,11 +498,15 @@ public class AgentService {
         return isSatToLive(gr.getSession()) && gr.getResultAmount() != null && gr.getResultAmount().signum() > 0;
     }
 
-    /** P&L that counts toward the agent balance. Only a sat-to-live WIN is excluded (paid via a live
-     *  ticket instead of cash). A player who did NOT win still paid the sat buy-in — that's a real
-     *  loss and is counted normally. */
+    /** P&L that counts toward the agent balance. A sat-to-live WIN's resultAmount (the ticket's face
+     *  value) is excluded — it's paid via a live ticket, not cash — but the buy-in she actually paid
+     *  is real money and still counts as a loss, same as a player who entered the sat and lost. */
     private static BigDecimal countedPnl(GameResult gr) {
-        return isSatToLiveWin(gr) ? BigDecimal.ZERO : pnlOf(gr);
+        if (isSatToLiveWin(gr)) {
+            BigDecimal buyIn = gr.getBuyIn() != null ? gr.getBuyIn() : BigDecimal.ZERO;
+            return buyIn.negate();
+        }
+        return pnlOf(gr);
     }
 
     /** Per-player rake stats for an agent, with optional date filter (all results, settled+unsettled) */
@@ -568,13 +572,15 @@ public class AgentService {
                         g.put("rakePaid", gr.getRakePaid());
                         g.put("satToLive", satLive);
                         games.add(g);
-                        // Offsetting row so a sat-to-live WIN nets to 0 (a loss counts normally).
-                        if (satLiveWin && pnlOf(gr).signum() != 0) {
+                        // Offsetting row so a sat-to-live WIN nets to countedPnl (real buy-in loss,
+                        // not zero) instead of the GG-reported ticket-value "profit".
+                        BigDecimal adjAmount = countedPnl(gr).subtract(pnlOf(gr));
+                        if (satLiveWin && adjAmount.signum() != 0) {
                             Map<String, Object> adj = new LinkedHashMap<>();
                             adj.put("date", gr.getSession().getStartTime().toString());
-                            adj.put("tableName", "↳ סאט ללייב — לא נספר");
+                            adj.put("tableName", "↳ סאט ללייב — הזכייה היא כרטיס, לא מזומן");
                             adj.put("gameType", "");
-                            adj.put("pnl", pnlOf(gr).negate());
+                            adj.put("pnl", adjAmount);
                             adj.put("adjustment", true);
                             games.add(adj);
                         }
