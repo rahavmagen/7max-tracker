@@ -611,7 +611,16 @@ public class ReportService {
                 agentNickname = getCellValue(row, 2);
             }
 
-            if (agentClubId == null || agentClubId.isBlank() || "-".equals(agentClubId.trim())) continue;
+            if (agentClubId == null || agentClubId.isBlank() || "-".equals(agentClubId.trim())) {
+                // Today's report shows no agent (direct or super) for this player - mirror that
+                // here too, rather than leaving a stale link from a previous day's assignment.
+                if (player.getAgent() != null) {
+                    log.info("Agent unlinked (report shows no agent today): {}", player.getUsername());
+                    player.setAgent(null);
+                    playerRepository.save(player);
+                }
+                continue;
+            }
 
             // Find the agent player — try by clubPlayerId first, then by username
             String finalAgentClubId = agentClubId;
