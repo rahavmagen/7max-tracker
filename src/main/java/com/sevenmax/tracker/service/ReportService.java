@@ -39,6 +39,7 @@ public class ReportService {
     private final XlsMatchingService xlsMatchingService;
     private final com.sevenmax.tracker.repository.PlayerNameHistoryRepository playerNameHistoryRepository;
     private final com.sevenmax.tracker.repository.UserRepository userRepository;
+    private final AgentService agentService;
 
     /** One-time backfill: re-parses the SNG Detail sheet of every already-uploaded report on/after
      *  `since` (a bug meant SNG games were never imported at all until this was fixed). Reuses
@@ -377,6 +378,13 @@ public class ReportService {
 
             // Backfill AdminExpense for any WHEEL_EXPENSE transaction that doesn't have one yet
             backfillWheelExpenseAdminRecords();
+
+            // One idempotent AdminExpense(AGENT) per top-level agent per day covered by this upload,
+            // for the rake they earned - agents no longer need a manual Settle to have it show up.
+            Set<LocalDate> sessionDates = gameSessionRepository.findByReportId(report.getId()).stream()
+                .map(s -> s.getStartTime().toLocalDate())
+                .collect(java.util.stream.Collectors.toSet());
+            agentService.createDailyAgentRakeExpenses(sessionDates);
 
             report.setTotalRake(totalRake);
             return reportRepository.save(report);
