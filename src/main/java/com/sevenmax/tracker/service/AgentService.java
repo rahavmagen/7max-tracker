@@ -182,7 +182,8 @@ public class AgentService {
                 // Games played and total club rake by this agent's players AND the agent's own play,
                 // over the date range (the agent is treated like one of their own players).
                 final Long agentId = agent.getId();
-                List<GameResult> results = agentAndOwnResults(agentId).stream()
+                List<GameResult> allResultsForBalance = agentAndOwnResults(agentId);
+                List<GameResult> results = allResultsForBalance.stream()
                     .filter(gr -> {
                         LocalDate d = gr.getSession().getStartTime().toLocalDate();
                         if (from != null && d.isBefore(from)) return false;
@@ -262,7 +263,9 @@ public class AgentService {
                     .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
                     .filter(e -> inRange(e.getEffectiveDate(), from, to))
                     .map(AgentLedgerEntry::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                BigDecimal currentBal = startBal.add(agentRake).add(periodPnl).subtract(pmts);
+                // currentBalance: always anchored to this agent's own opening date, never [from,to] -
+                // so it can't drift depending on what report window is being browsed.
+                BigDecimal currentBal = computeCurrentBalance(agent, openingE, allResultsForBalance);
 
                 m.put("pendingBalance", pending);
                 m.put("periodPnl", periodPnl);
@@ -412,30 +415,30 @@ public class AgentService {
             .map(gr -> gr.getSession().getStartTime().toLocalDate())
             .max(LocalDate::compareTo).orElse(LocalDate.now());
 
-        // Create AdminExpense of type AGENT
-        AdminExpense expense = new AdminExpense();
-        expense.setAdminUsername(agent.getUsername());
-        expense.setAmount(agentShare);
-        expense.setNotes("Agent fee: " + fromDate + " \u2013 " + toDate);
-        expense.setExpenseDate(LocalDate.now());
-        expense.setCreatedBy("system");
-        expense.setExpenseType("AGENT");
-        expense = adminExpenseRepository.save(expense);
+        // No AdminExpense here anymore - the daily XLS upload already creates the agent-rake expense
+        // per day as it's earned (see ReportService), so creating one here too would double-count it.
 
-        // Create AgentSettlement
+        // Create AgentSettlement (audit trail only - no longer linked to an expense)
         AgentSettlement settlement = new AgentSettlement();
         settlement.setAgent(agent);
         settlement.setFromDate(fromDate);
         settlement.setToDate(toDate);
         settlement.setTotalRake(totalRake);
         settlement.setAgentShare(agentShare);
-        settlement.setAdminExpense(expense);
         settlement = agentSettlementRepository.save(settlement);
 
         // Mark all game results as settled
         final AgentSettlement finalSettlement = settlement;
         unsettled.forEach(gr -> gr.setAgentSettlement(finalSettlement));
         gameResultRepository.saveAll(unsettled);
+
+        // Snapshot the agent's true current balance (correctly anchored to their OLD opening date,
+        // capturing every game/payment since then, including this settlement) as their new opening
+        // balance, dated today. This is what makes "opening balance" always reflect the balance as of
+        // the last reconciliation, automatically - no manual calculation/typing required.
+        BigDecimal newOpeningBalance = computeCurrentBalance(agent, latestOpening(agentId), agentAndOwnResults(agentId));
+        addLedgerEntry(agentId, AgentLedgerEntry.Type.OPENING, newOpeningBalance, LocalDate.now(),
+            "Reconciled (auto): " + fromDate + " \u2013 " + toDate, "system");
 
         return settlement;
     }
@@ -463,6 +466,48 @@ public class AgentService {
         expense.setCreatedBy(createdBy != null ? createdBy : "system");
         expense.setExpenseType("AGENT");
         return adminExpenseRepository.save(expense);
+    }
+
+    /** Creates one idempotent AdminExpense(AGENT) per top-level agent per given calendar day, for the
+     *  rake they earned that day (their own rake %, applied to their whole subtree's rakePaid for that
+     *  day - matches computeCurrentBalance's convention). Called once at the end of an XLS upload, for
+     *  every distinct session date involved. Re-uploading the same day never double-counts, since each
+     *  expense is keyed by a sourceRef of "AGENTRAKE:{agentId}:{date}". */
+    @Transactional
+    public void createDailyAgentRakeExpenses(Set<LocalDate> sessionDates) {
+        if (sessionDates == null || sessionDates.isEmpty()) return;
+        List<Player> allPlayers = playerRepository.findAll();
+        Map<Long, Player> byId = allPlayers.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
+        List<Player> topAgents = allPlayers.stream()
+            .filter(p -> isTopLevelAgent(p, byId))
+            .collect(Collectors.toList());
+
+        for (Player agent : topAgents) {
+            BigDecimal rakePct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
+            if (rakePct.signum() <= 0) continue;
+            List<GameResult> subtreeResults = agentAndOwnResults(agent.getId());
+            for (LocalDate date : sessionDates) {
+                String sourceRef = "AGENTRAKE:" + agent.getId() + ":" + date;
+                if (adminExpenseRepository.existsBySourceRef(sourceRef)) continue;
+                BigDecimal dayRake = subtreeResults.stream()
+                    .filter(gr -> date.equals(gr.getSession().getStartTime().toLocalDate()))
+                    .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                if (dayRake.signum() <= 0) continue;
+                BigDecimal agentShare = rakePct.multiply(dayRake).setScale(2, java.math.RoundingMode.HALF_UP);
+                if (agentShare.signum() <= 0) continue;
+
+                AdminExpense exp = new AdminExpense();
+                exp.setAdminUsername(agent.getUsername());
+                exp.setAmount(agentShare);
+                exp.setNotes("Agent rake — " + date);
+                exp.setExpenseDate(date);
+                exp.setCreatedBy("Import");
+                exp.setExpenseType("AGENT");
+                exp.setSourceRef(sourceRef);
+                adminExpenseRepository.save(exp);
+            }
+        }
     }
 
     private static final Set<GameSession.GameType> TOURNAMENT_TYPES = Set.of(
@@ -621,6 +666,42 @@ public class AgentService {
      * mean we owe the agent (+); losses mean they owe us (−). A payment where WE pay the agent (+) reduces what
      * we owe (−payments). Columns reconcile: Total Rake → Agent Rake → P&L → Starting → Current Balance.
      */
+    /** The agent's own latest OPENING ledger entry (their personal reconciliation baseline), or null
+     *  if they've never had one set. Per-agent by construction - different agents can have different
+     *  opening dates, independent of one another and of the club-wide הת חשבנות date. */
+    private AgentLedgerEntry latestOpening(Long agentId) {
+        return agentLedgerEntryRepository
+            .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
+            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
+            .orElse(null);
+    }
+
+    /** The agent's true current balance, right now — always anchored to THIS agent's own opening
+     *  date (never a UI-selected date range or the club-wide הת חשבנות date), so it can never drift
+     *  depending on what report window happens to be browsed. `allResults` must be this agent's full,
+     *  unfiltered {@link #agentAndOwnResults}. */
+    private BigDecimal computeCurrentBalance(Player agent, AgentLedgerEntry opening, List<GameResult> allResults) {
+        LocalDate anchorFrom = opening != null ? opening.getEffectiveDate() : null;
+        BigDecimal startingBalance = opening != null ? opening.getAmount() : BigDecimal.ZERO;
+        BigDecimal rakePct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
+
+        List<GameResult> sinceOpening = allResults.stream()
+            .filter(gr -> inRange(gr.getSession().getStartTime().toLocalDate(), anchorFrom, null))
+            .collect(Collectors.toList());
+        BigDecimal totalRake = sinceOpening.stream()
+            .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
+        BigDecimal playerPnl = sinceOpening.stream().map(AgentService::countedPnl).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal payments = agentLedgerEntryRepository
+            .findByAgentIdAndType(agent.getId(), AgentLedgerEntry.Type.PAYMENT).stream()
+            .filter(e -> inRange(e.getEffectiveDate(), anchorFrom, null))
+            .map(AgentLedgerEntry::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return startingBalance.add(agentRake).add(playerPnl).subtract(payments);
+    }
+
     @Transactional(readOnly = true)
     public Map<String, Object> getAgentBalance(Long agentId, LocalDate from, LocalDate to) {
         Player agent = playerRepository.findById(agentId)
@@ -635,11 +716,13 @@ public class AgentService {
         LocalDate openingDate = baseline != null ? baseline.getEffectiveDate() : null;
         BigDecimal startingBalance = baseline != null ? baseline.getAmount() : BigDecimal.ZERO;
 
-        // When no explicit from is given (e.g. the agent portal), accrue since the last התחשבנות so games
-        // already captured in the starting balance are not double-counted.
+        // "This period" figures (rakebackSince/playerPnlSince/paymentsSince below) are filterable by
+        // the caller's from/to, defaulting to since the club-wide last התחשבנות. This is a REPORTING
+        // window only — it does not affect currentBalance (see below).
         final LocalDate accrualFrom = from != null ? from : getLastSettlementDate();
 
-        List<GameResult> results = agentAndOwnResults(agentId).stream()
+        List<GameResult> allResults = agentAndOwnResults(agentId);
+        List<GameResult> results = allResults.stream()
             .filter(gr -> inRange(gr.getSession().getStartTime().toLocalDate(), accrualFrom, to))
             .collect(Collectors.toList());
         BigDecimal totalRake = results.stream()
@@ -655,9 +738,9 @@ public class AgentService {
             .map(AgentLedgerEntry::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Agent point of view (positive = WE OWE THE AGENT; negative = agent owes us):
-        // starting + agentRake (we owe them) + players' P&L (won → we owe) − payments (we paid them).
-        BigDecimal currentBalance = startingBalance.add(agentRake).add(playerPnl).subtract(payments);
+        // currentBalance: always anchored to THIS agent's own opening date (see computeCurrentBalance),
+        // never the caller's from/to - so browsing a different report window can never shift it.
+        BigDecimal currentBalance = computeCurrentBalance(agent, baseline, allResults);
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("agentId", agentId);
