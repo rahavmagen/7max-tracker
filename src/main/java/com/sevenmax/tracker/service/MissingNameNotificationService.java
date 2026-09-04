@@ -31,6 +31,8 @@ public class MissingNameNotificationService {
      * check), which wrongly flagged agent players who hold agent-given chips but never played
      * (e.g. m11223344); the play-history filter was added, but a zero-chip player who played in
      * the past and has since cashed out has nothing left to reconcile, so they're excluded too.
+     * Players who left the club (stale chips + a real club ID, same definition as the "Left Club"
+     * dashboard tile) are excluded too — they're no longer in the daily XLS to reconcile against.
      */
     public void checkAndNotify() {
         java.util.Set<Long> playedIds = new java.util.HashSet<>(gameResultRepository.findPlayerIdsWithGameResults());
@@ -38,6 +40,8 @@ public class MissingNameNotificationService {
             .filter(p -> p.getFullName() == null || p.getFullName().trim().isEmpty())
             .filter(p -> playedIds.contains(p.getId()))
             .filter(p -> p.getCurrentChips() != null && p.getCurrentChips().compareTo(BigDecimal.ZERO) != 0)
+            .filter(p -> !(Boolean.TRUE.equals(p.getChipsStale())
+                    && p.getClubPlayerId() != null && !p.getClubPlayerId().isBlank()))
             .collect(Collectors.toList());
 
         if (flagged.isEmpty()) return;
