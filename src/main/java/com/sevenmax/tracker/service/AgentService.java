@@ -124,6 +124,20 @@ public class AgentService {
         return cur;
     }
 
+    /** Every player id mapped to their super-agent's username, or null if they have none
+     *  (including a top-level agent who has nobody above them). Loads the player list once
+     *  so this is safe to call for a whole result set without N+1 queries. */
+    public Map<Long, String> resolveSuperAgentNames() {
+        List<Player> all = playerRepository.findAll();
+        Map<Long, Player> byId = all.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
+        Map<Long, String> result = new HashMap<>();
+        for (Player p : all) {
+            Player top = resolveTopAgent(p, byId);
+            result.put(p.getId(), (top != null && !top.getId().equals(p.getId())) ? top.getUsername() : null);
+        }
+        return result;
+    }
+
     /** An agent shown on the list: it's an agent and is NOT under another agent. */
     private boolean isTopLevelAgent(Player p, Map<Long, Player> byId) {
         if (!Boolean.TRUE.equals(p.getIsAgent())) return false;
