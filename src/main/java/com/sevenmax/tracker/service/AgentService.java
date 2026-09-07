@@ -127,6 +127,7 @@ public class AgentService {
     /** Every player id mapped to their super-agent's username, or null if they have none
      *  (including a top-level agent who has nobody above them). Loads the player list once
      *  so this is safe to call for a whole result set without N+1 queries. */
+    @Transactional(readOnly = true)
     public Map<Long, String> resolveSuperAgentNames() {
         List<Player> all = playerRepository.findAll();
         Map<Long, Player> byId = all.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
