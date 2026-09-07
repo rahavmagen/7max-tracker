@@ -214,6 +214,7 @@ public class ReportController {
 
     @GetMapping("/sessions/{id}/results")
     public ResponseEntity<List<Map<String, Object>>> getSessionResults(@PathVariable Long id) {
+        Map<Long, String> superAgentNames = agentService.resolveSuperAgentNames();
         List<Map<String, Object>> result = new ArrayList<>();
         gameResultRepository.findBySessionId(id).stream()
             .sorted((a, b) -> {
@@ -233,6 +234,7 @@ public class ReportController {
                 m.put("rakePaid", r.getRakePaid());
                 m.put("resultAmount", r.getResultAmount());
                 m.put("tournamentPlace", r.getTournamentPlace());
+                m.put("superAgentName", superAgentNames.get(r.getPlayer().getId()));
                 result.add(m);
             });
         return ResponseEntity.ok(result);
