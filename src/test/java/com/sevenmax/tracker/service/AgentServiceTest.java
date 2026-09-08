@@ -1,6 +1,10 @@
 package com.sevenmax.tracker.service;
 
+import com.sevenmax.tracker.entity.AgentLedgerEntry;
+import com.sevenmax.tracker.entity.LastSettlementDate;
 import com.sevenmax.tracker.entity.Player;
+import com.sevenmax.tracker.repository.AgentLedgerEntryRepository;
+import com.sevenmax.tracker.repository.LastSettlementDateRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,8 +12,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -18,13 +24,16 @@ import static org.mockito.Mockito.when;
 class AgentServiceTest {
 
     @Mock PlayerRepository playerRepository;
+    @Mock AgentLedgerEntryRepository agentLedgerEntryRepository;
+    @Mock LastSettlementDateRepository lastSettlementDateRepository;
 
     AgentService agentService;
 
     @BeforeEach
     void setUp() {
         agentService = new AgentService(
-            playerRepository, null, null, null, null, null, null, null
+            playerRepository, null, null, null, null,
+            agentLedgerEntryRepository, lastSettlementDateRepository, null
         );
     }
 
@@ -79,5 +88,39 @@ class AgentServiceTest {
         Map<Long, String> result = agentService.resolveSuperAgentNames();
 
         assertThat(result.get(1L)).isNull();
+    }
+
+    @Test
+    void resolveAgentReportingFrom_explicitCallerDate_alwaysWins() {
+        LocalDate callerFrom = LocalDate.of(2026, 3, 1);
+
+        LocalDate result = agentService.resolveAgentReportingFrom(1L, callerFrom);
+
+        assertThat(result).isEqualTo(callerFrom);
+    }
+
+    @Test
+    void resolveAgentReportingFrom_noCallerDate_usesAgentsOwnLatestOpeningDate() {
+        AgentLedgerEntry opening = new AgentLedgerEntry();
+        opening.setEffectiveDate(LocalDate.of(2026, 1, 10));
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of(opening));
+
+        LocalDate result = agentService.resolveAgentReportingFrom(1L, null);
+
+        assertThat(result).isEqualTo(LocalDate.of(2026, 1, 10));
+    }
+
+    @Test
+    void resolveAgentReportingFrom_noCallerDateAndNoOpeningEntry_fallsBackToGlobalDate() {
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of());
+        LastSettlementDate global = new LastSettlementDate();
+        global.setDate(LocalDate.of(2026, 2, 1));
+        when(lastSettlementDateRepository.findById(1L)).thenReturn(Optional.of(global));
+
+        LocalDate result = agentService.resolveAgentReportingFrom(1L, null);
+
+        assertThat(result).isEqualTo(LocalDate.of(2026, 2, 1));
     }
 }

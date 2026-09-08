@@ -691,6 +691,17 @@ public class AgentService {
             .orElse(null);
     }
 
+    /** Resolves the "from" date for an agent's period figures: an explicit caller date always
+     *  wins; with none, each agent defaults to THEIR OWN latest OPENING entry date (so agents
+     *  reconciled on different days don't get folded into one shared cutoff), falling back to
+     *  the club-wide last settlement date only for an agent that has never had an OPENING entry. */
+    LocalDate resolveAgentReportingFrom(Long agentId, LocalDate callerFrom) {
+        if (callerFrom != null) return callerFrom;
+        AgentLedgerEntry opening = latestOpening(agentId);
+        if (opening != null) return opening.getEffectiveDate();
+        return getLastSettlementDate();
+    }
+
     /** The agent's true current balance, right now — always anchored to THIS agent's own opening
      *  date (never a UI-selected date range or the club-wide הת חשבנות date), so it can never drift
      *  depending on what report window happens to be browsed. `allResults` must be this agent's full,
