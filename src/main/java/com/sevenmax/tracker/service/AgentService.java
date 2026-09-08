@@ -197,11 +197,12 @@ public class AgentService {
                 // Games played and total club rake by this agent's players AND the agent's own play,
                 // over the date range (the agent is treated like one of their own players).
                 final Long agentId = agent.getId();
+                final LocalDate effectiveFrom = resolveAgentReportingFrom(agentId, from);
                 List<GameResult> allResultsForBalance = agentAndOwnResults(agentId);
                 List<GameResult> results = allResultsForBalance.stream()
                     .filter(gr -> {
                         LocalDate d = gr.getSession().getStartTime().toLocalDate();
-                        if (from != null && d.isBefore(from)) return false;
+                        if (effectiveFrom != null && d.isBefore(effectiveFrom)) return false;
                         if (to != null && d.isAfter(to)) return false;
                         return true;
                     })
@@ -276,7 +277,7 @@ public class AgentService {
                 BigDecimal startBal = openingE != null ? openingE.getAmount() : BigDecimal.ZERO;
                 BigDecimal pmts = agentLedgerEntryRepository
                     .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
-                    .filter(e -> inRange(e.getEffectiveDate(), from, to))
+                    .filter(e -> inRange(e.getEffectiveDate(), effectiveFrom, to))
                     .map(AgentLedgerEntry::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
                 // currentBalance: always anchored to this agent's own opening date, never [from,to] -
                 // so it can't drift depending on what report window is being browsed.
@@ -745,7 +746,7 @@ public class AgentService {
         // "This period" figures (rakebackSince/playerPnlSince/paymentsSince below) are filterable by
         // the caller's from/to, defaulting to since the club-wide last התחשבנות. This is a REPORTING
         // window only — it does not affect currentBalance (see below).
-        final LocalDate accrualFrom = from != null ? from : getLastSettlementDate();
+        final LocalDate accrualFrom = resolveAgentReportingFrom(agentId, from);
 
         List<GameResult> allResults = agentAndOwnResults(agentId);
         List<GameResult> results = allResults.stream()
