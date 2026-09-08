@@ -364,17 +364,6 @@ public class PlayerController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePlayer(@PathVariable Long id, Authentication auth) {
-        if (isPlayer(auth)) return ResponseEntity.status(403).build();
-        try {
-            playerService.deletePlayer(id);
-            return ResponseEntity.ok(Map.of("success", true));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
     // Cleanup: delete players whose username contains Hebrew characters and have no game results
     @DeleteMapping("/cleanup-hebrew")
     public ResponseEntity<Map<String, Object>> cleanupHebrewPlayers(Authentication auth) {

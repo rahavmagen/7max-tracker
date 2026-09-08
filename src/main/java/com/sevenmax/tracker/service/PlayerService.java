@@ -324,17 +324,6 @@ public class PlayerService {
         return transactionRepository.findByPlayerIdOrderByTransactionDateDesc(playerId);
     }
 
-    @Transactional
-    public void deletePlayer(Long id) {
-        Player player = getPlayer(id);
-        transactionRepository.deleteAll(transactionRepository.findByPlayerIdOrderByTransactionDateDesc(id));
-        gameResultRepository.deleteAll(gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(id));
-        playerTransferRepository.deleteAll(playerTransferRepository.findByFromPlayerIdOrToPlayerId(id, id));
-        userRepository.deleteAll(userRepository.findAllByPlayerId(id));
-        playerRepository.delete(player);
-        log.info("Deleted player id={} username={}", id, player.getUsername());
-    }
-
     /**
      * Find player by username: exact case-insensitive → fuzzy (strips spaces/underscores/hyphens) → alphanumeric (strips ALL special chars like !).
      */
