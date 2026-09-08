@@ -540,7 +540,35 @@ public class ReportService {
         return res;
     }
 
-    private void parseClubOverview(Workbook workbook) {
+    /** Find a player by club ID / nickname, creating them if this is their first appearance in
+     *  any report — mirrors the same fallback already used by the detail parsers (e.g.
+     *  parseRingGameDetail, parseMttDetail, parseSngDetail). Without this, a player seen for the
+     *  first time on a "Club Overview" row has no Player record yet, so their agent link would
+     *  be silently skipped and never retried.
+     *  Lookup still tries clubId then nickname even if one is blank/"-" (ClubGG's placeholder for
+     *  "no value"), matching the old behavior. Creation, however, requires BOTH a usable clubId
+     *  and a usable nickname — Player.username is NOT NULL/unique, so creating with a blank
+     *  nickname would fail that constraint and roll back the whole upload (parseClubOverview runs
+     *  first, inside the same transaction as the rest of the report); skipping the row here is
+     *  the same outcome the old code had for this edge case, just reached deliberately. */
+    private Player findOrCreatePlayer(String clubId, String nickname) {
+        boolean hasClubId = clubId != null && !clubId.isBlank() && !"-".equals(clubId.trim());
+        boolean hasNickname = nickname != null && !nickname.isBlank() && !"-".equals(nickname.trim());
+
+        Optional<Player> found = hasClubId
+                ? playerRepository.findByClubPlayerIdSafe(clubId).stream().findFirst()
+                        .or(() -> hasNickname ? findPlayerByUsername(nickname) : Optional.empty())
+                : (hasNickname ? findPlayerByUsername(nickname) : Optional.empty());
+        if (found.isPresent()) return found.get();
+
+        if (!hasClubId || !hasNickname) return null;
+        Player p = new Player();
+        p.setClubPlayerId(clubId);
+        p.setUsername(nickname);
+        return playerService.createPlayer(p);
+    }
+
+    void parseClubOverview(Workbook workbook) {
         Sheet sheet = workbook.getSheet("Club Overview");
         if (sheet == null) {
             log.debug("Club Overview sheet not found, skipping agent sync");
@@ -565,9 +593,7 @@ public class ReportService {
             if (!isAgentRow && !isSuperAgentRow) continue;
 
             String aId = getCellValue(row, 7), aNick = getCellValue(row, 8);
-            Player agentPlayer = playerRepository.findByClubPlayerIdSafe(aId).stream().findFirst()
-                    .or(() -> aNick != null ? findPlayerByUsername(aNick) : java.util.Optional.empty())
-                    .orElse(null);
+            Player agentPlayer = findOrCreatePlayer(aId, aNick);
             if (agentPlayer == null) continue;
             boolean dirty = false;
             if (!Boolean.TRUE.equals(agentPlayer.getIsAgent())) { agentPlayer.setIsAgent(true); dirty = true; }
@@ -595,9 +621,7 @@ public class ReportService {
             if (playerClubId == null || playerClubId.isBlank()) continue;
 
             // Find the player (member)
-            Player player = playerRepository.findByClubPlayerIdSafe(playerClubId).stream().findFirst()
-                    .or(() -> playerNickname != null ? findPlayerByUsername(playerNickname) : java.util.Optional.empty())
-                    .orElse(null);
+            Player player = findOrCreatePlayer(playerClubId, playerNickname);
             if (player == null) continue;
 
             if (Boolean.TRUE.equals(player.getIsAgent())) {
