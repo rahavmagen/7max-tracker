@@ -6,35 +6,34 @@ import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.repository.JoinRequestRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.UserRepository;
+import com.sevenmax.tracker.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class JoinRequestService {
 
-    @Value("${app.join-request.notification-emails:}")
-    private String notificationEmails;
-
     private final JoinRequestRepository joinRequestRepository;
     private final PlayerRepository playerRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final GmailEmailService gmailEmailService;
+    private final JwtUtil jwtUtil;
 
-    public void submit(Map<String, String> body) {
+    /** Creates the player + login immediately (no admin approval wait) and returns a login-shaped
+     *  response so the frontend can log the new user straight in, the same as POST /api/auth/login. */
+    @Transactional
+    public Map<String, Object> submit(Map<String, String> body) {
         String username = body.get("username");
         if (username == null || username.isBlank()) throw new RuntimeException("Username is required");
         String fullName = body.get("fullName");
@@ -42,43 +41,35 @@ public class JoinRequestService {
         String phone = body.get("phone");
         if (phone == null || phone.isBlank()) throw new RuntimeException("Phone is required");
 
-        if (playerRepository.existsByUsername(username.trim())) {
+        username = username.trim();
+        if (playerRepository.existsByUsername(username)) {
             throw new RuntimeException("Username already taken");
-        }
-        if (joinRequestRepository.existsByUsernameAndStatus(username.trim(), "PENDING")) {
-            throw new RuntimeException("A pending request already exists for this username");
         }
 
         JoinRequest req = new JoinRequest();
-        req.setUsername(username.trim());
+        req.setUsername(username);
         req.setFullName(fullName.trim());
         req.setPhone(phone.trim());
         String clubPlayerId = body.get("clubPlayerId");
         if (clubPlayerId != null && !clubPlayerId.isBlank()) req.setClubPlayerId(clubPlayerId.trim());
         req.setCreatedAt(LocalDateTime.now());
+        req.setStatus("APPROVED");
+        req.setReviewedAt(LocalDateTime.now());
         joinRequestRepository.save(req);
-        log.info("JoinRequest submitted for username '{}'", username);
-        sendNewRequestEmail(req);
-    }
 
-    private void sendNewRequestEmail(JoinRequest req) {
-        if (notificationEmails == null || notificationEmails.isBlank()) return;
-        try {
-            List<String> recipients = Arrays.stream(notificationEmails.split(","))
-                    .map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
-            if (recipients.isEmpty()) return;
+        User user = createPlayerAndUser(req);
+        log.info("JoinRequest auto-approved — player and user created immediately for '{}'", username);
 
-            String subject = String.format("New join request: %s", req.getUsername());
-            String body = "A new join request was submitted - check the admin site.\n\n"
-                    + "Username: " + req.getUsername() + "\n"
-                    + "Full name: " + req.getFullName() + "\n"
-                    + "Phone: " + req.getPhone() + "\n"
-                    + "Club ID: " + (req.getClubPlayerId() != null ? req.getClubPlayerId() : "-");
-
-            gmailEmailService.send(recipients, subject, body);
-        } catch (Exception e) {
-            log.error("Failed to send new join request email: {}", e.getMessage());
-        }
+        String token = jwtUtil.generate(user);
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", token);
+        result.put("role", user.getRole().name());
+        result.put("username", user.getUsername());
+        result.put("mustChangePassword", Boolean.TRUE.equals(user.getMustChangePassword()));
+        result.put("playerId", user.getPlayer().getId());
+        result.put("isAgent", false);
+        result.put("isWorker", false);
+        return result;
     }
 
     public List<JoinRequest> getPending() {
@@ -100,6 +91,17 @@ public class JoinRequestService {
             throw new RuntimeException("Username already taken — cannot approve");
         }
 
+        createPlayerAndUser(req);
+
+        req.setStatus("APPROVED");
+        req.setReviewedAt(LocalDateTime.now());
+        joinRequestRepository.save(req);
+        log.info("JoinRequest {} approved — player and user created for '{}'", id, req.getUsername());
+    }
+
+    /** Creates the Player + login User for a join request. Password defaults to the phone
+     *  number's digits (matching every other player account created this way in the app). */
+    private User createPlayerAndUser(JoinRequest req) {
         Player player = new Player();
         player.setUsername(req.getUsername());
         player.setFullName(req.getFullName());
@@ -122,12 +124,7 @@ public class JoinRequestService {
         user.setPlayer(player);
         user.setMustChangePassword(true);
         user.setActive(true);
-        userRepository.save(user);
-
-        req.setStatus("APPROVED");
-        req.setReviewedAt(LocalDateTime.now());
-        joinRequestRepository.save(req);
-        log.info("JoinRequest {} approved — player and user created for '{}'", id, req.getUsername());
+        return userRepository.save(user);
     }
 
     @Transactional

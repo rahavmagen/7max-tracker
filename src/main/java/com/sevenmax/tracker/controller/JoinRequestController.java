@@ -22,8 +22,7 @@ public class JoinRequestController {
     @PostMapping
     public ResponseEntity<Map<String, Object>> submit(@RequestBody Map<String, String> body) {
         try {
-            joinRequestService.submit(body);
-            return ResponseEntity.ok(Map.of("success", true));
+            return ResponseEntity.ok(joinRequestService.submit(body));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
