@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/change-password", "/api/reports/upload-auto", "/api/kashcash/webhook", "/api/grow/webhook").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/join").permitAll()
                 .requestMatchers("/api/auth/admin/change-role").hasRole("ADMIN")
+                .requestMatchers("/api/auth/admin/reset-password").hasAnyRole("ADMIN", "MANAGER", "WORKER")
                 .requestMatchers("/api/auth/admin/**").hasAnyRole("ADMIN", "MANAGER")
                 .anyRequest().authenticated()
             )
