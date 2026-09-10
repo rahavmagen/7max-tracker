@@ -1,6 +1,5 @@
 package com.sevenmax.tracker.controller;
 
-import com.sevenmax.tracker.entity.AgentSettlement;
 import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.repository.UserRepository;
 import com.sevenmax.tracker.service.AgentService;
@@ -44,29 +43,6 @@ public class AgentController {
         if (!isAdminOrOwner(auth, id)) return ResponseEntity.status(403).build();
         try {
             return ResponseEntity.ok(agentService.getAgentSummary(id));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    /** Agent or admin: game-by-game breakdown, optional ?from=&to= */
-    @GetMapping("/{id}/breakdown")
-    public ResponseEntity<?> getBreakdown(
-            @PathVariable Long id,
-            @RequestParam(required = false) String from,
-            @RequestParam(required = false) String to,
-            Authentication auth) {
-        if (!isAdminOrOwner(auth, id)) return ResponseEntity.status(403).build();
-        LocalDate fromDate;
-        LocalDate toDate;
-        try {
-            fromDate = from != null ? LocalDate.parse(from) : null;
-            toDate   = to   != null ? LocalDate.parse(to)   : null;
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format. Use ISO-8601 (yyyy-MM-dd)"));
-        }
-        try {
-            return ResponseEntity.ok(agentService.getAgentBreakdown(id, fromDate, toDate));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
         }
@@ -264,29 +240,6 @@ public class AgentController {
         if (!isAdmin(auth)) return ResponseEntity.status(403).build();
         agentService.deleteLedgerEntry(entryId);
         return ResponseEntity.ok(Map.of("success", true));
-    }
-
-    /** Admin only: trigger settlement. Optional body { amount } overrides the computed agent
-     *  share (e.g. corrected in the settle popup) as the amount recorded as the expense. */
-    @PostMapping("/{id}/settle")
-    public ResponseEntity<?> settle(@PathVariable Long id,
-            @RequestBody(required = false) Map<String, Object> body, Authentication auth) {
-        if (!isAdmin(auth)) return ResponseEntity.status(403).build();
-        try {
-            java.math.BigDecimal overrideAmount = (body != null && body.get("amount") != null)
-                ? new java.math.BigDecimal(body.get("amount").toString()) : null;
-            AgentSettlement settlement = agentService.settleAgent(id, overrideAmount);
-            return ResponseEntity.ok(Map.of(
-                "settlementId", settlement.getId(),
-                "agentShare", settlement.getAgentShare(),
-                "fromDate", settlement.getFromDate().toString(),
-                "toDate", settlement.getToDate().toString()
-            ));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
     }
 
     /** Admin only: manually record an agent-rake expense for an arbitrary amount, not tied to

@@ -24,11 +24,6 @@ public class AgentService {
     private final LastSettlementDateRepository lastSettlementDateRepository;
     private final com.sevenmax.tracker.repository.LiveTicketRepository liveTicketRepository;
 
-    /** Agent-rake expense management started on this date. Games before it are out of scope for
-     *  settlement — their unsettled rake share is not owed and must not pre-fill / be marked settled. */
-    private static final java.time.LocalDateTime EXPENSE_TRACKING_START =
-            java.time.LocalDate.of(2026, 8, 1).atStartOfDay();
-
     /** Unused live-ticket worth owed via an agent (agent + their players) — a non-cash obligation. */
     private BigDecimal ticketWorthForAgent(Long agentId) {
         return liveTicketRepository.findByUsedFalseAndAgentId(agentId).stream()
@@ -168,18 +163,6 @@ public class AgentService {
         return ids;
     }
 
-    /** The rake commission a (super) agent earns on one unsettled result. A player directly under
-     *  this agent keeps their stored share (unchanged for existing agents); a player under a
-     *  sub-agent is charged at the SUPER agent's % on the whole book. */
-    private BigDecimal shareForTop(GameResult gr, Player topAgent, BigDecimal topPct) {
-        Player pl = gr.getPlayer();
-        if (pl != null && pl.getAgent() != null && topAgent.getId().equals(pl.getAgent().getId())) {
-            return gr.getAgentRakeShare() != null ? gr.getAgentRakeShare() : BigDecimal.ZERO;
-        }
-        BigDecimal rake = gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO;
-        return topPct.multiply(rake).setScale(2, java.math.RoundingMode.HALF_UP);
-    }
-
     public List<Map<String, Object>> getAllAgentsSummary(LocalDate from, LocalDate to) {
         List<Player> allPlayers = playerRepository.findAll();
         Map<Long, Player> byId = allPlayers.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
@@ -187,9 +170,6 @@ public class AgentService {
             .filter(p -> isTopLevelAgent(p, byId))
             .map(agent -> {
                 BigDecimal agentPct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
-                BigDecimal pending = getUnsettledResults(agent.getId()).stream()
-                    .map(gr -> shareForTop(gr, agent, agentPct))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
                 long playerCount = allPlayers.stream()
                     .filter(p -> inAgentBook(p, agent.getId(), byId))
                     .count();
@@ -283,7 +263,6 @@ public class AgentService {
                 // so it can't drift depending on what report window is being browsed.
                 BigDecimal currentBal = computeCurrentBalance(agent, openingE, allResultsForBalance);
 
-                m.put("pendingBalance", pending);
                 m.put("periodPnl", periodPnl);
                 m.put("appPnl", appPnl);   // GG's view (sat-to-live counted) — for reconciliation
                 m.put("agentRake", agentRake);
@@ -336,12 +315,6 @@ public class AgentService {
             throw new IllegalArgumentException("Player " + agentId + " is not an agent");
         }
 
-        BigDecimal agentPct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
-        List<GameResult> unsettled = getUnsettledResults(agentId);
-        BigDecimal pending = unsettled.stream()
-            .map(gr -> shareForTop(gr, agent, agentPct))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agentId);
         List<Map<String, Object>> historyList = settlements.stream().map(s -> {
             Map<String, Object> h = new LinkedHashMap<>();
@@ -371,98 +344,13 @@ public class AgentService {
         result.put("agentId", agentId);
         result.put("username", agent.getUsername());
         result.put("rakePercentage", agent.getAgentRakePercentage());
-        result.put("pendingBalance", pending);
         result.put("players", playersList);
         result.put("settlementHistory", historyList);
         return result;
     }
 
-    /** Game-by-game breakdown of unsettled results for an agent, optional date filter */
-    @Transactional(readOnly = true)
-    public List<Map<String, Object>> getAgentBreakdown(Long agentId, LocalDate from, LocalDate to) {
-        return getUnsettledResults(agentId).stream()
-            .filter(gr -> {
-                LocalDate sessionDate = gr.getSession().getStartTime().toLocalDate();
-                if (from != null && sessionDate.isBefore(from)) return false;
-                if (to != null && sessionDate.isAfter(to)) return false;
-                return true;
-            })
-            .map(gr -> {
-                Map<String, Object> m = new LinkedHashMap<>();
-                m.put("gameResultId", gr.getId());
-                m.put("sessionDate", gr.getSession().getStartTime().toLocalDate().toString());
-                m.put("tableName", gr.getSession().getTableName());
-                m.put("playerUsername", gr.getPlayer().getUsername());
-                m.put("rakePaid", gr.getRakePaid());
-                m.put("agentShare", gr.getAgentRakeShare());
-                m.put("status", "pending");
-                return m;
-            })
-            .collect(Collectors.toList());
-    }
-
-    /** Create a settlement: mark all unsettled results, create AgentSettlement + AdminExpense.
-     *  overrideAmount, if provided, replaces the computed agentShare as the recorded expense -
-     *  this is the figure an admin corrected in the settle popup, independent of how much of it
-     *  actually got paid out in this particular transfer. */
-    @Transactional
-    public AgentSettlement settleAgent(Long agentId, BigDecimal overrideAmount) {
-        Player agent = playerRepository.findById(agentId)
-            .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
-        if (!Boolean.TRUE.equals(agent.getIsAgent())) {
-            throw new IllegalArgumentException("Player " + agentId + " is not an agent");
-        }
-
-        List<GameResult> unsettled = getUnsettledResults(agentId);
-        if (unsettled.isEmpty()) throw new IllegalStateException("No pending balance to settle");
-
-        BigDecimal totalRake = unsettled.stream()
-            .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal agentPct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
-        BigDecimal computedAgentShare = unsettled.stream()
-            .map(gr -> shareForTop(gr, agent, agentPct))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal agentShare = overrideAmount != null ? overrideAmount : computedAgentShare;
-        LocalDate fromDate = unsettled.stream()
-            .map(gr -> gr.getSession().getStartTime().toLocalDate())
-            .min(LocalDate::compareTo).orElse(LocalDate.now());
-        LocalDate toDate = unsettled.stream()
-            .map(gr -> gr.getSession().getStartTime().toLocalDate())
-            .max(LocalDate::compareTo).orElse(LocalDate.now());
-
-        // No AdminExpense here anymore - the daily XLS upload already creates the agent-rake expense
-        // per day as it's earned (see ReportService), so creating one here too would double-count it.
-
-        // Create AgentSettlement (audit trail only - no longer linked to an expense)
-        AgentSettlement settlement = new AgentSettlement();
-        settlement.setAgent(agent);
-        settlement.setFromDate(fromDate);
-        settlement.setToDate(toDate);
-        settlement.setTotalRake(totalRake);
-        settlement.setAgentShare(agentShare);
-        settlement = agentSettlementRepository.save(settlement);
-
-        // Mark all game results as settled
-        final AgentSettlement finalSettlement = settlement;
-        unsettled.forEach(gr -> gr.setAgentSettlement(finalSettlement));
-        gameResultRepository.saveAll(unsettled);
-
-        // Snapshot the agent's true current balance (correctly anchored to their OLD opening date,
-        // capturing every game/payment since then, including this settlement) as their new opening
-        // balance, dated today. This is what makes "opening balance" always reflect the balance as of
-        // the last reconciliation, automatically - no manual calculation/typing required.
-        BigDecimal newOpeningBalance = computeCurrentBalance(agent, latestOpening(agentId), agentAndOwnResults(agentId));
-        addLedgerEntry(agentId, AgentLedgerEntry.Type.OPENING, newOpeningBalance, LocalDate.now(),
-            "Reconciled (auto): " + fromDate + " \u2013 " + toDate, "system");
-
-        return settlement;
-    }
-
-    /** Manually record an agent-rake Club Expense for an arbitrary amount, independent of any
-     *  unsettled game results - for corrections/one-off amounts that don't come from settleAgent's
-     *  per-game accrual. Does not touch GameResult/AgentSettlement, so it has no effect on what
-     *  settleAgent later computes as pending. */
+    /** Manually record an agent-rake Club Expense for an arbitrary amount - for corrections/one-off
+     *  amounts that don't come from the daily per-game accrual (see createDailyAgentRakeExpenses). */
     @Transactional
     public AdminExpense addManualRakeExpense(Long agentId, BigDecimal amount, String notes, String createdBy) {
         Player agent = playerRepository.findById(agentId)
@@ -939,17 +827,5 @@ public class AgentService {
             throw new IllegalArgumentException("Player " + agentId + " is not an agent");
         agent.setAgentRakePercentage(percentage);
         playerRepository.save(agent);
-    }
-
-    private List<GameResult> getUnsettledResults(Long agentId) {
-        // Include every sub-agent's unsettled results so settling with the super agent clears the
-        // whole book. For a plain agent the subtree is just itself, so this equals the old query.
-        java.util.LinkedHashMap<Long, GameResult> byId = new java.util.LinkedHashMap<>();
-        for (Long aid : subtreeAgentIds(agentId)) {
-            for (GameResult gr : gameResultRepository.findUnsettledByAgentId(aid, EXPENSE_TRACKING_START)) {
-                byId.put(gr.getId(), gr);
-            }
-        }
-        return new ArrayList<>(byId.values());
     }
 }
