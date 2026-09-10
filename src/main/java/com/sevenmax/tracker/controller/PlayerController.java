@@ -121,16 +121,16 @@ public class PlayerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayer(@PathVariable Long id, Authentication auth) {
-        if (isPlayer(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
+        if (isPlayer(auth) && !isWorker(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayer(id));
     }
 
-    /** A player's outstanding live tickets (own dashboard); admins/agents may view too. */
+    /** A player's outstanding live tickets (own dashboard); admins/agents/workers may view too. */
     @GetMapping("/{id}/live-tickets")
     public ResponseEntity<?> getPlayerLiveTickets(@PathVariable Long id, Authentication auth) {
-        if (isPlayer(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
+        if (isPlayer(auth) && !isWorker(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(liveTicketService.listForPlayer(id));
@@ -306,7 +306,7 @@ public class PlayerController {
 
     @GetMapping("/{id}/transactions")
     public ResponseEntity<List<Transaction>> getTransactions(@PathVariable Long id, Authentication auth) {
-        if (isPlayer(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
+        if (isPlayer(auth) && !isWorker(auth) && !id.equals(getPlayerId(auth)) && !isAgentOfPlayer(auth, id)) {
             return ResponseEntity.status(403).build();
         }
         return ResponseEntity.ok(playerService.getPlayerTransactions(id));
