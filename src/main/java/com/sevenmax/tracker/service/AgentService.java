@@ -247,7 +247,7 @@ public class AgentService {
                 m.put("phone", agent.getPhone());
                 m.put("rakePercentage", agent.getAgentRakePercentage());
                 m.put("clubManaged", Boolean.TRUE.equals(agent.getClubManaged()));
-                // Balance reconciles with the shown columns: starting − agentRake − P&L + payments, over [from,to].
+                // Balance reconciles with the shown columns: starting + agentRake + P&L − payments, over [from,to].
                 BigDecimal rakePct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
                 BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
                 AgentLedgerEntry openingE = agentLedgerEntryRepository
@@ -259,9 +259,11 @@ public class AgentService {
                     .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT).stream()
                     .filter(e -> inRange(e.getEffectiveDate(), effectiveFrom, to))
                     .map(AgentLedgerEntry::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-                // currentBalance: always anchored to this agent's own opening date, never [from,to] -
-                // so it can't drift depending on what report window is being browsed.
-                BigDecimal currentBal = computeCurrentBalance(agent, openingE, allResultsForBalance);
+                // currentBalance: starting + this period's rake + this period's P&L − this period's
+                // payments, where "period" is [from,to] as chosen by the caller (defaulting to since
+                // this agent's own opening date through today when the caller passes no range) - so it
+                // reflects exactly what's shown on screen, not always "as of right now".
+                BigDecimal currentBal = startBal.add(agentRake).add(periodPnl).subtract(pmts);
 
                 m.put("periodPnl", periodPnl);
                 m.put("appPnl", appPnl);   // GG's view (sat-to-live counted) — for reconciliation
@@ -374,7 +376,7 @@ public class AgentService {
 
     /** Creates one idempotent AdminExpense(AGENT) per top-level agent per given calendar day, for the
      *  rake they earned that day (their own rake %, applied to their whole subtree's rakePaid for that
-     *  day - matches computeCurrentBalance's convention). Called once at the end of an XLS upload, for
+     *  day). Called once at the end of an XLS upload, for
      *  every distinct session date involved. Re-uploading the same day never double-counts, since each
      *  expense is keyed by a sourceRef of "AGENTRAKE:{agentId}:{date}". */
     @Transactional
@@ -591,32 +593,6 @@ public class AgentService {
         return getLastSettlementDate();
     }
 
-    /** The agent's true current balance, right now — always anchored to THIS agent's own opening
-     *  date (never a UI-selected date range or the club-wide הת חשבנות date), so it can never drift
-     *  depending on what report window happens to be browsed. `allResults` must be this agent's full,
-     *  unfiltered {@link #agentAndOwnResults}. */
-    private BigDecimal computeCurrentBalance(Player agent, AgentLedgerEntry opening, List<GameResult> allResults) {
-        LocalDate anchorFrom = opening != null ? opening.getEffectiveDate() : null;
-        BigDecimal startingBalance = opening != null ? opening.getAmount() : BigDecimal.ZERO;
-        BigDecimal rakePct = agent.getAgentRakePercentage() != null ? agent.getAgentRakePercentage() : BigDecimal.ZERO;
-
-        List<GameResult> sinceOpening = allResults.stream()
-            .filter(gr -> inRange(gr.getSession().getStartTime().toLocalDate(), anchorFrom, null))
-            .collect(Collectors.toList());
-        BigDecimal totalRake = sinceOpening.stream()
-            .map(gr -> gr.getRakePaid() != null ? gr.getRakePaid() : BigDecimal.ZERO)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
-        BigDecimal playerPnl = sinceOpening.stream().map(AgentService::countedPnl).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        BigDecimal payments = agentLedgerEntryRepository
-            .findByAgentIdAndType(agent.getId(), AgentLedgerEntry.Type.PAYMENT).stream()
-            .filter(e -> inRange(e.getEffectiveDate(), anchorFrom, null))
-            .map(AgentLedgerEntry::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return startingBalance.add(agentRake).add(playerPnl).subtract(payments);
-    }
-
     @Transactional(readOnly = true)
     public Map<String, Object> getAgentBalance(Long agentId, LocalDate from, LocalDate to) {
         Player agent = playerRepository.findById(agentId)
@@ -632,8 +608,8 @@ public class AgentService {
         BigDecimal startingBalance = baseline != null ? baseline.getAmount() : BigDecimal.ZERO;
 
         // "This period" figures (rakebackSince/playerPnlSince/paymentsSince below) are filterable by
-        // the caller's from/to, defaulting to since the club-wide last התחשבנות. This is a REPORTING
-        // window only — it does not affect currentBalance (see below).
+        // the caller's from/to, defaulting to since the club-wide last התחשבנות. currentBalance below
+        // is built from these same period-scoped figures, so it reflects this exact window too.
         final LocalDate accrualFrom = resolveAgentReportingFrom(agentId, from);
 
         List<GameResult> allResults = agentAndOwnResults(agentId);
@@ -653,9 +629,10 @@ public class AgentService {
             .map(AgentLedgerEntry::getAmount)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // currentBalance: always anchored to THIS agent's own opening date (see computeCurrentBalance),
-        // never the caller's from/to - so browsing a different report window can never shift it.
-        BigDecimal currentBalance = computeCurrentBalance(agent, baseline, allResults);
+        // currentBalance: starting + this period's rake + this period's P&L − this period's payments,
+        // where "period" is [from,to] as chosen by the caller (defaulting to since this agent's own
+        // opening date through today) - so it reflects exactly the window being browsed.
+        BigDecimal currentBalance = startingBalance.add(agentRake).add(playerPnl).subtract(payments);
 
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("agentId", agentId);
@@ -711,9 +688,12 @@ public class AgentService {
     @Transactional(readOnly = true)
     public Map<String, Object> getTotalAgentBalance(LocalDate from, LocalDate to) {
         LocalDate f = from != null ? from : getLastSettlementDate();
+        // Each agent's currentBalance is anchored to ITS OWN opening date (from=null below), not this
+        // shared f/to - so the club-wide total here always reflects each agent's true position, never
+        // skewed by a global date that doesn't match any particular agent's own last opening.
         BigDecimal total = playerRepository.findAll().stream()
             .filter(p -> Boolean.TRUE.equals(p.getIsAgent()) && !Boolean.TRUE.equals(p.getClubManaged()))
-            .map(a -> (BigDecimal) getAgentBalance(a.getId(), f, to).get("currentBalance"))
+            .map(a -> (BigDecimal) getAgentBalance(a.getId(), null, null).get("currentBalance"))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("from", f != null ? f.toString() : null);
