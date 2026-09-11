@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -36,7 +37,9 @@ public class MissingNameNotificationService {
      */
     public void checkAndNotify() {
         java.util.Set<Long> playedIds = new java.util.HashSet<>(gameResultRepository.findPlayerIdsWithGameResults());
-        List<Player> flagged = playerRepository.findAll().stream()
+        List<Player> allPlayers = playerRepository.findAll();
+        Map<Long, Player> byId = allPlayers.stream().collect(Collectors.toMap(Player::getId, p -> p, (a, b) -> a));
+        List<Player> flagged = allPlayers.stream()
             .filter(p -> p.getFullName() == null || p.getFullName().trim().isEmpty())
             .filter(p -> playedIds.contains(p.getId()))
             .filter(p -> p.getCurrentChips() != null && p.getCurrentChips().compareTo(BigDecimal.ZERO) != 0)
@@ -45,10 +48,10 @@ public class MissingNameNotificationService {
             .collect(Collectors.toList());
 
         if (flagged.isEmpty()) return;
-        sendEmail(flagged);
+        sendEmail(flagged, byId);
     }
 
-    private void sendEmail(List<Player> flagged) {
+    private void sendEmail(List<Player> flagged, Map<Long, Player> byId) {
         if (notificationEmails == null || notificationEmails.isBlank()) return;
         try {
             List<String> recipients = Arrays.stream(notificationEmails.split(","))
@@ -59,8 +62,11 @@ public class MissingNameNotificationService {
 
             StringBuilder text = new StringBuilder("The following players played but have no name assigned:\n\n");
             for (Player p : flagged) {
-                text.append(String.format("- %s | phone: %s | club ID: %s | chips: ₪%s | balance: ₪%s%n",
+                Player agent = p.getAgentId() != null ? byId.get(p.getAgentId()) : null;
+                String agentLabel = agent != null ? agent.getUsername() : "no agent";
+                text.append(String.format("- %s | agent: %s | phone: %s | club ID: %s | chips: ₪%s | balance: ₪%s%n",
                     p.getUsername(),
+                    agentLabel,
                     p.getPhone() != null ? p.getPhone() : "-",
                     p.getClubPlayerId() != null ? p.getClubPlayerId() : "-",
                     p.getCurrentChips() != null ? p.getCurrentChips().toPlainString() : "0",

@@ -475,8 +475,15 @@ public class AgentService {
             .filter(p -> inAgentBook(p, agentId, statsById))
             .forEach(agentPlayers::add);
 
+        List<GameResult> allBookResults = agentAndOwnResults(agentId);
+        // Most recent game overall per player, independent of the from/to filter below — so
+        // "last played" still reflects reality even when the page is scoped to an older period.
+        Map<Long, java.time.LocalDateTime> lastPlayedByPlayer = allBookResults.stream()
+            .collect(Collectors.toMap(gr -> gr.getPlayer().getId(), gr -> gr.getSession().getStartTime(),
+                (a, b) -> a.isAfter(b) ? a : b));
+
         // Game results grouped by player id (sub-players + the agent's own play)
-        Map<Long, List<GameResult>> resultsByPlayer = agentAndOwnResults(agentId).stream()
+        Map<Long, List<GameResult>> resultsByPlayer = allBookResults.stream()
             .filter(gr -> {
                 LocalDate d = gr.getSession().getStartTime().toLocalDate();
                 if (from != null && d.isBefore(from)) return false;
@@ -543,6 +550,7 @@ public class AgentService {
                 m.put("isSelf", player.getId().equals(agentId));   // the agent's own play row
                 m.put("balance", player.getBalance());
                 m.put("gameCount", rows.size());
+                m.put("lastPlayedDate", lastPlayedByPlayer.get(player.getId()));
                 m.put("totalRake", totalRake);
                 m.put("agentShare", agentShare);
                 m.put("periodPnl", periodPnl);
