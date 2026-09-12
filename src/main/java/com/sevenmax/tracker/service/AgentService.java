@@ -238,8 +238,19 @@ public class AgentService {
                     totalChips = totalChips.add(agent.getCurrentChips() != null ? agent.getCurrentChips() : BigDecimal.ZERO);
                 }
 
-                List<AgentSettlement> settlements = agentSettlementRepository.findByAgentIdOrderByCreatedAtDesc(agent.getId());
-                LocalDate lastSettlement = settlements.isEmpty() ? null : settlements.get(0).getToDate();
+                LocalDate lastSettlement = resolveAgentLastCheckpoint(agentId);
+                // Informational only (does NOT feed currentBalance — a Settle can be partial, so the
+                // true running balance must stay anchored to the last full OPENING reset). Shows P&L
+                // purely for games from the last checkpoint through today, for an at-a-glance "what's
+                // happened since we last settled with this agent" independent of any table date filter.
+                BigDecimal pnlSinceSettlement = allResultsForBalance.stream()
+                    .filter(gr -> {
+                        LocalDate d = gr.getSession().getStartTime().toLocalDate();
+                        if (lastSettlement != null && d.isBefore(lastSettlement)) return false;
+                        return !d.isAfter(LocalDate.now());
+                    })
+                    .map(AgentService::countedPnl)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
                 Map<String, Object> m = new LinkedHashMap<>();
                 m.put("id", agent.getId());
                 m.put("username", agent.getUsername());
@@ -284,6 +295,7 @@ public class AgentService {
                 m.put("freeCreditTotal", freeCreditTotal);
                 m.put("flaggedPlayers", flaggedPlayers);
                 m.put("lastSettlementDate", lastSettlement != null ? lastSettlement.toString() : null);
+                m.put("pnlSinceSettlement", pnlSinceSettlement);
                 return m;
             })
             .collect(Collectors.toList());
@@ -588,6 +600,31 @@ public class AgentService {
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
             .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
             .orElse(null);
+    }
+
+    /** The agent's own latest PAYMENT ledger entry (created by the "Settle" button), or null. */
+    private AgentLedgerEntry latestPayment(Long agentId) {
+        List<AgentLedgerEntry> payments = agentLedgerEntryRepository
+            .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT);
+        if (payments == null) return null;
+        return payments.stream()
+            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
+            .orElse(null);
+    }
+
+    /** This agent's own last settlement checkpoint, for DISPLAY only: whichever is more recent of
+     *  their latest OPENING date and their latest PAYMENT (Settle) date. Null if neither exists yet.
+     *  Deliberately NOT used to anchor currentBalance's running total — a Settle can be a partial
+     *  payment, so the true balance must keep accruing from the last full OPENING reset regardless
+     *  of how many settles happened since. See resolveAgentReportingFrom for that authoritative cutoff. */
+    LocalDate resolveAgentLastCheckpoint(Long agentId) {
+        AgentLedgerEntry opening = latestOpening(agentId);
+        AgentLedgerEntry payment = latestPayment(agentId);
+        LocalDate openingDate = opening != null ? opening.getEffectiveDate() : null;
+        LocalDate paymentDate = payment != null ? payment.getEffectiveDate() : null;
+        if (openingDate == null) return paymentDate;
+        if (paymentDate == null) return openingDate;
+        return openingDate.isAfter(paymentDate) ? openingDate : paymentDate;
     }
 
     /** Resolves the "from" date for an agent's period figures: an explicit caller date always

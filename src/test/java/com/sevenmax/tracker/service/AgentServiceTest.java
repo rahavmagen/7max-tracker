@@ -123,4 +123,70 @@ class AgentServiceTest {
 
         assertThat(result).isEqualTo(LocalDate.of(2026, 2, 1));
     }
+
+    private AgentLedgerEntry ledgerEntry(LocalDate effectiveDate) {
+        AgentLedgerEntry e = new AgentLedgerEntry();
+        e.setEffectiveDate(effectiveDate);
+        return e;
+    }
+
+    @Test
+    void resolveAgentLastCheckpoint_onlyOpeningExists_returnsOpeningDate() {
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of(ledgerEntry(LocalDate.of(2026, 1, 10))));
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.PAYMENT))
+            .thenReturn(List.of());
+
+        LocalDate result = agentService.resolveAgentLastCheckpoint(1L);
+
+        assertThat(result).isEqualTo(LocalDate.of(2026, 1, 10));
+    }
+
+    @Test
+    void resolveAgentLastCheckpoint_onlyPaymentExists_returnsPaymentDate() {
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of());
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.PAYMENT))
+            .thenReturn(List.of(ledgerEntry(LocalDate.of(2026, 9, 23))));
+
+        LocalDate result = agentService.resolveAgentLastCheckpoint(1L);
+
+        assertThat(result).isEqualTo(LocalDate.of(2026, 9, 23));
+    }
+
+    @Test
+    void resolveAgentLastCheckpoint_paymentMoreRecentThanOpening_returnsPaymentDate() {
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of(ledgerEntry(LocalDate.of(2026, 1, 1))));
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.PAYMENT))
+            .thenReturn(List.of(ledgerEntry(LocalDate.of(2026, 9, 23))));
+
+        LocalDate result = agentService.resolveAgentLastCheckpoint(1L);
+
+        assertThat(result).isEqualTo(LocalDate.of(2026, 9, 23));
+    }
+
+    @Test
+    void resolveAgentLastCheckpoint_openingMoreRecentThanPayment_returnsOpeningDate() {
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of(ledgerEntry(LocalDate.of(2026, 9, 24))));
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.PAYMENT))
+            .thenReturn(List.of(ledgerEntry(LocalDate.of(2026, 9, 1))));
+
+        LocalDate result = agentService.resolveAgentLastCheckpoint(1L);
+
+        assertThat(result).isEqualTo(LocalDate.of(2026, 9, 24));
+    }
+
+    @Test
+    void resolveAgentLastCheckpoint_neitherExists_returnsNull() {
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of());
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.PAYMENT))
+            .thenReturn(List.of());
+
+        LocalDate result = agentService.resolveAgentLastCheckpoint(1L);
+
+        assertThat(result).isNull();
+    }
 }
