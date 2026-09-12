@@ -477,6 +477,9 @@ public class AgentService {
     public List<Map<String, Object>> getPlayerStats(Long agentId, LocalDate from, LocalDate to) {
         Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
+        // An explicit caller date always wins; with none, default to since this agent's own last
+        // settlement checkpoint (same one shown in the "Last Settlement" column) instead of all-time.
+        final LocalDate effectiveFrom = from != null ? from : resolveAgentLastCheckpoint(agentId);
 
         // Everyone in this (super) agent's book PLUS the agent themselves (as their own player row).
         List<Player> allForStats = playerRepository.findAll();
@@ -498,7 +501,7 @@ public class AgentService {
         Map<Long, List<GameResult>> resultsByPlayer = allBookResults.stream()
             .filter(gr -> {
                 LocalDate d = gr.getSession().getStartTime().toLocalDate();
-                if (from != null && d.isBefore(from)) return false;
+                if (effectiveFrom != null && d.isBefore(effectiveFrom)) return false;
                 if (to != null && d.isAfter(to)) return false;
                 return true;
             })
