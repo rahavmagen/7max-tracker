@@ -239,21 +239,6 @@ public class AgentService {
                 }
 
                 LocalDate lastSettlement = resolveAgentLastCheckpoint(agentId);
-                // Informational only (does NOT feed currentBalance — a Settle can be partial, so the
-                // true running balance must stay anchored to the last full OPENING reset). Shows P&L
-                // purely for games from the day AFTER the last checkpoint through today (the checkpoint
-                // day itself is already reflected in what was settled then, so it's excluded here to
-                // avoid double-counting it), for an at-a-glance "what's happened since we last settled
-                // with this agent" independent of any table date filter.
-                LocalDate sinceSettlementFrom = lastSettlement != null ? lastSettlement.plusDays(1) : null;
-                BigDecimal pnlSinceSettlement = allResultsForBalance.stream()
-                    .filter(gr -> {
-                        LocalDate d = gr.getSession().getStartTime().toLocalDate();
-                        if (sinceSettlementFrom != null && d.isBefore(sinceSettlementFrom)) return false;
-                        return !d.isAfter(LocalDate.now());
-                    })
-                    .map(AgentService::countedPnl)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
                 Map<String, Object> m = new LinkedHashMap<>();
                 m.put("id", agent.getId());
                 m.put("username", agent.getUsername());
@@ -298,7 +283,6 @@ public class AgentService {
                 m.put("freeCreditTotal", freeCreditTotal);
                 m.put("flaggedPlayers", flaggedPlayers);
                 m.put("lastSettlementDate", lastSettlement != null ? lastSettlement.toString() : null);
-                m.put("pnlSinceSettlement", pnlSinceSettlement);
                 return m;
             })
             .collect(Collectors.toList());
