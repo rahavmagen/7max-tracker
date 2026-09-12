@@ -100,7 +100,10 @@ class AgentServiceTest {
     }
 
     @Test
-    void resolveAgentReportingFrom_noCallerDate_usesAgentsOwnLatestOpeningDate() {
+    void resolveAgentReportingFrom_noCallerDate_startsDayAfterAgentsOwnLatestOpeningDate() {
+        // The OPENING's effectiveDate is the day the settlement itself happened (what an admin
+        // naturally types) - that day's activity is already baked into the balance being carried
+        // forward, so the new period must start the NEXT day to avoid double-counting it.
         AgentLedgerEntry opening = new AgentLedgerEntry();
         opening.setEffectiveDate(LocalDate.of(2026, 1, 10));
         when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
@@ -108,7 +111,7 @@ class AgentServiceTest {
 
         LocalDate result = agentService.resolveAgentReportingFrom(1L, null);
 
-        assertThat(result).isEqualTo(LocalDate.of(2026, 1, 10));
+        assertThat(result).isEqualTo(LocalDate.of(2026, 1, 11));
     }
 
     @Test
@@ -129,11 +132,11 @@ class AgentServiceTest {
 
         LocalDate result = agentService.resolveAgentReportingFrom(1L, null);
 
-        assertThat(result).isEqualTo(LocalDate.of(2026, 8, 9));
+        assertThat(result).isEqualTo(LocalDate.of(2026, 8, 10));
     }
 
     @Test
-    void resolveAgentReportingFrom_noCallerDateAndNoOpeningEntry_fallsBackToGlobalDate() {
+    void resolveAgentReportingFrom_noCallerDateAndNoOpeningEntry_startsDayAfterGlobalDate() {
         when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
             .thenReturn(List.of());
         LastSettlementDate global = new LastSettlementDate();
@@ -142,7 +145,7 @@ class AgentServiceTest {
 
         LocalDate result = agentService.resolveAgentReportingFrom(1L, null);
 
-        assertThat(result).isEqualTo(LocalDate.of(2026, 2, 1));
+        assertThat(result).isEqualTo(LocalDate.of(2026, 2, 2));
     }
 
     private AgentLedgerEntry ledgerEntry(LocalDate effectiveDate) {

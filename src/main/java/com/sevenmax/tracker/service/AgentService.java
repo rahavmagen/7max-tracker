@@ -241,12 +241,15 @@ public class AgentService {
                 LocalDate lastSettlement = resolveAgentLastCheckpoint(agentId);
                 // Informational only (does NOT feed currentBalance — a Settle can be partial, so the
                 // true running balance must stay anchored to the last full OPENING reset). Shows P&L
-                // purely for games from the last checkpoint through today, for an at-a-glance "what's
-                // happened since we last settled with this agent" independent of any table date filter.
+                // purely for games from the day AFTER the last checkpoint through today (the checkpoint
+                // day itself is already reflected in what was settled then, so it's excluded here to
+                // avoid double-counting it), for an at-a-glance "what's happened since we last settled
+                // with this agent" independent of any table date filter.
+                LocalDate sinceSettlementFrom = lastSettlement != null ? lastSettlement.plusDays(1) : null;
                 BigDecimal pnlSinceSettlement = allResultsForBalance.stream()
                     .filter(gr -> {
                         LocalDate d = gr.getSession().getStartTime().toLocalDate();
-                        if (lastSettlement != null && d.isBefore(lastSettlement)) return false;
+                        if (sinceSettlementFrom != null && d.isBefore(sinceSettlementFrom)) return false;
                         return !d.isAfter(LocalDate.now());
                     })
                     .map(AgentService::countedPnl)
@@ -477,9 +480,12 @@ public class AgentService {
     public List<Map<String, Object>> getPlayerStats(Long agentId, LocalDate from, LocalDate to) {
         Player agent = playerRepository.findById(agentId)
             .orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
-        // An explicit caller date always wins; with none, default to since this agent's own last
-        // settlement checkpoint (same one shown in the "Last Settlement" column) instead of all-time.
-        final LocalDate effectiveFrom = from != null ? from : resolveAgentLastCheckpoint(agentId);
+        // An explicit caller date always wins; with none, default to the day AFTER this agent's own
+        // last settlement checkpoint (same one shown in the "Last Settlement" column) instead of
+        // all-time - the checkpoint day itself is excluded since it's already reflected in whatever
+        // was settled that day.
+        LocalDate checkpoint = resolveAgentLastCheckpoint(agentId);
+        final LocalDate effectiveFrom = from != null ? from : (checkpoint != null ? checkpoint.plusDays(1) : null);
 
         // Everyone in this (super) agent's book PLUS the agent themselves (as their own player row).
         List<Player> allForStats = playerRepository.findAll();
@@ -630,15 +636,19 @@ public class AgentService {
         return openingDate.isAfter(paymentDate) ? openingDate : paymentDate;
     }
 
-    /** Resolves the "from" date for an agent's period figures: an explicit caller date always
-     *  wins; with none, each agent defaults to THEIR OWN latest OPENING entry date (so agents
-     *  reconciled on different days don't get folded into one shared cutoff), falling back to
-     *  the club-wide last settlement date only for an agent that has never had an OPENING entry. */
+    /** Resolves the "from" date for an agent's period figures: an explicit caller date always wins
+     *  (used as typed - a caller picking a date range means it literally). With none, each agent
+     *  defaults to the day AFTER THEIR OWN latest OPENING entry's date (so agents reconciled on
+     *  different days don't get folded into one shared cutoff), falling back to the day after the
+     *  club-wide last settlement date only for an agent that has never had an OPENING entry.
+     *  The +1 day matters: an OPENING's effectiveDate is the day the settlement itself happened
+     *  (what an admin naturally types), and that day's activity is already reflected in the
+     *  balance being carried forward - counting it again in the new period would double it. */
     LocalDate resolveAgentReportingFrom(Long agentId, LocalDate callerFrom) {
         if (callerFrom != null) return callerFrom;
         AgentLedgerEntry opening = latestOpening(agentId);
-        if (opening != null) return opening.getEffectiveDate();
-        return getLastSettlementDate();
+        LocalDate anchor = opening != null ? opening.getEffectiveDate() : getLastSettlementDate();
+        return anchor != null ? anchor.plusDays(1) : null;
     }
 
     @Transactional(readOnly = true)
