@@ -263,7 +263,7 @@ public class AgentService {
                 BigDecimal agentRake = rakePct.multiply(totalRake).setScale(2, java.math.RoundingMode.HALF_UP);
                 AgentLedgerEntry openingE = agentLedgerEntryRepository
                     .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
-                    .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
+                    .max(Comparator.comparing(AgentLedgerEntry::getId))
                     .orElse(null);
                 BigDecimal startBal = openingE != null ? openingE.getAmount() : BigDecimal.ZERO;
                 BigDecimal pmts = agentLedgerEntryRepository
@@ -598,7 +598,7 @@ public class AgentService {
     private AgentLedgerEntry latestOpening(Long agentId) {
         return agentLedgerEntryRepository
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
-            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
+            .max(Comparator.comparing(AgentLedgerEntry::getId))
             .orElse(null);
     }
 
@@ -608,7 +608,7 @@ public class AgentService {
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.PAYMENT);
         if (payments == null) return null;
         return payments.stream()
-            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
+            .max(Comparator.comparing(AgentLedgerEntry::getId))
             .orElse(null);
     }
 
@@ -647,7 +647,7 @@ public class AgentService {
         // Starting balance = latest OPENING entry (the carry from the last התחשבנות).
         AgentLedgerEntry baseline = agentLedgerEntryRepository
             .findByAgentIdAndType(agentId, AgentLedgerEntry.Type.OPENING).stream()
-            .max(Comparator.comparing(AgentLedgerEntry::getEffectiveDate).thenComparing(AgentLedgerEntry::getId))
+            .max(Comparator.comparing(AgentLedgerEntry::getId))
             .orElse(null);
         LocalDate openingDate = baseline != null ? baseline.getEffectiveDate() : null;
         BigDecimal startingBalance = baseline != null ? baseline.getAmount() : BigDecimal.ZERO;

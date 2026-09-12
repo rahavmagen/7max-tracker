@@ -112,6 +112,27 @@ class AgentServiceTest {
     }
 
     @Test
+    void resolveAgentReportingFrom_retroactiveCorrectionWithEarlierDate_stillWinsOverOlderLaterDatedEntry() {
+        // Regression test: an admin sets an OPENING (id=5, dated 2026-08-15), then later realizes it
+        // was wrong and corrects it with a NEW entry (id=13, dated 2026-08-09 - an EARLIER date than
+        // the mistake). The correction (most recently created) must win, even though its effective
+        // date is earlier than the entry it's replacing - "newest OPENING is the baseline" per
+        // AgentLedgerEntry's own docstring, not "furthest-dated OPENING wins".
+        AgentLedgerEntry wrongEntry = new AgentLedgerEntry();
+        wrongEntry.setId(5L);
+        wrongEntry.setEffectiveDate(LocalDate.of(2026, 8, 15));
+        AgentLedgerEntry correction = new AgentLedgerEntry();
+        correction.setId(13L);
+        correction.setEffectiveDate(LocalDate.of(2026, 8, 9));
+        when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
+            .thenReturn(List.of(wrongEntry, correction));
+
+        LocalDate result = agentService.resolveAgentReportingFrom(1L, null);
+
+        assertThat(result).isEqualTo(LocalDate.of(2026, 8, 9));
+    }
+
+    @Test
     void resolveAgentReportingFrom_noCallerDateAndNoOpeningEntry_fallsBackToGlobalDate() {
         when(agentLedgerEntryRepository.findByAgentIdAndType(1L, AgentLedgerEntry.Type.OPENING))
             .thenReturn(List.of());
