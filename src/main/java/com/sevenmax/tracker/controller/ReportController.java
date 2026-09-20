@@ -62,8 +62,10 @@ public class ReportController {
     private final com.sevenmax.tracker.service.TournamentHorseService tournamentHorseService;
     private final com.sevenmax.tracker.repository.PlayerRakebackRepository playerRakebackRepository;
     private final com.sevenmax.tracker.service.LiveTicketService liveTicketService;
+    private final com.sevenmax.tracker.service.GmailEmailService gmailEmailService;
 
     private static final String UPLOAD_API_KEY = "sevenmax-auto-2026-xK9p";
+    private static final List<String> ALERT_RECIPIENT = List.of("rahavm@gmail.com");
 
     @PostMapping("/upload-auto")
     public ResponseEntity<?> uploadReportAuto(
@@ -73,7 +75,35 @@ public class ReportController {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid API key"));
         }
         try {
+            // Guard: the automatic fetch is supposed to grab YESTERDAY's export. If its period end
+            // is today, it was fetched too early (before ClubGG finalized the day) or the date-shift
+            // step of the fetch failed — either way the data would be incomplete. Refuse it and alert
+            // instead of importing an incomplete day.
+            LocalDate periodEnd = reportService.peekPeriodEnd(file);
+            if (periodEnd != null && periodEnd.equals(LocalDate.now())) {
+                String msg = "I uploaded the wrong xls (xls date is the same as today's date).\n\n"
+                        + "File: " + file.getOriginalFilename() + "\nPeriod end: " + periodEnd
+                        + "\n\nRefused to import it — the automatic fetch should be grabbing yesterday's data, not today's.";
+                log.warn(msg.replace("\n", " "));
+                gmailEmailService.send(ALERT_RECIPIENT, "7MAX - Wrong XLS uploaded (today's date)", msg);
+                return ResponseEntity.badRequest().body(Map.of("error", "XLS period end matches today's date - refused, notification sent"));
+            }
+
             Report report = reportService.uploadReport(file, null);
+            if (report.getTotalRake() != null && report.getTotalRake().signum() == 0) {
+                int games = reportService.gamesPlayedFromOverview(file);
+                if (games > 0) {
+                    String msg = String.format(
+                            "Report %s (period end %s) shows %d game(s) played but total rake = 0.00.%n%n"
+                            + "This usually means ClubGG's export ran before it finished aggregating the day's "
+                            + "rake/fee data (Ring Game/SNG/MTT Statistics and Detail sheets came back empty even "
+                            + "though Club Overview shows real games) - not that no games were played. "
+                            + "Worth re-checking against ClubGG directly and re-uploading if a corrected export becomes available.",
+                            file.getOriginalFilename(), report.getPeriodEnd(), games);
+                    log.warn(msg.replace("\n", " "));
+                    gmailEmailService.send(ALERT_RECIPIENT, "7MAX - Report has games but zero rake (possible export glitch)", msg);
+                }
+            }
             try {
                 missingNameNotificationService.checkAndNotify();
             } catch (Exception e) {

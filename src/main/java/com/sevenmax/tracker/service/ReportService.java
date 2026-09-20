@@ -99,6 +99,49 @@ public class ReportService {
         return summary;
     }
 
+    /** Peek just the report's period-end date without importing anything - used by the auto-upload
+     *  endpoint to refuse a same-day (incomplete) export before touching the database. */
+    public LocalDate peekPeriodEnd(MultipartFile file) throws Exception {
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet overviewSheet = workbook.getSheet("Club Overview");
+            if (overviewSheet == null) return null;
+            String period = getCellValue(overviewSheet.getRow(2), 0);
+            if (period == null || !period.contains("~")) return null;
+            String[] parts = period.replace("Period :", "").trim().split("~");
+            return LocalDate.parse(parts[1].trim().substring(0, 10));
+        }
+    }
+
+    /** Sum of the "Games" column across Club Overview's member rows (the TOTAL row's own value,
+     *  if present, since it already equals that sum) - used to detect a ClubGG export where real
+     *  games were played but the rake/fee data didn't populate (Statistics/Detail sheets empty). */
+    public int gamesPlayedFromOverview(MultipartFile file) throws Exception {
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet overviewSheet = workbook.getSheet("Club Overview");
+            if (overviewSheet == null) return 0;
+            for (int r = overviewSheet.getLastRowNum(); r >= 4; r--) {
+                Row row = overviewSheet.getRow(r);
+                if (row == null) continue;
+                String first = getCellValue(row, 0);
+                if ("TOTAL".equalsIgnoreCase(first)) {
+                    String games = getCellValue(row, 9);
+                    try { return (int) Double.parseDouble(games); } catch (Exception e) { return 0; }
+                }
+            }
+            // No explicit TOTAL row found - sum the Games column across data rows ourselves.
+            int total = 0;
+            for (int r = 4; r <= overviewSheet.getLastRowNum(); r++) {
+                Row row = overviewSheet.getRow(r);
+                if (row == null) continue;
+                String games = getCellValue(row, 9);
+                try { total += (int) Double.parseDouble(games); } catch (Exception ignored) {}
+            }
+            return total;
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public Report uploadReport(MultipartFile file, User uploadedBy) throws Exception {
         byte[] fileBytes = file.getBytes();
