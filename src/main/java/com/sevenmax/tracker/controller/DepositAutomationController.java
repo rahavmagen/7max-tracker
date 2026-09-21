@@ -75,6 +75,31 @@ public class DepositAutomationController {
         }
     }
 
+    /** Fallback trigger while Grow's real webhook doesn't fire: called by the email watcher after
+     *  it parses one of Grow's own confirmation emails. Body: { emailLocal, amount }. The backend
+     *  matches this against real usernames on file - the caller never has to guess/reverse the
+     *  sanitized email text back into an actual username. */
+    @PostMapping("/trigger-grow-from-email")
+    public ResponseEntity<?> triggerGrowFromEmail(
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey) {
+        if (!API_KEY.equals(apiKey)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid API key"));
+        }
+        try {
+            String emailLocal = String.valueOf(body.get("emailLocal"));
+            java.math.BigDecimal amount = new java.math.BigDecimal(String.valueOf(body.get("amount")));
+            boolean matched = growDepositService.processFromEmailFallback(emailLocal, amount);
+            if (!matched) {
+                return ResponseEntity.status(404).body(Map.of("error", "no unambiguous matching pending deposit found"));
+            }
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            log.error("trigger-grow-from-email failed: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     private void sendAutoLoadedEmail(String source, Transaction tx) {
         try {
             String subject = String.format("7MAX - Chips auto-loaded (%s): %s ₪%s",

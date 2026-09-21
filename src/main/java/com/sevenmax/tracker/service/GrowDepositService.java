@@ -191,9 +191,15 @@ public class GrowDepositService {
             log.warn("Grow payment: unknown paymentLinkProcessId={}", processId);
             throw new RuntimeException("Grow: unknown paymentLinkProcessId=" + processId);
         }
-        // Atomically claim so a retried callback never double-credits.
+        creditGrowDeposit(initiated);
+    }
+
+    /** Shared by the real webhook and the email-parsing fallback - atomically claims the deposit
+     *  (so a retry/duplicate call never double-credits), creates the transaction, and notifies. */
+    @Transactional
+    public void creditGrowDeposit(GrowInitiated initiated) {
         if (growInitiatedRepository.claimForProcessing(initiated.getId()) == 0) {
-            log.info("Grow payment: already processed processId={}", processId);
+            log.info("Grow payment: already processed id={}", initiated.getId());
             return;
         }
 
@@ -205,15 +211,55 @@ public class GrowDepositService {
         tx.setType(Transaction.Type.GROW_DEPOSIT);
         tx.setAmount(initiated.getAmount());
         tx.setMethod(Transaction.Method.GROW);
-        tx.setNotes(processId);
+        tx.setNotes(initiated.getPaymentLinkProcessId());
         tx.setChipsConfirmed(false);
         tx.setTransactionDate(LocalDate.now());
         transactionService.addTransaction(tx);
 
-        sendDepositEmail(player, initiated.getAmount(), processId);
+        sendDepositEmail(player, initiated.getAmount(), initiated.getPaymentLinkProcessId());
         sendDepositWhatsApp(player, initiated.getAmount());
         eventPublisher.publishEvent(new com.sevenmax.tracker.event.NewDepositEvent("GROW"));
-        log.info("Grow deposit processed: player={}, amount={}, processId={}", player.getUsername(), initiated.getAmount(), processId);
+        log.info("Grow deposit processed: player={}, amount={}, processId={}",
+                player.getUsername(), initiated.getAmount(), initiated.getPaymentLinkProcessId());
+    }
+
+    /** Generates the same sanitized local-part used when creating the payment link's "email" field
+     *  (see initiateDeposit) - used to match a parsed confirmation-email address back to a player. */
+    public static String sanitizeUsernameForEmail(String username, Long playerId) {
+        String local = username == null ? "" : username
+                .replaceAll("[^A-Za-z0-9._-]+", "-")
+                .replaceAll("^[.-]+|[.-]+$", "");
+        return local.isBlank() ? "player" + playerId : local;
+    }
+
+    /** Fallback path while Grow's real webhook doesn't fire: an email watcher parses Grow's own
+     *  confirmation email (sender + amount) and calls this instead. Matches against still-pending
+     *  GrowInitiated rows by regenerating each candidate's expected email local-part - safer than
+     *  trying to reverse the sanitization, which is lossy for unusual characters. Returns true if
+     *  exactly one match was found and credited. */
+    @Transactional
+    public boolean processFromEmailFallback(String emailLocal, BigDecimal amount) {
+        List<GrowInitiated> candidates = growInitiatedRepository.findAll().stream()
+                .filter(g -> !Boolean.TRUE.equals(g.getProcessed()))
+                .filter(g -> g.getAmount() != null && g.getAmount().compareTo(amount) == 0)
+                .filter(g -> {
+                    Player p = playerRepository.findById(g.getPlayerId()).orElse(null);
+                    if (p == null) return false;
+                    return sanitizeUsernameForEmail(p.getUsername(), p.getId()).equalsIgnoreCase(emailLocal);
+                })
+                .collect(java.util.stream.Collectors.toList());
+
+        if (candidates.isEmpty()) {
+            log.warn("Grow email fallback: no matching pending deposit for emailLocal={} amount={}", emailLocal, amount);
+            return false;
+        }
+        if (candidates.size() > 1) {
+            log.warn("Grow email fallback: {} ambiguous matches for emailLocal={} amount={} - not guessing, needs manual review",
+                    candidates.size(), emailLocal, amount);
+            return false;
+        }
+        creditGrowDeposit(candidates.get(0));
+        return true;
     }
 
     private void sendDepositWhatsApp(Player player, BigDecimal amount) {
