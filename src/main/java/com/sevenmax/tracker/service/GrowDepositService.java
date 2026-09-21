@@ -57,6 +57,7 @@ public class GrowDepositService {
     private final TransactionService transactionService;
     private final WhatsAppService whatsAppService;
     private final GmailEmailService gmailEmailService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     // The Make.com webhook response embeds raw \r\n inside string values (from how its Body
     // template was authored), which is invalid strict JSON - tolerate unescaped control chars.
@@ -211,6 +212,7 @@ public class GrowDepositService {
 
         sendDepositEmail(player, initiated.getAmount(), processId);
         sendDepositWhatsApp(player, initiated.getAmount());
+        eventPublisher.publishEvent(new com.sevenmax.tracker.event.NewDepositEvent("GROW"));
         log.info("Grow deposit processed: player={}, amount={}, processId={}", player.getUsername(), initiated.getAmount(), processId);
     }
 
@@ -271,14 +273,14 @@ public class GrowDepositService {
     }
 
     @Transactional
-    public void confirmChips(Long transactionId) {
+    public Transaction confirmChips(Long transactionId) {
         Transaction tx = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transaction not found: " + transactionId));
         if (tx.getType() != Transaction.Type.GROW_DEPOSIT) {
             throw new IllegalArgumentException("Not a Grow deposit transaction");
         }
         tx.setChipsConfirmed(true);
-        transactionRepository.save(tx);
+        return transactionRepository.save(tx);
     }
 
     public List<Map<String, Object>> getMyDeposits(Long playerId) {

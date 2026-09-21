@@ -61,6 +61,7 @@ public class KashcashService {
     private final TransactionService transactionService;
     private final WhatsAppService whatsAppService;
     private final GmailEmailService gmailEmailService;
+    private final org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private final HttpClient httpClient = HttpClient.newHttpClient();
@@ -267,6 +268,7 @@ public class KashcashService {
 
         sendDepositEmail(player, initiated.getAmount(), kashcashTxId);
         sendDepositWhatsApp(player, initiated.getAmount());
+        eventPublisher.publishEvent(new com.sevenmax.tracker.event.NewDepositEvent("KASHCASH"));
         log.info("KashCash deposit processed: player={}, amount={}, txId={}", player.getUsername(), initiated.getAmount(), kashcashTxId);
     }
 
@@ -353,14 +355,14 @@ public class KashcashService {
     }
 
     @Transactional
-    public void confirmChips(Long transactionId) {
+    public Transaction confirmChips(Long transactionId) {
         Transaction tx = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new RuntimeException("Transaction not found: " + transactionId));
         if (tx.getType() != Transaction.Type.KASHCASH_DEPOSIT) {
             throw new IllegalArgumentException("Not a KashCash deposit transaction");
         }
         tx.setChipsConfirmed(true);
-        transactionRepository.save(tx);
+        return transactionRepository.save(tx);
     }
 
     public List<Map<String, Object>> getMyDeposits(Long playerId) {
