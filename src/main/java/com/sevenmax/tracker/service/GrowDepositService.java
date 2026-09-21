@@ -253,12 +253,18 @@ public class GrowDepositService {
             log.warn("Grow email fallback: no matching pending deposit for emailLocal={} amount={}", emailLocal, amount);
             return false;
         }
+        GrowInitiated chosen = candidates.get(0);
         if (candidates.size() > 1) {
-            log.warn("Grow email fallback: {} ambiguous matches for emailLocal={} amount={} - not guessing, needs manual review",
-                    candidates.size(), emailLocal, amount);
-            return false;
+            // Same player + amount, multiple unconfirmed attempts (e.g. a retry after a failed/stuck
+            // popup) - the email can't tell us which processId actually got paid, so assume the most
+            // recent attempt is the one that succeeded (the pattern this exists for: try, fail, retry).
+            chosen = candidates.stream()
+                    .max(java.util.Comparator.comparing(GrowInitiated::getCreatedAt))
+                    .orElse(chosen);
+            log.warn("Grow email fallback: {} ambiguous matches for emailLocal={} amount={} - picked most recent id={} createdAt={}",
+                    candidates.size(), emailLocal, amount, chosen.getId(), chosen.getCreatedAt());
         }
-        creditGrowDeposit(candidates.get(0));
+        creditGrowDeposit(chosen);
         return true;
     }
 
