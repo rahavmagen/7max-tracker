@@ -143,6 +143,10 @@ public class PlayerController {
     public ResponseEntity<?> createPlayer(@RequestBody Player player, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
         try {
+            // Duplicate check only applies to this manual admin entry point — never to the XLS
+            // import paths, which call playerService.createPlayer directly and must never be
+            // blocked by it (see PlayerService.createPlayer's comment).
+            playerService.assertNotDuplicate(player.getUsername(), player.getClubPlayerId());
             return ResponseEntity.ok(playerService.createPlayer(player));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

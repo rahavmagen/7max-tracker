@@ -48,15 +48,15 @@ public class PlayerService {
         return playerRepository.findByClubPlayerIdSafe(clubPlayerId).stream().findFirst().orElse(null);
     }
 
+    // This method is called from two very different places: the admin's manual "Add Player" form
+    // (PlayerController.createPlayer, the ONLY caller that should ever hard-reject a duplicate) and
+    // five internal call sites in ReportService/ImportService that fall back to creating a row only
+    // after their own thorough dedup already found nothing. A hard-reject check living here would
+    // apply to both — and for the import paths that run inside one big @Transactional upload with no
+    // per-row catch, throwing here would roll back a whole day's XLS for one bad row. So duplicate
+    // rejection (USERNAME_TAKEN / CLUB_ID_TAKEN) lives in the controller instead; this method only
+    // does the safe, idempotent normalization every caller needs.
     public Player createPlayer(Player player) {
-        // The DB's username unique index is case-sensitive, and createUserForPlayer below only
-        // skips creating a second *login* for a case-different match — it never stopped this method
-        // from saving a second *Player* row for someone who already exists under different casing
-        // (e.g. "Yuvalmacreen" vs "yuvalmacreen"). Same case/fuzzy lookup findOrCreatePlayer already
-        // trusts during XLS import.
-        if (player.getUsername() != null && findPlayerByUsername(player.getUsername().trim()).isPresent()) {
-            throw new IllegalArgumentException("USERNAME_TAKEN");
-        }
         // club_player_id has a UNIQUE index. Postgres allows many NULLs but only one ''.
         // A blank ClubGG Player ID from the Add-Player form must become NULL, otherwise the
         // second player added without a club ID collides with the first (misreported to the
@@ -64,21 +64,26 @@ public class PlayerService {
         if (player.getClubPlayerId() != null && player.getClubPlayerId().isBlank()) {
             player.setClubPlayerId(null);
         }
-        // The raw unique index only rejects an exact-string collision, so "2163-3811" and "21633811"
-        // pass it as "different" values while ClubGG treats them as the same member — the dash-stripped
-        // check below (same one updateSelfDetails uses) catches that before two rows can exist for
-        // what is really one club player.
         if (player.getClubPlayerId() != null) {
-            String cid = player.getClubPlayerId().trim();
-            if (!playerRepository.findByClubPlayerIdSafe(cid).isEmpty()) {
-                throw new IllegalArgumentException("CLUB_ID_TAKEN");
-            }
-            player.setClubPlayerId(cid);
+            player.setClubPlayerId(player.getClubPlayerId().trim());
         }
         if (player.getUsername() != null) player.setUsername(player.getUsername().trim());
         Player saved = playerRepository.save(player);
         createUserForPlayer(saved);
         return saved;
+    }
+
+    /** Admin-only duplicate check for the manual "Add Player" form — never call this from an XLS
+     *  import path (see createPlayer's comment for why). Dash-insensitive club ID match and
+     *  case/spacing/punctuation-insensitive username match (same lookups findOrCreatePlayer trusts). */
+    public void assertNotDuplicate(String username, String clubPlayerId) {
+        if (clubPlayerId != null && !clubPlayerId.isBlank()
+                && !playerRepository.findByClubPlayerIdSafe(clubPlayerId.trim()).isEmpty()) {
+            throw new IllegalArgumentException("CLUB_ID_TAKEN");
+        }
+        if (username != null && findPlayerByUsername(username.trim()).isPresent()) {
+            throw new IllegalArgumentException("USERNAME_TAKEN");
+        }
     }
 
     private void createUserForPlayer(Player player) {
