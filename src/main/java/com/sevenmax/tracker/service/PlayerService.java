@@ -49,6 +49,14 @@ public class PlayerService {
     }
 
     public Player createPlayer(Player player) {
+        // The DB's username unique index is case-sensitive, and createUserForPlayer below only
+        // skips creating a second *login* for a case-different match — it never stopped this method
+        // from saving a second *Player* row for someone who already exists under different casing
+        // (e.g. "Yuvalmacreen" vs "yuvalmacreen"). Same case/fuzzy lookup findOrCreatePlayer already
+        // trusts during XLS import.
+        if (player.getUsername() != null && findPlayerByUsername(player.getUsername().trim()).isPresent()) {
+            throw new IllegalArgumentException("USERNAME_TAKEN");
+        }
         // club_player_id has a UNIQUE index. Postgres allows many NULLs but only one ''.
         // A blank ClubGG Player ID from the Add-Player form must become NULL, otherwise the
         // second player added without a club ID collides with the first (misreported to the
