@@ -56,6 +56,17 @@ public class PlayerService {
         if (player.getClubPlayerId() != null && player.getClubPlayerId().isBlank()) {
             player.setClubPlayerId(null);
         }
+        // The raw unique index only rejects an exact-string collision, so "2163-3811" and "21633811"
+        // pass it as "different" values while ClubGG treats them as the same member — the dash-stripped
+        // check below (same one updateSelfDetails uses) catches that before two rows can exist for
+        // what is really one club player.
+        if (player.getClubPlayerId() != null) {
+            String cid = player.getClubPlayerId().trim();
+            if (!playerRepository.findByClubPlayerIdSafe(cid).isEmpty()) {
+                throw new IllegalArgumentException("CLUB_ID_TAKEN");
+            }
+            player.setClubPlayerId(cid);
+        }
         if (player.getUsername() != null) player.setUsername(player.getUsername().trim());
         Player saved = playerRepository.save(player);
         createUserForPlayer(saved);
@@ -91,7 +102,14 @@ public class PlayerService {
         player.setFullName(updated.getFullName());
         String oldPhone = player.getPhone();
         player.setPhone(updated.getPhone());
-        player.setClubPlayerId(updated.getClubPlayerId());
+        String newClubId = (updated.getClubPlayerId() == null || updated.getClubPlayerId().isBlank())
+                ? null : updated.getClubPlayerId().trim();
+        if (newClubId != null) {
+            boolean takenByOther = playerRepository.findByClubPlayerIdSafe(newClubId).stream()
+                    .anyMatch(p -> !p.getId().equals(id));
+            if (takenByOther) throw new IllegalArgumentException("CLUB_ID_TAKEN");
+        }
+        player.setClubPlayerId(newClubId);
         player.setCreditTotal(updated.getCreditTotal());
         player.setActive(updated.getActive());
         // Agent system fields
@@ -322,6 +340,25 @@ public class PlayerService {
 
     public List<Transaction> getPlayerTransactions(Long playerId) {
         return transactionRepository.findByPlayerIdOrderByTransactionDateDesc(playerId);
+    }
+
+    @Transactional
+    public void deletePlayer(Long id) {
+        Player player = getPlayer(id);
+        transactionRepository.deleteAll(transactionRepository.findByPlayerIdOrderByTransactionDateDesc(id));
+        gameResultRepository.deleteAll(gameResultRepository.findByPlayerIdOrderBySessionStartTimeDesc(id));
+        playerTransferRepository.deleteAll(playerTransferRepository.findByFromPlayerIdOrToPlayerId(id, id));
+        userRepository.deleteAll(userRepository.findAllByPlayerId(id));
+        playerRepository.delete(player);
+        log.info("Deleted player id={} username={}", id, player.getUsername());
+    }
+
+    /** Worker-safe: update only a player's phone number. Deliberately narrow (unlike updatePlayer)
+     *  so a worker granted this can never touch balance/agent/rakeback/clubId through it. */
+    public Player updatePhone(Long id, String phone) {
+        Player player = getPlayer(id);
+        player.setPhone(phone != null && !phone.isBlank() ? phone.trim() : null);
+        return playerRepository.save(player);
     }
 
     /**

@@ -2,6 +2,7 @@ package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.Player;
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.entity.User;
 import com.sevenmax.tracker.repository.GameResultRepository;
 import com.sevenmax.tracker.repository.PlayerRepository;
 import com.sevenmax.tracker.repository.UserRepository;
@@ -10,6 +11,7 @@ import com.sevenmax.tracker.service.TournamentHorseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -33,6 +35,7 @@ public class PlayerController {
     private final TournamentHorseService tournamentHorseService;
     private final com.sevenmax.tracker.repository.PlayerRakebackRepository playerRakebackRepository;
     private final com.sevenmax.tracker.service.LiveTicketService liveTicketService;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers(Authentication auth) {
@@ -137,15 +140,50 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody Player player, Authentication auth) {
+    public ResponseEntity<?> createPlayer(@RequestBody Player player, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
-        return ResponseEntity.ok(playerService.createPlayer(player));
+        try {
+            return ResponseEntity.ok(playerService.createPlayer(player));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody Player player, Authentication auth) {
+    public ResponseEntity<?> updatePlayer(@PathVariable Long id, @RequestBody Player player, Authentication auth) {
         if (isPlayer(auth)) return ResponseEntity.status(403).build();
-        return ResponseEntity.ok(playerService.updatePlayer(id, player));
+        try {
+            return ResponseEntity.ok(playerService.updatePlayer(id, player));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /** Worker-safe: update only a player's phone number — deliberately not the full updatePlayer,
+     *  which a worker must never reach (it also carries balance/agent/rakeback fields). */
+    @PatchMapping("/{id}/phone")
+    public ResponseEntity<?> updatePhone(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) {
+        if (isPlayer(auth) && !isWorker(auth)) return ResponseEntity.status(403).build();
+        return ResponseEntity.ok(playerService.updatePhone(id, body.get("phone")));
+    }
+
+    /** Admin only, and only after re-entering their own password — a player delete is a full,
+     *  unrecoverable wipe of their transactions/game results/transfers/login, so this is
+     *  deliberately harder to trigger by accident than every other action here. */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletePlayer(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) {
+        if (isPlayer(auth)) return ResponseEntity.status(403).build();
+        User admin = userRepository.findByUsernameIgnoreCase(auth.getName()).orElse(null);
+        String password = body.get("password");
+        if (admin == null || password == null || !passwordEncoder.matches(password, admin.getPasswordHash())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Incorrect password"));
+        }
+        try {
+            playerService.deletePlayer(id);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     /** Player self-service: edit own join details (name, phone, club id). Owner or admin only. */
