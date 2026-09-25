@@ -58,20 +58,20 @@ public class GrowDepositController {
         return ResponseEntity.ok(Map.of("received", true));
     }
 
-    /** ADMIN/MANAGER: list deposits where chipsConfirmed=false */
+    /** ADMIN/MANAGER, or a worker: list deposits where chipsConfirmed=false */
     @GetMapping("/api/grow-deposits/pending")
     public ResponseEntity<?> getPending(Authentication auth) {
-        if (!isAdminOrManager(auth)) return ResponseEntity.status(403).build();
+        if (!isAdminOrManager(auth) && !isWorker(auth)) return ResponseEntity.status(403).build();
         return ResponseEntity.ok(growDepositService.getPending());
     }
 
-    /** ADMIN/MANAGER: full history with optional ?from=yyyy-MM-dd&to=yyyy-MM-dd */
+    /** ADMIN/MANAGER, or a worker: full history with optional ?from=yyyy-MM-dd&to=yyyy-MM-dd */
     @GetMapping("/api/grow-deposits/history")
     public ResponseEntity<?> getHistory(
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String to,
             Authentication auth) {
-        if (!isAdminOrManager(auth)) return ResponseEntity.status(403).build();
+        if (!isAdminOrManager(auth) && !isWorker(auth)) return ResponseEntity.status(403).build();
         try {
             LocalDate fromDate = from != null ? LocalDate.parse(from) : null;
             LocalDate toDate = to != null ? LocalDate.parse(to) : null;
@@ -81,10 +81,11 @@ public class GrowDepositController {
         }
     }
 
-    /** ADMIN/MANAGER: mark chips as added for a deposit transaction */
+    /** ADMIN/MANAGER, or a worker: mark chips as added for a deposit transaction (e.g. handled
+     *  manually because the desktop automation didn't catch it) */
     @PostMapping("/api/grow-deposits/confirm/{id}")
     public ResponseEntity<?> confirmChips(@PathVariable Long id, Authentication auth) {
-        if (!isAdminOrManager(auth)) return ResponseEntity.status(403).build();
+        if (!isAdminOrManager(auth) && !isWorker(auth)) return ResponseEntity.status(403).build();
         try {
             growDepositService.confirmChips(id);
             return ResponseEntity.ok(Map.of("success", true));
@@ -105,5 +106,11 @@ public class GrowDepositController {
         if (auth == null) return false;
         User user = userRepository.findByUsername(auth.getName()).orElse(null);
         return user != null && (user.getRole() == User.Role.ADMIN || user.getRole() == User.Role.MANAGER);
+    }
+
+    /** A "worker" is a player flagged to also handle deposits/the Wheel. */
+    private boolean isWorker(Authentication auth) {
+        return auth != null && auth.getDetails() instanceof Map<?, ?> details
+                && Boolean.TRUE.equals(details.get("isWorker"));
     }
 }
