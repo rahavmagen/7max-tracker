@@ -216,7 +216,9 @@ public class GrowDepositService {
         tx.setTransactionDate(LocalDate.now());
         transactionService.addTransaction(tx);
 
-        sendDepositEmail(player, initiated.getAmount(), initiated.getPaymentLinkProcessId());
+        // No "new Grow deposit received" email here (unlike KashCash) - Grow already sends its
+        // own confirmation email straight to the inbox the moment payment completes, so ours
+        // would just be a duplicate notification for the same event.
         sendDepositWhatsApp(player, initiated.getAmount());
         eventPublisher.publishEvent(new com.sevenmax.tracker.event.NewDepositEvent("GROW"));
         log.info("Grow deposit processed: player={}, amount={}, processId={}",
