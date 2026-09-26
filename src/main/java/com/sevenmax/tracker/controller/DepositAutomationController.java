@@ -103,6 +103,49 @@ public class DepositAutomationController {
         }
     }
 
+    /** What the automation PC reports when it gives up on a deposit. The instruction differs by kind -
+     *  getting it wrong could make someone load chips a second time. */
+    private static final Map<String, String> FAILURE_INSTRUCTIONS = Map.of(
+            "wrong_player", "הצ'יפים לא נשלחו - החיפוש הגיע לשחקן אחר. יש לטעון ידנית.",
+            "max_retries", "הצ'יפים לא נשלחו - הטעינה האוטומטית נכשלה כמה פעמים. יש לטעון ידנית.",
+            "over_cap", "הצ'יפים לא נשלחו - הסכום גבוה מהתקרה לטעינה אוטומטית. יש לבדוק ולטעון ידנית.",
+            "unverified", "ייתכן שהצ'יפים כבר נשלחו - לא הופיעה הודעת הצלחה. לפני טעינה ידנית יש לבדוק ב-Trade Record ב-ClubGG, כדי לא לטעון פעמיים.",
+            "confirm_failed", "הצ'יפים כבר נשלחו ב-ClubGG, רק האישור באתר נכשל. אין לטעון שוב - רק לאשר את ההפקדה באתר.");
+
+    /** The automation gave up on a deposit: email a Hebrew "handle manually" alert.
+     *  Body: { username, amount, kind, reason } - kind is one of FAILURE_INSTRUCTIONS' keys. */
+    @PostMapping("/report-failure/{source}/{id}")
+    public ResponseEntity<?> reportFailure(
+            @PathVariable String source,
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body,
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey) {
+        if (!API_KEY.equals(apiKey)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid API key"));
+        }
+        String kind = String.valueOf(body.get("kind"));
+        String instruction = FAILURE_INSTRUCTIONS.get(kind);
+        if (instruction == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "unknown kind: " + kind));
+        }
+        String username = String.valueOf(body.get("username"));
+        String amount = String.valueOf(body.get("amount"));
+        String subject = String.format("7MAX - טעינה אוטומטית נכשלה, נדרש טיפול ידני (%s): %s ₪%s",
+                source.toUpperCase(), username, amount);
+        String text = String.format(
+                "הטעינה האוטומטית של הצ'יפים לא הושלמה, ונדרש טיפול ידני.%n%n"
+                + "%s%n%n"
+                + "מקור: %s%nשחקן: %s%nסכום: ₪%s%nמזהה הפקדה: %d%n%n"
+                + "ההפקדה נשארה פתוחה באתר, והמערכת לא תנסה לטעון אותה שוב אוטומטית. "
+                + "אחרי הטיפול יש לאשר אותה באתר.%n%n"
+                + "פרטים טכניים: %s",
+                instruction, source.toUpperCase(), username, amount, id, String.valueOf(body.get("reason")));
+        boolean sent = gmailEmailService.send(ALERT_RECIPIENT, subject, text);
+        log.info("Deposit automation: failure reported for {} deposit id={} kind={} emailed={}", source, id, kind, sent);
+        return sent ? ResponseEntity.ok(Map.of("success", true))
+                    : ResponseEntity.status(502).body(Map.of("error", "email not sent"));
+    }
+
     private void sendAutoLoadedEmail(String source, Transaction tx) {
         try {
             String subject = String.format("7MAX - Chips auto-loaded (%s): %s ₪%s",
