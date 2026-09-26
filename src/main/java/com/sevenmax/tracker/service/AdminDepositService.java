@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -37,12 +38,22 @@ public class AdminDepositService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public Transaction createDeposit(Long playerId, String newPlayerUsername, BigDecimal amount, String note) {
+    public Transaction createDeposit(Long playerId, String newPlayerUsername, BigDecimal amount, String note,
+                                     String createdBy) {
+        if (newPlayerUsername != null) {
+            newPlayerUsername = newPlayerUsername.trim();
+            if (newPlayerUsername.isEmpty()) {
+                throw new IllegalArgumentException("Username must not be blank");
+            }
+        }
         if ((playerId == null) == (newPlayerUsername == null)) {
             throw new IllegalArgumentException("Exactly one of playerId or newPlayerUsername must be given");
         }
         if (amount == null || amount.compareTo(BigDecimal.ONE) < 0) {
             throw new IllegalArgumentException("Minimum deposit is 1");
+        }
+        if (note != null && note.length() > 255) {
+            throw new IllegalArgumentException("Note must be at most 255 characters");
         }
 
         Player player = playerId != null
@@ -58,20 +69,27 @@ public class AdminDepositService {
         tx.setNotes(note);
         tx.setChipsConfirmed(false);
         tx.setTransactionDate(LocalDate.now());
+        tx.setCreatedByUsername(createdBy);
         Transaction saved = transactionService.addTransaction(tx);
 
         eventPublisher.publishEvent(new NewDepositEvent("ADMIN"));
-        log.info("Admin deposit created: player={}, amount={}", player.getUsername(), amount);
+        log.info("Admin deposit created: player={}, amount={}, by={}", player.getUsername(), amount, createdBy);
         return saved;
     }
 
-    /** Same-day-joiner support: reuses an existing stub/imported player by username if one
-     *  already exists (never creates a duplicate), otherwise creates a minimal Player with only
-     *  username set - the one field Player actually requires. A future ClubGG XLS import merges
-     *  into this same row by username (see ImportService, already confirmed - not this task's
-     *  concern). */
+    /** Same-day-joiner support: reuses an existing player only on an exact (case-insensitive)
+     *  username match, otherwise creates a minimal Player with only username set - the one field
+     *  Player actually requires. A merely *similar* existing name (fuzzy match, e.g. "piupiu7" vs
+     *  "piu piu 7") is rejected rather than reused: those can be two different ClubGG accounts,
+     *  and silently reusing would make the automation load chips into the wrong one. The next
+     *  XLS import matches exact-case-insensitive first, so it merges into this stub row. */
     private Player findOrCreateStubPlayer(String username) {
-        return playerService.findPlayerByUsername(username).orElseGet(() -> {
+        Optional<Player> match = playerService.findPlayerByUsername(username);
+        if (match.isPresent() && !match.get().getUsername().equalsIgnoreCase(username)) {
+            throw new IllegalArgumentException("A similar player already exists: '" + match.get().getUsername()
+                    + "'. Select them from the list, or check the spelling.");
+        }
+        return match.orElseGet(() -> {
             Player stub = new Player();
             stub.setUsername(username);
             stub.setActive(true);

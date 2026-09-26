@@ -39,8 +39,9 @@ public class AdminDepositController {
             BigDecimal amount = new BigDecimal(amountObj.toString());
             String note = (String) body.get("note");
 
-            Transaction tx = adminDepositService.createDeposit(playerId, newPlayerUsername, amount, note);
-            return ResponseEntity.ok(Map.of("success", true, "id", tx.getId()));
+            Transaction tx = adminDepositService.createDeposit(playerId, newPlayerUsername, amount, note, auth.getName());
+            return ResponseEntity.ok(Map.of("success", true, "id", tx.getId(),
+                    "username", tx.getPlayer().getUsername()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {

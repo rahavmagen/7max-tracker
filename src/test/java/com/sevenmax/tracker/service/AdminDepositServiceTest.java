@@ -51,7 +51,7 @@ class AdminDepositServiceTest {
         when(playerRepository.findById(7L)).thenReturn(Optional.of(player));
         when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Transaction result = service.createDeposit(7L, null, BigDecimal.valueOf(100), "cash received");
+        Transaction result = service.createDeposit(7L, null, BigDecimal.valueOf(100), "cash received", "admin1");
 
         assertThat(result.getPlayer()).isEqualTo(player);
         assertThat(result.getType()).isEqualTo(Transaction.Type.ADMIN_DEPOSIT);
@@ -68,7 +68,7 @@ class AdminDepositServiceTest {
         when(playerRepository.save(any(Player.class))).thenAnswer(inv -> inv.getArgument(0));
         when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Transaction result = service.createDeposit(null, "newJoiner", BigDecimal.valueOf(50), null);
+        Transaction result = service.createDeposit(null, "newJoiner", BigDecimal.valueOf(50), null, "admin1");
 
         ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
         verify(playerRepository).save(playerCaptor.capture());
@@ -82,39 +82,80 @@ class AdminDepositServiceTest {
         when(playerService.findPlayerByUsername("alreadyThere")).thenReturn(Optional.of(existingStub));
         when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        service.createDeposit(null, "alreadyThere", BigDecimal.valueOf(50), null);
+        service.createDeposit(null, "alreadyThere", BigDecimal.valueOf(50), null, "admin1");
 
         verify(playerRepository, never()).save(any());
     }
 
     @Test
-    void createDepositForNewUsernameMatchesExistingPlayerByFuzzyUsername() {
-        // Existing player "PlayerOne", admin types "playerone" - must match, not duplicate
+    void createDepositForNewUsernameReusesCaseInsensitiveExactMatch() {
+        // Existing player "PlayerOne", admin types "playerone" - same account, must reuse
         Player existingStub = existingPlayer(11L, "PlayerOne");
         when(playerService.findPlayerByUsername("playerone")).thenReturn(Optional.of(existingStub));
         when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        Transaction result = service.createDeposit(null, "playerone", BigDecimal.valueOf(50), null);
+        Transaction result = service.createDeposit(null, "playerone", BigDecimal.valueOf(50), null, "admin1");
 
         verify(playerRepository, never()).save(any());
         assertThat(result.getPlayer().getUsername()).isEqualTo("PlayerOne");
     }
 
     @Test
+    void createDepositForNewUsernameRejectsMerelySimilarExistingPlayer() {
+        // "piupiu7" fuzzy-matches "piu piu 7" but may be a different ClubGG account - never reuse silently
+        when(playerService.findPlayerByUsername("piupiu7"))
+                .thenReturn(Optional.of(existingPlayer(12L, "piu piu 7")));
+
+        assertThatThrownBy(() -> service.createDeposit(null, "piupiu7", BigDecimal.valueOf(50), null, "admin1"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("piu piu 7");
+        verify(transactionService, never()).addTransaction(any());
+        verify(playerRepository, never()).save(any());
+    }
+
+    @Test
+    void createDepositTrimsNewUsernameAndRejectsBlank() {
+        assertThatThrownBy(() -> service.createDeposit(null, "   ", BigDecimal.valueOf(50), null, "admin1"))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        when(playerService.findPlayerByUsername("padded")).thenReturn(Optional.empty());
+        when(playerRepository.save(any(Player.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
+        Transaction result = service.createDeposit(null, "  padded ", BigDecimal.valueOf(50), null, "admin1");
+        assertThat(result.getPlayer().getUsername()).isEqualTo("padded");
+    }
+
+    @Test
+    void createDepositRejectsNoteLongerThan255() {
+        assertThatThrownBy(() -> service.createDeposit(1L, null, BigDecimal.valueOf(50), "x".repeat(256), "admin1"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void createDepositRecordsWhoCreatedIt() {
+        when(playerRepository.findById(7L)).thenReturn(Optional.of(existingPlayer(7L, "existingUser")));
+        when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Transaction result = service.createDeposit(7L, null, BigDecimal.valueOf(100), null, "worker1");
+
+        assertThat(result.getCreatedByUsername()).isEqualTo("worker1");
+    }
+
+    @Test
     void createDepositRejectsWhenNeitherPlayerIdNorUsernameGiven() {
-        assertThatThrownBy(() -> service.createDeposit(null, null, BigDecimal.valueOf(50), null))
+        assertThatThrownBy(() -> service.createDeposit(null, null, BigDecimal.valueOf(50), null, "admin1"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void createDepositRejectsWhenBothPlayerIdAndUsernameGiven() {
-        assertThatThrownBy(() -> service.createDeposit(1L, "someone", BigDecimal.valueOf(50), null))
+        assertThatThrownBy(() -> service.createDeposit(1L, "someone", BigDecimal.valueOf(50), null, "admin1"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void createDepositRejectsAmountBelowMinimum() {
-        assertThatThrownBy(() -> service.createDeposit(1L, null, BigDecimal.ZERO, null))
+        assertThatThrownBy(() -> service.createDeposit(1L, null, BigDecimal.ZERO, null, "admin1"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Minimum deposit is 1");
     }
