@@ -27,7 +27,8 @@ public class TransactionService {
             boolean isCredit = type == Transaction.Type.DEPOSIT
                     || type == Transaction.Type.PAYMENT
                     || type == Transaction.Type.KASHCASH_DEPOSIT
-                    || type == Transaction.Type.GROW_DEPOSIT;
+                    || type == Transaction.Type.GROW_DEPOSIT
+                    || type == Transaction.Type.ADMIN_DEPOSIT;
             BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
             player.setBalance(player.getBalance().add(delta));
             playerRepository.save(player);
