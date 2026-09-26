@@ -1,6 +1,7 @@
 package com.sevenmax.tracker.controller;
 
 import com.sevenmax.tracker.entity.Transaction;
+import com.sevenmax.tracker.service.AdminDepositService;
 import com.sevenmax.tracker.service.DepositWaitService;
 import com.sevenmax.tracker.service.GmailEmailService;
 import com.sevenmax.tracker.service.GrowDepositService;
@@ -28,6 +29,7 @@ public class DepositAutomationController {
     private final DepositWaitService depositWaitService;
     private final GrowDepositService growDepositService;
     private final KashcashService kashcashService;
+    private final AdminDepositService adminDepositService;
     private final GmailEmailService gmailEmailService;
 
     private static final String API_KEY = "sevenmax-deposit-auto-2026-qT7mN";
@@ -61,10 +63,11 @@ public class DepositAutomationController {
             Transaction tx = switch (source.toLowerCase()) {
                 case "grow" -> growDepositService.confirmChips(id);
                 case "kashcash" -> kashcashService.confirmChips(id);
+                case "admin" -> adminDepositService.confirmChips(id);
                 default -> null;
             };
             if (tx == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "source must be 'grow' or 'kashcash'"));
+                return ResponseEntity.badRequest().body(Map.of("error", "source must be 'grow', 'kashcash', or 'admin'"));
             }
             log.info("Deposit automation: confirmed {} deposit id={}", source, id);
             sendAutoLoadedEmail(source, tx);
