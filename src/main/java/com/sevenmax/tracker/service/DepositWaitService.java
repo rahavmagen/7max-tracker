@@ -25,6 +25,7 @@ public class DepositWaitService {
 
     private final GrowDepositService growDepositService;
     private final KashcashService kashcashService;
+    private final AdminDepositService adminDepositService;
 
     private final List<DeferredResult<List<Map<String, Object>>>> waiters = new CopyOnWriteArrayList<>();
 
@@ -62,6 +63,11 @@ public class DepositWaitService {
         for (Map<String, Object> d : kashcashService.getPending()) {
             Map<String, Object> tagged = new LinkedHashMap<>(d);
             tagged.put("source", "KASHCASH");
+            combined.add(tagged);
+        }
+        for (Map<String, Object> d : adminDepositService.getPending()) {
+            Map<String, Object> tagged = new LinkedHashMap<>(d);
+            tagged.put("source", "ADMIN");
             combined.add(tagged);
         }
         return combined;

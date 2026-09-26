@@ -27,7 +27,8 @@ public class TransactionService {
             boolean isCredit = type == Transaction.Type.DEPOSIT
                     || type == Transaction.Type.PAYMENT
                     || type == Transaction.Type.KASHCASH_DEPOSIT
-                    || type == Transaction.Type.GROW_DEPOSIT;
+                    || type == Transaction.Type.GROW_DEPOSIT
+                    || type == Transaction.Type.ADMIN_DEPOSIT;
             BigDecimal delta = isCredit ? transaction.getAmount() : transaction.getAmount().negate();
             player.setBalance(player.getBalance().add(delta));
             playerRepository.save(player);
@@ -47,7 +48,8 @@ public class TransactionService {
             boolean adds = tx.getType() == Transaction.Type.DEPOSIT
                     || tx.getType() == Transaction.Type.PAYMENT
                     || tx.getType() == Transaction.Type.KASHCASH_DEPOSIT
-                    || tx.getType() == Transaction.Type.GROW_DEPOSIT;
+                    || tx.getType() == Transaction.Type.GROW_DEPOSIT
+                    || tx.getType() == Transaction.Type.ADMIN_DEPOSIT;
             Player player = tx.getPlayer();
             player.setBalance(player.getBalance().add(adds ? diff : diff.negate()));
             playerRepository.save(player);
