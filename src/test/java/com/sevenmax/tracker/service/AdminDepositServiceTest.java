@@ -27,13 +27,14 @@ class AdminDepositServiceTest {
     @Mock PlayerRepository playerRepository;
     @Mock TransactionRepository transactionRepository;
     @Mock TransactionService transactionService;
+    @Mock PlayerService playerService;
     @Mock ApplicationEventPublisher eventPublisher;
 
     AdminDepositService service;
 
     @BeforeEach
     void setUp() {
-        service = new AdminDepositService(playerRepository, transactionRepository, transactionService, eventPublisher);
+        service = new AdminDepositService(playerRepository, transactionRepository, transactionService, playerService, eventPublisher);
     }
 
     private Player existingPlayer(long id, String username) {
@@ -63,7 +64,7 @@ class AdminDepositServiceTest {
 
     @Test
     void createDepositForNewUsernameCreatesPlayerStubFirst() {
-        when(playerRepository.findByUsername("newJoiner")).thenReturn(Optional.empty());
+        when(playerService.findPlayerByUsername("newJoiner")).thenReturn(Optional.empty());
         when(playerRepository.save(any(Player.class))).thenAnswer(inv -> inv.getArgument(0));
         when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -78,12 +79,25 @@ class AdminDepositServiceTest {
     @Test
     void createDepositForNewUsernameReusesExistingStubInsteadOfDuplicating() {
         Player existingStub = existingPlayer(9L, "alreadyThere");
-        when(playerRepository.findByUsername("alreadyThere")).thenReturn(Optional.of(existingStub));
+        when(playerService.findPlayerByUsername("alreadyThere")).thenReturn(Optional.of(existingStub));
         when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
 
         service.createDeposit(null, "alreadyThere", BigDecimal.valueOf(50), null);
 
         verify(playerRepository, never()).save(any());
+    }
+
+    @Test
+    void createDepositForNewUsernameMatchesExistingPlayerByFuzzyUsername() {
+        // Existing player "PlayerOne", admin types "playerone" - must match, not duplicate
+        Player existingStub = existingPlayer(11L, "PlayerOne");
+        when(playerService.findPlayerByUsername("playerone")).thenReturn(Optional.of(existingStub));
+        when(transactionService.addTransaction(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Transaction result = service.createDeposit(null, "playerone", BigDecimal.valueOf(50), null);
+
+        verify(playerRepository, never()).save(any());
+        assertThat(result.getPlayer().getUsername()).isEqualTo("PlayerOne");
     }
 
     @Test

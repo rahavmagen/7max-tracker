@@ -33,6 +33,7 @@ public class AdminDepositService {
     private final PlayerRepository playerRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionService transactionService;
+    private final PlayerService playerService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -70,7 +71,7 @@ public class AdminDepositService {
      *  into this same row by username (see ImportService, already confirmed - not this task's
      *  concern). */
     private Player findOrCreateStubPlayer(String username) {
-        return playerRepository.findByUsername(username).orElseGet(() -> {
+        return playerService.findPlayerByUsername(username).orElseGet(() -> {
             Player stub = new Player();
             stub.setUsername(username);
             stub.setActive(true);
