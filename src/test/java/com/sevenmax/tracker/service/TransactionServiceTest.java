@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -46,5 +48,22 @@ class TransactionServiceTest {
         transactionService.addTransaction(tx);
 
         assertThat(player.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(150));
+    }
+
+    @Test
+    void updateTransactionAdjustsBalanceCorrectlyForAdminDeposit() {
+        Player player = playerWithBalance(BigDecimal.valueOf(100));
+        Transaction tx = new Transaction();
+        tx.setId(1L);
+        tx.setPlayer(player);
+        tx.setType(Transaction.Type.ADMIN_DEPOSIT);
+        tx.setAmount(BigDecimal.valueOf(50));
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(tx));
+        when(transactionRepository.save(tx)).thenReturn(tx);
+
+        transactionService.updateTransaction(1L, BigDecimal.valueOf(80), null);
+
+        // amount increased by 30 -> balance should increase by 30 (130), not decrease (70)
+        assertThat(player.getBalance()).isEqualByComparingTo(BigDecimal.valueOf(130));
     }
 }
