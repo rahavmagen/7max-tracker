@@ -1,5 +1,6 @@
 package com.sevenmax.tracker.controller;
 
+import com.sevenmax.tracker.service.AdminDepositService;
 import com.sevenmax.tracker.service.DepositWaitService;
 import com.sevenmax.tracker.service.GmailEmailService;
 import com.sevenmax.tracker.service.GrowDepositService;
@@ -27,13 +28,14 @@ class DepositAutomationControllerTest {
     @Mock DepositWaitService depositWaitService;
     @Mock GrowDepositService growDepositService;
     @Mock KashcashService kashcashService;
+    @Mock AdminDepositService adminDepositService;
     @Mock GmailEmailService gmailEmailService;
 
     DepositAutomationController controller;
 
     @BeforeEach
     void setUp() {
-        controller = new DepositAutomationController(depositWaitService, growDepositService, kashcashService, gmailEmailService);
+        controller = new DepositAutomationController(depositWaitService, growDepositService, kashcashService, adminDepositService, gmailEmailService);
     }
 
     private Map<String, Object> body(String kind) {
